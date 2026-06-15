@@ -1,3 +1,22 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", sans-serif;
+  --font-serif: "Playfair Display", serif;
+  --color-golf-dark: #051B11;
+  --color-golf-card: #092518;
+  --color-golf-border: #133824;
+  --color-golf-input: #071E13;
+  --color-golf-input-border: #113220;
+  --color-golf-accent: #DCAE5A;
+  --color-golf-accent-light: #E8BA64;
+  --color-golf-accent-dark: #CCA24D;
+  --color-golf-text-muted: #5E806D;
+  --color-golf-light-bg: #FAF7F2;
+  --color-golf-light-card: #ffffff;
+  --color-golf-light-text: #051B11;
+  --color-golf-light-muted: #5E806D;
+  --color-golf-light-border: #E1D9CD;
+}
