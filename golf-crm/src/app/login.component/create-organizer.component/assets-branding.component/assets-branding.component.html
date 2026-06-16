@@ -1,103 +1,400 @@
-<<div class="min-h-screen w-full bg-[#FAF7F2] text-[#051B11] font-sans flex flex-col animate-fade-in">
-  <!-- Top Navbar Header -->
-  <header
-    class="w-full px-6 sm:px-12 py-4 bg-white/70 backdrop-blur-md border-b border-[#E1D9CD] flex justify-between items-center">
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 bg-[#051B11] rounded-2xl flex items-center justify-center shadow-md">
-        <svg class="w-5.5 h-5.5 text-[#DCAE5A]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M5 21V3H13L13.6 6H19V14H12L11.4 11H7V21H5Z" fill="currentColor" />
+<main class="flex-grow w-full max-w-7xl mx-auto px-6 sm:px-12 py-8 flex flex-col">
+  <div class="space-y-3 mb-8">
+    <div class="flex items-center">
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FAF7F2] border border-[#E1D9CD] text-[#DCAE5A] text-xs font-bold rounded-full">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122l9.39-9.39m-9.39 9.39l-3.08-.075-1.066-.754c-.112-.079-.18-.21-.18-.349v-3.795c0-.139.068-.27.18-.349l1.066-.754 3.08-.075zm0 0L9.43 14.12l8.39-8.39" />
         </svg>
-      </div>
-      <span class="text-xl font-serif font-extrabold tracking-tight text-[#051B11]">
-        GolfScore <span class="text-[#DCAE5A] font-serif font-bold">Pro</span>
+        Assets & Branding
       </span>
     </div>
-    <div class="text-sm font-semibold text-[#5E806D]">
-      Step <span class="text-[#051B11] font-bold">4</span> of 5
-    </div>
-  </header>
-
-  <!-- Horizontal Stepper Progress Bar -->
-  <div class="w-full bg-[#FAF7F2] py-4 px-6 sm:px-12 border-b border-[#E1D9CD]/80 overflow-x-auto">
-    <div class="max-w-5xl mx-auto min-w-[640px] flex items-center justify-between">
-
-      <!-- Step 1: Account -->
-      <a routerLink="/create-organizer" class="flex items-center gap-2 shrink-0 hover:opacity-85 transition-opacity">
-        <div class="w-6 h-6 rounded-full bg-[#051B11] text-[#DCAE5A] flex items-center justify-center shadow-xs">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd"
-              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-              clip-rule="evenodd" />
-          </svg>
-        </div>
-        <span class="text-xs sm:text-sm font-semibold text-[#051B11]">Account</span>
-      </a>
-
-      <div class="flex-grow h-[1px] mx-4 bg-[#051B11]/30"></div>
-
-      <!-- Step 2: Verify -->
-      <a routerLink="/create-organizer" class="flex items-center gap-2 shrink-0 hover:opacity-85 transition-opacity">
-        <div class="w-6 h-6 rounded-full bg-[#051B11] text-[#DCAE5A] flex items-center justify-center shadow-xs">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd"
-              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-              clip-rule="evenodd" />
-          </svg>
-        </div>
-        <span class="text-xs sm:text-sm font-semibold text-[#051B11]">Verify</span>
-      </a>
-
-      <div class="flex-grow h-[1px] mx-4 bg-[#051B11]/30"></div>
-
-      <!-- Step 3: Organization & Course -->
-      <a routerLink="/organization-course" class="flex items-center gap-2 shrink-0 hover:opacity-85 transition-opacity">
-        <div class="w-6 h-6 rounded-full bg-[#051B11] text-[#DCAE5A] flex items-center justify-center shadow-xs">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd"
-              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-              clip-rule="evenodd" />
-          </svg>
-        </div>
-        <span class="text-xs sm:text-sm font-semibold text-[#051B11]">Organization & Course</span>
-      </a>
-
-      <div class="flex-grow h-[1px] mx-4 bg-[#051B11]/30"></div>
-
-      <!-- Step 4: Assets & Branding -->
-      <div class="flex items-center gap-2 shrink-0">
-        <div
-          class="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold bg-[#DCAE5A] text-white shadow-xs">
-          4
-        </div>
-        <span class="text-xs sm:text-sm font-bold text-[#051B11]">
-          Assets & Branding
-        </span>
-      </div>
-
-      <div class="flex-grow h-[1px] mx-4 bg-[#E1D9CD]"></div>
-
-      <!-- Step 5: Finish -->
-      <div class="flex items-center gap-2 shrink-0 text-[#5E806D]">
-        <div
-          class="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold border bg-transparent text-[#5E806D] border-[#E1D9CD]">
-          5
-        </div>
-        <span class="text-xs sm:text-sm font-medium">
-          Finish
-        </span>
-      </div>
-
-    </div>
-
-    <!-- Active Indicator Underline Bar -->
-    <div class="max-w-5xl mx-auto min-w-[640px] mt-3 relative h-[2.5px] bg-[#E1D9CD]/40 rounded-full">
-      <div class="absolute h-full bg-[#DCAE5A] rounded-full" style="left: 68%; width: 8%;">
-      </div>
-    </div>
+    <h1 class="text-3xl sm:text-4xl font-serif font-extrabold tracking-tight text-[#051B11]">
+      Customize Your Club Branding
+    </h1>
+    <p class="text-sm sm:text-base text-[#5E806D] font-medium">
+      Upload your logo, define your brand identity, and import your course scorecard.
+    </p>
   </div>
 
-  <!-- Main Content Area -->
-  <div>
-    Assets branding
+  <div class="flex flex-col lg:flex-row gap-8 items-start w-full">
+    
+    <div class="flex-grow w-full lg:max-w-4xl space-y-6">
+            <div class="bg-white border border-[#E1D9CD] rounded-3xl p-6 sm:p-8 shadow-xs">
+        <div class="space-y-6">
+                    <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[#051B11] flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-[#DCAE5A]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" />
+              </svg>
+            </div>
+            <h2 class="text-xl font-extrabold text-[#051B11]">Branding</h2>
+          </div>
+          <div class="space-y-2">
+            <label class="block text-xs font-bold text-[#051B11]">
+              Course Logo
+            </label>
+            <div class="relative flex flex-col items-center justify-center p-6 border border-dashed border-[#E1D9CD] rounded-2xl bg-[#FAF7F2]/40 min-h-[140px] text-center">
+              @if (logoPreview) {
+                <div class="flex flex-col items-center gap-3">
+                  <div class="w-20 h-20 rounded-2xl bg-white border border-[#E1D9CD] flex items-center justify-center overflow-hidden shadow-xs relative">
+                    <img [src]="logoPreview" alt="Club Logo Preview" class="w-full h-full object-contain">
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-medium text-[#5E806D] truncate max-w-[200px]">{{ logoFileName }}</span>
+                    <button type="button" (click)="removeLogo()" class="text-xs font-bold text-red-500 hover:text-red-700 transition-colors focus:outline-none">
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              } @else {
+                <svg class="w-8 h-8 text-[#CCA24D] mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
+                </svg>
+                <p class="text-sm text-[#051B11] font-semibold">
+                  Drag & drop your logo, or 
+                  <label class="text-[#DCAE5A] underline cursor-pointer hover:text-[#bfa044] transition-colors">
+                    browse
+                    <input type="file" (change)="onLogoUpload($event)" accept="image/*" class="hidden">
+                  </label>
+                </p>
+                <p class="text-xs text-[#5E806D] mt-1">PNG or JPEG, up to 5MB</p>
+              }
+            </div>
+          </div>
+          <div class="relative flex py-2 items-center">
+            <div class="flex-grow border-t border-[#E1D9CD]/80"></div>
+            <span class="flex-shrink mx-4 text-xs font-bold tracking-wider text-[#5E806D] uppercase">OR</span>
+            <div class="flex-grow border-t border-[#E1D9CD]/80"></div>
+          </div>
+          <div class="space-y-2">
+            <label class="block text-xs font-bold text-[#051B11]">
+              Logo URL
+            </label>
+            <div class="relative rounded-xl shadow-xs">
+              <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+                <svg class="h-4.5 w-4.5 text-[#5E806D]/60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.905 0-5.64-.5-8.14-1.418m16.28 0a12.017 12.017 0 01-16.28 0" />
+                </svg>
+              </div>
+              <input type="text" [(ngModel)]="logoUrl"
+                     placeholder="https://example.com/logo.png"
+                     class="block w-full rounded-xl border border-[#E1D9CD] bg-white py-2.5 pl-10 pr-4 text-[#051B11] placeholder-[#5E806D]/60 text-sm focus:border-[#DCAE5A] focus:outline-none focus:ring-1 focus:ring-[#DCAE5A]">
+            </div>
+          </div>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <label class="block text-xs font-bold text-[#051B11]">
+                Primary Brand Color
+              </label>
+              <button type="button" (click)="extractFromLogo()" class="inline-flex items-center gap-1.5 text-xs font-bold text-[#051B11] hover:text-[#082b1c] transition-colors focus:outline-none cursor-pointer">
+                <svg class="w-3.5 h-3.5 text-[#5E806D]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 21l-1.81-2.822L4 18l1.096-3.813L3 13l5.096-.187L9 8l1.81 4.813 5.096.187-3.813 3.813zM17 3v2m0 0v2m0-2h-2m2 0h2" />
+                </svg>
+                Extract from logo
+              </button>
+            </div>
+            
+            <div class="p-5 bg-white border border-[#E1D9CD] rounded-[24px] space-y-4 shadow-2xs">
+              <div class="flex items-start gap-4">
+                <div class="relative w-20 h-20 rounded-[22px] border border-[#E1D9CD]/60 shadow-xs shrink-0 cursor-pointer overflow-hidden" [style.background-color]="selectedColor">
+                  <input type="color" [(ngModel)]="customColor" (ngModelChange)="onCustomColorChange($event)"
+                         class="absolute inset-0 w-full h-full p-0 border-0 cursor-pointer opacity-0 scale-[3]">
+                  <div class="absolute bottom-1 right-1 w-6 h-6 bg-white border border-[#E1D9CD]/85 rounded-full flex items-center justify-center shadow-xs pointer-events-none">
+                    <svg class="w-3.5 h-3.5 text-[#5E806D]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 11.5l3.85-3.85a1 1 0 000-1.41l-2.09-2.09a1 1 0 00-1.41 0L11.5 8M15 11.5L9.5 17H7v-2.5l5.5-5.5m2.5 2.5l-3-3" />
+                    </svg>
+                  </div>
+                </div>
+                <div class="flex-grow space-y-3.5">
+                  <div class="relative flex items-center w-full shadow-2xs">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                      <span class="text-xs font-semibold text-[#5E806D]/60 font-mono">#</span>
+                    </div>
+                    <input type="text" [value]="selectedColor.replace('#', '').toUpperCase()" (input)="selectColor('#' + $any($event.target).value)"
+                           class="block w-full rounded-full border border-[#E1D9CD]/80 bg-white py-2 pl-8 pr-16 text-sm font-mono font-bold text-[#051B11] uppercase tracking-wider focus:outline-none focus:ring-1 focus:ring-[#DCAE5A]">
+                    <button type="button" (click)="copyHex()" class="absolute inset-y-0 right-0 flex items-center pr-5 text-xs font-bold text-[#5E806D] hover:text-[#051B11] transition-colors focus:outline-none uppercase">
+                      {{ isCopied ? 'COPIED' : 'COPY' }}
+                    </button>
+                  </div>
+                  <div class="flex flex-wrap items-center gap-2">
+                    @for (preset of colorPresets; track preset.hex) {
+                      @if (selectedColor.toLowerCase() === preset.hex.toLowerCase()) {
+                        <button type="button" (click)="selectColor(preset.hex)"
+                                [title]="preset.name"
+                                class="w-8 h-8 rounded-full border-2 border-[#DCAE5A] flex items-center justify-center p-[2.5px] transition-transform hover:scale-105 cursor-pointer focus:outline-none">
+                          <span [class]="preset.tailwindClass" class="w-full h-full rounded-full border border-black/5"></span>
+                        </button>
+                      } @else {
+                        <button type="button" (click)="selectColor(preset.hex)"
+                                [title]="preset.name"
+                                [class]="preset.tailwindClass"
+                                class="w-6 h-6 rounded-full border border-black/10 flex items-center justify-center transition-transform hover:scale-110 cursor-pointer shadow-xs focus:outline-none">
+                        </button>
+                      }
+                    }
+                  </div>
+                </div>
+              </div>
+              <div class="flex flex-wrap items-center gap-3 pt-3 border-t border-[#E1D9CD]/40">
+                <!-- Primary Button Preview -->
+                <button type="button" class="px-5 py-2 text-white text-xs font-bold rounded-full transition-all focus:outline-none pointer-events-none"
+                        [style.background-color]="selectedColor">
+                  Primary Button
+                </button>
+                <!-- Outline Preview -->
+                <button type="button" class="px-5 py-2 bg-transparent text-xs font-bold rounded-full border transition-all focus:outline-none pointer-events-none"
+                        [style.border-color]="selectedColor" [style.color]="selectedColor">
+                  Outline
+                </button>
+                <!-- Badge Preview -->
+                <span class="px-4 py-2 text-xs font-bold rounded-full transition-all pointer-events-none"
+                      [style.background-color]="selectedColor + '15'" [style.color]="selectedColor">
+                  Badge
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Grid: Website & Booking URLs -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Website URL -->
+            <div class="space-y-2">
+              <label class="block text-xs font-bold text-[#051B11]">
+                Website
+              </label>
+              <div class="relative rounded-xl shadow-xs">
+                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+                  <svg class="h-4.5 w-4.5 text-[#5E806D]/60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.905 0-5.64-.5-8.14-1.418m16.28 0a12.017 12.017 0 01-16.28 0" />
+                  </svg>
+                </div>
+                <input type="text" [(ngModel)]="websiteUrl"
+                       placeholder="https://yourclub.com"
+                       class="block w-full rounded-xl border border-[#E1D9CD] bg-white py-2.5 pl-10 pr-4 text-[#051B11] placeholder-[#5E806D]/60 text-sm focus:border-[#DCAE5A] focus:outline-none focus:ring-1 focus:ring-[#DCAE5A]">
+              </div>
+            </div>
+
+            <!-- Booking URL -->
+            <div class="space-y-2">
+              <label class="block text-xs font-bold text-[#051B11]">
+                Book Online URL
+              </label>
+              <div class="relative rounded-xl shadow-xs">
+                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+                  <svg class="h-4.5 w-4.5 text-[#5E806D]/60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" />
+                  </svg>
+                </div>
+                <input type="text" [(ngModel)]="bookingUrl"
+                       placeholder="https://yourclub.com/book"
+                       class="block w-full rounded-xl border border-[#E1D9CD] bg-white py-2.5 pl-10 pr-4 text-[#051B11] placeholder-[#5E806D]/60 text-sm focus:border-[#DCAE5A] focus:outline-none focus:ring-1 focus:ring-[#DCAE5A]">
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Upload Scorecard Card -->
+      <div class="bg-white border border-[#E1D9CD] rounded-3xl p-6 sm:p-8 shadow-xs">
+        <div class="space-y-6">
+          
+          <!-- Card Header -->
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-full bg-[#051B11] flex items-center justify-center shrink-0">
+              <!-- Scorecard icon -->
+              <svg class="w-5 h-5 text-[#DCAE5A]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 8.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25A2.25 2.25 0 0113.5 8.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+              </svg>
+            </div>
+            <div class="space-y-1">
+              <h2 class="text-xl font-extrabold text-[#051B11] flex items-center gap-2">
+                Upload Scorecard
+              </h2>
+              <p class="text-xs text-[#5E806D] font-medium leading-relaxed max-w-2xl">
+                Upload a golf scorecard and we'll automatically extract hole information, tee boxes, pars, handicaps, and yardages.
+              </p>
+            </div>
+          </div>
+
+          <!-- Scorecard Upload Zone -->
+          <div class="relative flex flex-col items-center justify-center p-8 border border-dashed border-[#E1D9CD] rounded-2xl bg-[#FAF7F2]/40 min-h-[160px] text-center">
+            @if (scorecardFileName) {
+              <div class="flex flex-col items-center gap-3">
+                <!-- Scorecard Preview Icon/Thumbnail -->
+                <div class="w-16 h-16 rounded-xl bg-white border border-[#E1D9CD] flex items-center justify-center shadow-xs overflow-hidden relative">
+                  @if (scorecardPreview) {
+                    <img [src]="scorecardPreview" alt="Scorecard Preview" class="w-full h-full object-cover">
+                  } @else {
+                    <svg class="w-8 h-8 text-[#DCAE5A]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                    </svg>
+                  }
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-semibold text-[#051B11] truncate max-w-[250px]">{{ scorecardFileName }}</span>
+                  <button type="button" (click)="removeScorecard()" class="text-xs font-bold text-red-500 hover:text-red-700 transition-colors focus:outline-none">
+                    Remove
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <!-- Cloud Upload Icon -->
+              <svg class="w-8 h-8 text-[#CCA24D] mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
+              </svg>
+              <p class="text-sm text-[#051B11] font-semibold mb-3">
+                Drag & drop scorecard image
+              </p>
+              <p class="text-xs text-[#5E806D] mb-4">PNG, JPG, JPEG</p>
+              <label class="px-5 py-2.5 bg-[#051B11] hover:bg-[#082b1c] text-white text-xs font-bold rounded-xl cursor-pointer shadow-xs transition-colors inline-flex items-center gap-2">
+                <!-- Upload Icon -->
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                </svg>
+                Upload Scorecard
+                <input type="file" (change)="onScorecardUpload($event)" accept="image/*" class="hidden">
+              </label>
+            }
+          </div>
+
+          <!-- Prefer Manual Setup Banner -->
+          <div class="flex flex-col sm:flex-row items-center justify-between p-4 border border-[#E1D9CD] rounded-2xl bg-[#FAF7F2]/50 gap-4 text-center sm:text-left">
+            <div class="space-y-1">
+              <h4 class="text-xs sm:text-sm font-extrabold text-[#051B11]">
+                Prefer Manual Setup?
+              </h4>
+              <p class="text-[11px] sm:text-xs text-[#5E806D] font-medium leading-relaxed max-w-xl">
+                You can skip scorecard upload and manually enter course details during the final setup step.
+              </p>
+            </div>
+            <button type="button" routerLink="/finish" class="px-4 py-2 bg-white border border-[#E1D9CD] hover:bg-[#FAF7F2] text-[#051B11] text-xs font-bold rounded-xl transition-colors shadow-xs shrink-0 cursor-pointer focus:outline-none">
+              Enter Manually
+            </button>
+          </div>
+ <div class="flex items-center justify-between pt-6 border-t border-[#E1D9CD]/40 mt-8">
+        <!-- Back Button -->
+                   <div class="flex flex-col items-center sm:flex-row gap-2">
+
+        <a routerLink="/organization-course" 
+           class="px-5 py-2.5 bg-white border border-[#E1D9CD] hover:bg-[#FAF7F2] text-[#051B11] font-bold rounded-xl text-sm transition-colors flex items-center gap-2 cursor-pointer focus:outline-none">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+          Back
+        </a>
+
+        <!-- Skip for Now Link -->
+        <a routerLink="/finish" class="text-sm font-bold text-[#5E806D] hover:text-[#051B11] transition-colors cursor-pointer focus:outline-none">
+          Skip For Now
+        </a>
+</div>
+        <!-- Continue Button -->
+        <button type="button" (click)="onSubmit()" 
+class="px-6 py-2.5 bg-[#051B11] hover:bg-[#082b1c] text-white font-bold rounded-xl text-sm shadow-md transition-colors flex items-center gap-2 cursor-pointer">
+          Continue
+          <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+        </button>
+      </div>
+
+        </div>
+      </div>
+
+      <!-- Navigation buttons -->
+     
+    </div>
+
+    <!-- Right Column: Sidebar Cards -->
+    <div class="w-full lg:w-[380px] shrink-0 space-y-6">
+      
+      <!-- AI-Powered Skip hours Card -->
+      <div class="bg-[#051B11] rounded-3xl p-6 text-white shadow-xs">
+        <div class="space-y-4">
+          <div>
+            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#133824] text-[#DCAE5A]">
+              <!-- sparkle/robot icon -->
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 21l-1.81-2.822L4 18l1.096-3.813L3 13l5.096-.187L9 8l1.81 4.813 5.096.187-3.813 3.813z" />
+              </svg>
+              AI-Powered
+            </span>
+          </div>
+          <h3 class="text-lg font-extrabold text-white leading-tight">
+            Skip hours of manual entry
+          </h3>
+          <p class="text-xs text-[#7A9A8A] font-medium leading-relaxed">
+            Upload an existing scorecard and our AI extracts holes, pars, tees, and yardages — ready for review in the next step.
+          </p>
+
+          <ul class="space-y-3 pt-2">
+            <li class="flex items-center gap-2.5 text-xs font-semibold text-white/95">
+              <div class="w-4.5 h-4.5 rounded-full bg-[#133824] flex items-center justify-center shrink-0">
+                <svg class="w-3 h-3 text-[#DCAE5A]" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+              </div>
+              <span>Live logo preview</span>
+            </li>
+            <li class="flex items-center gap-2.5 text-xs font-semibold text-white/95">
+              <div class="w-4.5 h-4.5 rounded-full bg-[#133824] flex items-center justify-center shrink-0">
+                <svg class="w-3 h-3 text-[#DCAE5A]" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+              </div>
+              <span>Brand color picker</span>
+            </li>
+            <li class="flex items-center gap-2.5 text-xs font-semibold text-white/95">
+              <div class="w-4.5 h-4.5 rounded-full bg-[#133824] flex items-center justify-center shrink-0">
+                <svg class="w-3 h-3 text-[#DCAE5A]" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+              </div>
+              <span>Scorecard AI extraction</span>
+            </li>
+            <li class="flex items-center gap-2.5 text-xs font-semibold text-white/95">
+              <div class="w-4.5 h-4.5 rounded-full bg-[#133824] flex items-center justify-center shrink-0">
+                <svg class="w-3 h-3 text-[#DCAE5A]" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+              </div>
+              <span>Pre-filled hole data</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Live Brand Preview Widget -->
+      <div class="space-y-2">
+        <label class="block text-[10px] font-extrabold tracking-wider text-[#5E806D] uppercase">
+          LIVE BRAND PREVIEW
+        </label>
+        <div class="bg-white border border-[#E1D9CD] rounded-3xl p-5 shadow-xs space-y-4">
+          <div class="border border-[#E1D9CD]/80 rounded-2xl overflow-hidden shadow-xs">
+            <div class="px-4 py-3 flex items-center gap-2 text-white transition-all" [style.background-color]="selectedColor">
+              @if (logoPreview || logoUrl) {
+                <div class="w-7 h-7 bg-white rounded-lg flex items-center justify-center overflow-hidden shrink-0">
+                  <img [src]="logoPreview || logoUrl" class="w-full h-full object-contain" alt="Live logo preview">
+                </div>
+              } @else {
+                <svg class="w-4 h-4 text-white shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" />
+                </svg>
+              }
+              <span class="text-sm font-bold tracking-tight truncate">{{ clubName }}</span>
+            </div>
+            <div class="bg-[#FAF7F2]/30 px-4 py-3 border-t border-[#E1D9CD]/50">
+              <span class="text-[11px] font-medium text-[#5E806D] break-all">
+                {{ websiteUrl || 'yourclub.com' }}
+                &nbsp;&bull;&nbsp;
+                {{ bookingUrl ? 'Booking link set' : 'Booking link not set' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
-  </div>
+</main>

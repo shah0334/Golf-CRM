@@ -21,10 +21,9 @@ export class OrganizationCourseComponent implements OnInit {
       urlSlug: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       phone: ['', [Validators.required, Validators.pattern('^[+]?[0-9\\s\\-\\(\\)]{7,20}$')]],
-      inviteCode: ['F8V3NGSF', [Validators.required]]
+      inviteCode: ['', [Validators.required]]
     });
 
-    // Auto-generate URL Slug from Organization Name
     this.form.get('orgName')?.valueChanges.subscribe(val => {
       if (val) {
         const slug = val
@@ -49,10 +48,13 @@ export class OrganizationCourseComponent implements OnInit {
   }
 
   onSubmit() {
-    if (this.form.valid) {
-      this.router.navigate(['/assets-branding']);
-    } else {
-      this.form.markAllAsTouched();
-    }
+    // if (this.form.valid) {
+    //   localStorage.setItem('orgName', this.form.get('orgName')?.value || '');
+    //   localStorage.setItem('courseName', this.form.get('courseName')?.value || '');
+    //   localStorage.setItem('websiteUrl', this.form.get('urlSlug')?.value ? `https://${this.form.get('urlSlug')?.value}.golfscorepro.com` : '');
+    //   this.router.navigate(['/assets-branding']);
+    // } else {
+    //   this.form.markAllAsTouched();
+    // }
   }
 }

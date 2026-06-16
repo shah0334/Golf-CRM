@@ -1,0 +1,115 @@
+<div class="min-h-screen w-full bg-[#FAF7F2] text-[#051B11] font-sans flex flex-col animate-fade-in">
+  <header class="w-full px-6 sm:px-12 py-4 bg-white/70 backdrop-blur-md border-b border-[#E1D9CD] flex justify-between items-center">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-[#051B11] rounded-2xl flex items-center justify-center shadow-md">
+        <svg class="w-5.5 h-5.5 text-[#DCAE5A]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 21V3H13L13.6 6H19V14H12L11.4 11H7V21H5Z" fill="currentColor" />
+        </svg>
+      </div>
+      <span class="text-xl font-serif font-extrabold tracking-tight text-[#051B11]">
+        GolfScore <span class="text-[#DCAE5A] font-serif font-bold">Pro</span>
+      </span>
+    </div>
+    <div class="text-sm font-semibold text-[#5E806D]">
+      Step <span class="text-[#051B11] font-bold">{{ currentStep }}</span> of 5
+    </div>
+  </header>
+
+  <div class="w-full bg-[#FAF7F2] py-4 px-6 sm:px-12 border-b border-[#E1D9CD]/80 overflow-x-auto">
+    <div class="max-w-5xl mx-auto min-w-[640px] flex items-center justify-between">
+      
+      <a routerLink="/create-organizer" class="flex items-center gap-2 shrink-0 hover:opacity-85 transition-opacity">
+        <div class="w-6 h-6 rounded-full bg-[#051B11] text-[#DCAE5A] flex items-center justify-center shadow-xs">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <span class="text-xs sm:text-sm font-semibold text-[#051B11]">Account</span>
+      </a>
+
+      <div class="flex-grow h-[1px] mx-4 bg-[#051B11]/30"></div>
+
+      <a routerLink="/create-organizer" class="flex items-center gap-2 shrink-0 hover:opacity-85 transition-opacity">
+        <div class="w-6 h-6 rounded-full bg-[#051B11] text-[#DCAE5A] flex items-center justify-center shadow-xs">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <span class="text-xs sm:text-sm font-semibold text-[#051B11]">Verify</span>
+      </a>
+
+      <div class="flex-grow h-[1px] mx-4 bg-[#051B11]/30"></div>
+
+      <a *ngIf="currentStep > 3" routerLink="/organization-course" class="flex items-center gap-2 shrink-0 hover:opacity-85 transition-opacity">
+        <div class="w-6 h-6 rounded-full bg-[#051B11] text-[#DCAE5A] flex items-center justify-center shadow-xs">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <span class="text-xs sm:text-sm font-semibold text-[#051B11]">Organization & Course</span>
+      </a>
+      <div *ngIf="currentStep === 3" class="flex items-center gap-2 shrink-0">
+        <div class="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold bg-[#DCAE5A] text-white shadow-xs">
+          3
+        </div>
+        <span class="text-xs sm:text-sm font-bold text-[#051B11]">
+          Organization & Course
+        </span>
+      </div>
+
+      <div class="flex-grow h-[1px] mx-4 bg-[#051B11]/30"></div>
+
+      <a *ngIf="currentStep > 4" routerLink="/assets-branding" class="flex items-center gap-2 shrink-0 hover:opacity-85 transition-opacity">
+        <div class="w-6 h-6 rounded-full bg-[#051B11] text-[#DCAE5A] flex items-center justify-center shadow-xs">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <span class="text-xs sm:text-sm font-semibold text-[#051B11]">Assets & Branding</span>
+      </a>
+      <div *ngIf="currentStep === 4" class="flex items-center gap-2 shrink-0">
+        <div class="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold bg-[#DCAE5A] text-white shadow-xs">
+          4
+        </div>
+        <span class="text-xs sm:text-sm font-bold text-[#051B11]">
+          Assets & Branding
+        </span>
+      </div>
+      <div *ngIf="currentStep < 4" class="flex items-center gap-2 shrink-0 text-[#5E806D]">
+        <div class="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold border bg-transparent text-[#5E806D] border-[#E1D9CD]">
+          4
+        </div>
+        <span class="text-xs sm:text-sm font-medium">
+          Assets & Branding
+        </span>
+      </div>
+
+      <div class="flex-grow h-[1px] mx-4 bg-[#E1D9CD]"></div>
+      <div *ngIf="currentStep === 5" class="flex items-center gap-2 shrink-0">
+        <div class="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold bg-[#DCAE5A] text-white shadow-xs">
+          5
+        </div>
+        <span class="text-xs sm:text-sm font-bold text-[#051B11]">
+          Finish
+        </span>
+      </div>
+      <div *ngIf="currentStep < 5" class="flex items-center gap-2 shrink-0 text-[#5E806D]">
+        <div class="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold border bg-transparent text-[#5E806D] border-[#E1D9CD]">
+          5
+        </div>
+        <span class="text-xs sm:text-sm font-medium">
+          Finish
+        </span>
+      </div>
+
+    </div>
+        <div class="max-w-5xl mx-auto min-w-[640px] mt-3 relative h-[2.5px] bg-[#E1D9CD]/40 rounded-full">
+      <div class="absolute h-full bg-[#DCAE5A] rounded-full transition-all duration-300" 
+           [style.left]="currentStep === 3 ? '40%' : currentStep === 4 ? '68%' : '90%'" 
+           [style.width]="'8%'">
+      </div>
+    </div>
+  </div>
+
+  <router-outlet></router-outlet>
+</div>

@@ -1,111 +1,318 @@
-<div class="min-h-screen w-full bg-[#FAF7F2] text-[#051B11] font-sans flex flex-col animate-fade-in">
-    <!-- Top Navbar Header -->
-    <header
-        class="w-full px-6 sm:px-12 py-4 bg-white/70 backdrop-blur-md border-b border-[#E1D9CD] flex justify-between items-center">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-[#051B11] rounded-2xl flex items-center justify-center shadow-md">
-                <svg class="w-5.5 h-5.5 text-[#DCAE5A]" viewBox="0 0 24 24" fill="none"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path d="M5 21V3H13L13.6 6H19V14H12L11.4 11H7V21H5Z" fill="currentColor" />
-                </svg>
-            </div>
-            <span class="text-xl font-serif font-extrabold tracking-tight text-[#051B11]">
-                GolfScore <span class="text-[#DCAE5A] font-serif font-bold">Pro</span>
-            </span>
+<main class="flex-grow w-full max-w-7xl mx-auto px-6 sm:px-12 py-8 flex flex-col">
+  <div class="space-y-3 mb-8">
+    <div class="flex items-center">
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FAF7F2] border border-[#E1D9CD] text-[#DCAE5A] text-xs font-bold rounded-full">
+        <svg class="w-3.5 h-3.5 text-[#DCAE5A]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499c-.107-.218-.345-.354-.588-.354H8.25c-.243 0-.48.136-.588.354l-1.34 2.716-2.997.436c-.241.035-.443.212-.511.456-.067.243.003.5.178.675l2.169 2.114-.512 2.985c-.041.243.059.489.26.634.202.146.471.16.687.039l2.68-1.41 2.68 1.41c.216.121.485.107.687-.039.201-.145.301-.391.26-.634l-.512-2.985 2.169-2.114c.175-.175.245-.432.178-.675-.068-.244-.27-.421-.511-.456l-2.997-.436-1.34-2.716z" />
+        </svg>
+        Final Step
+      </span>
+    </div>
+    <h1 class="text-3xl sm:text-4xl font-serif font-extrabold tracking-tight text-[#051B11]">
+      Complete Your Course Setup
+    </h1>
+    <p class="text-sm sm:text-base text-[#5E806D] font-medium">
+      Review and finalize your course details before launching tournaments and events.
+    </p>
+  </div>
+
+  <div class="flex flex-col lg:flex-row gap-8 items-start w-full">
+    
+    <div class="flex-grow w-full lg:max-w-4xl space-y-6">
+      
+      <div class="bg-white border border-[#E1D9CD] rounded-3xl p-6 sm:p-8 shadow-xs relative">
+        <div class="absolute top-6 right-6 sm:top-8 sm:right-8">
+          <div class="w-8 h-8 rounded-full bg-[#FAF7F2] border border-[#E1D9CD] flex items-center justify-center text-[#5E806D] font-bold text-sm shadow-2xs">
+            #
+          </div>
         </div>
-        <div class="text-sm font-semibold text-[#5E806D]">
-            Step <span class="text-[#051B11] font-bold">5</span> of 5
-        </div>
-    </header>
 
-    <!-- Horizontal Stepper Progress Bar -->
-    <div class="w-full bg-[#FAF7F2] py-4 px-6 sm:px-12 border-b border-[#E1D9CD]/80 overflow-x-auto">
-        <div class="max-w-5xl mx-auto min-w-[640px] flex items-center justify-between">
+        <div class="space-y-4">
+          <div>
+            <h2 class="text-lg font-extrabold text-[#051B11]">
+              Tee Box Names
+            </h2>
+            <p class="text-xs text-[#5E806D] font-medium leading-relaxed max-w-2xl mt-0.5">
+              Enter tee box names separated by commas. Each tee box will create a separate yardage column.
+            </p>
+          </div>
 
-            <!-- Step 1: Account -->
-            <a routerLink="/create-organizer"
-                class="flex items-center gap-2 shrink-0 hover:opacity-85 transition-opacity">
-                <div
-                    class="w-6 h-6 rounded-full bg-[#051B11] text-[#DCAE5A] flex items-center justify-center shadow-xs">
-                    <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd"
-                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                            clip-rule="evenodd" />
-                    </svg>
-                </div>
-                <span class="text-xs sm:text-sm font-semibold text-[#051B11]">Account</span>
-            </a>
-
-            <div class="flex-grow h-[1px] mx-4 bg-[#051B11]/30"></div>
-
-            <!-- Step 2: Verify -->
-            <a routerLink="/create-organizer"
-                class="flex items-center gap-2 shrink-0 hover:opacity-85 transition-opacity">
-                <div
-                    class="w-6 h-6 rounded-full bg-[#051B11] text-[#DCAE5A] flex items-center justify-center shadow-xs">
-                    <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd"
-                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                            clip-rule="evenodd" />
-                    </svg>
-                </div>
-                <span class="text-xs sm:text-sm font-semibold text-[#051B11]">Verify</span>
-            </a>
-
-            <div class="flex-grow h-[1px] mx-4 bg-[#051B11]/30"></div>
-
-            <!-- Step 3: Organization & Course -->
-            <a routerLink="/organization-course"
-                class="flex items-center gap-2 shrink-0 hover:opacity-85 transition-opacity">
-                <div
-                    class="w-6 h-6 rounded-full bg-[#051B11] text-[#DCAE5A] flex items-center justify-center shadow-xs">
-                    <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd"
-                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                            clip-rule="evenodd" />
-                    </svg>
-                </div>
-                <span class="text-xs sm:text-sm font-semibold text-[#051B11]">Organization & Course</span>
-            </a>
-
-            <div class="flex-grow h-[1px] mx-4 bg-[#051B11]/30"></div>
-
-            <!-- Step 4: Assets & Branding -->
-            <a routerLink="/assets-branding"
-                class="flex items-center gap-2 shrink-0 hover:opacity-85 transition-opacity">
-                <div
-                    class="w-6 h-6 rounded-full bg-[#051B11] text-[#DCAE5A] flex items-center justify-center shadow-xs">
-                    <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd"
-                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                            clip-rule="evenodd" />
-                    </svg>
-                </div>
-                <span class="text-xs sm:text-sm font-semibold text-[#051B11]">Assets & Branding</span>
-            </a>
-
-            <div class="flex-grow h-[1px] mx-4 bg-[#051B11]/30"></div>
-
-            <!-- Step 5: Finish -->
-            <div class="flex items-center gap-2 shrink-0">
-                <div
-                    class="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold bg-[#DCAE5A] text-white shadow-xs">
-                    5
-                </div>
-                <span class="text-xs sm:text-sm font-bold text-[#051B11]">
-                    Finish
+          <div class="space-y-3">
+            <input type="text" [(ngModel)]="teeBoxNames" (ngModelChange)="onTeeBoxNamesChange($event)"
+                   placeholder="Black, Blue, White, Red"
+                   class="block w-full rounded-xl border border-[#E1D9CD] bg-white py-2.5 px-4 text-[#051B13] placeholder-[#5E806D]/60 text-sm focus:border-[#DCAE5A] focus:outline-none focus:ring-1 focus:ring-[#DCAE5A]">
+            
+            <div class="flex flex-wrap gap-2 mt-3">
+              @for (tee of teeBoxes; track tee) {
+                <span class="px-3 py-1 rounded-full text-xs font-bold transition-colors shadow-2xs border border-transparent"
+                      [ngClass]="{
+                        'bg-[#051B11] text-[#ffffff]': tee.toLowerCase() === 'black',
+                        'bg-[#2563EB] text-white': tee.toLowerCase() === 'blue',
+                        'bg-white text-[#051B11] border-[#E1D9CD]': tee.toLowerCase() === 'white',
+                        'bg-[#DC2626] text-white': tee.toLowerCase() === 'red',
+                        'bg-[#EAB308] text-white': tee.toLowerCase() === 'gold' || tee.toLowerCase() === 'yellow',
+                        'bg-[#16A34A] text-white': tee.toLowerCase() === 'green',
+                        'bg-[#FAF7F2] text-[#051B11] border-[#E1D9CD]': ['black','blue','white','red','gold','yellow','green'].indexOf(tee.toLowerCase()) === -1
+                      }">
+                  {{ tee }}
                 </span>
+              }
             </div>
 
+            <p class="text-[11px] text-[#5E806D]/80 font-medium">
+              Edit tee box names and reopen the hole builder to refresh the grid.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white border border-[#E1D9CD] rounded-3xl p-6 sm:p-8 shadow-xs">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div class="space-y-1">
+            <h2 class="text-lg font-extrabold text-[#051B11]">
+              Hole Builder
+            </h2>
+            <p class="text-xs text-[#5E806D] font-medium leading-relaxed max-w-xl">
+              Configure hole-by-hole information including par values, handicaps, and yardages.
+            </p>
+          </div>
+          <button type="button" (click)="showHoleBuilderModal = true"
+                  class="px-5 py-2.5 bg-[#051B11] hover:bg-[#082b1c] text-white text-xs font-bold rounded-xl transition-colors shadow-xs shrink-0 flex items-center gap-2 focus:outline-none cursor-pointer">
+            <svg class="w-4 h-4 text-[#DCAE5A]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Show Hole Builder
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white border border-[#E1D9CD] rounded-3xl p-6 sm:p-8 shadow-xs relative">
+        <div class="absolute top-6 right-6 sm:top-8 sm:right-8">
+          <div class="w-8 h-8 rounded-full bg-[#FAF7F2] border border-[#E1D9CD] flex items-center justify-center text-[#5E806D] shadow-2xs">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+            </svg>
+          </div>
         </div>
 
-        <!-- Active Indicator Underline Bar -->
-        <div class="max-w-5xl mx-auto min-w-[640px] mt-3 relative h-[2.5px] bg-[#E1D9CD]/40 rounded-full">
-            <div class="absolute h-full bg-[#DCAE5A] rounded-full" style="left: 90%; width: 8%;">
+        <div class="space-y-4">
+          <div>
+            <h2 class="text-lg font-extrabold text-[#051B11]">
+              Course URL
+            </h2>
+            <p class="text-xs text-[#5E806D] font-medium leading-relaxed max-w-2xl mt-0.5">
+              Usually generated automatically from your course name. Override only if you want a custom URL.
+            </p>
+          </div>
+
+          <div class="space-y-3">
+            <div class="flex flex-col md:flex-row items-start">
+              <div class="relative flex-grow w-full md:w-[70%]">
+                <input type="text" [disabled]="courseUrlAutoGenerate" [value]="courseUrl" (input)="onCourseUrlManualChange($any($event.target).value)"
+                       class="block w-full rounded-xl border border-[#E1D9CD] bg-white py-2.5 ps-4 text-[#051B11] placeholder-[#5E806D]/60 text-sm focus:border-[#DCAE5A] focus:outline-none focus:ring-1 focus:ring-[#DCAE5A] disabled:bg-[#FAF7F2]/50 disabled:text-[#5E806D]">
+              </div>
+              <label class="flex items-center gap-2 cursor-pointer py-2 px-3 hover:bg-[#FAF7F2] rounded-xl transition-colors select-none">
+                <input type="checkbox" [(ngModel)]="courseUrlAutoGenerate" (ngModelChange)="onCourseUrlAutoGenerateChange($event)"
+                       class="rounded border-[#E1D9CD] text-[#051B11] focus:ring-[#DCAE5A] w-4.5 h-4.5 accent-[#051B11] cursor-pointer">
+                <span class="text-xs text-[#051B11]">Auto generate</span>
+              </label>
             </div>
+
+            <p class="text-xs text-[#5E806D] font-medium">
+              Preview: <span class="text-[#051B11] font-bold">golfscorepro.com{{ courseUrl }}</span>
+            </p>
+          </div>
+          <div class="flex items-center justify-between pt-6 border-t border-[#E1D9CD]/40 mt-8">
+                            <div class="flex flex-col items-center sm:flex-row gap-2">
+
+        <a routerLink="/assets-branding" 
+           class="px-5 py-2.5 bg-white border border-[#E1D9CD] hover:bg-[#FAF7F2] text-[#051B11] font-bold rounded-xl text-sm transition-colors flex items-center gap-2 cursor-pointer focus:outline-none">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+          Back
+        </a>
+
+        <a routerLink="/" class="text-sm font-bold text-[#5E806D] hover:text-[#051B11] transition-colors cursor-pointer">
+          Skip For Now
+        </a>
+</div>
+        <button type="button" (click)="finishSetup()" 
+                class="px-6 py-2.5 bg-[#051B11] hover:bg-[#082b1c] text-white font-bold rounded-xl text-sm shadow-md transition-colors flex items-center gap-2 cursor-pointer focus:outline-none">
+          Finish Onboarding
+          <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+        </button>
+      </div>
         </div>
+      </div>      
+
     </div>
 
-    <!-- Main Content Area -->
-    <div>Finish</div>
+    <div class="w-full lg:w-[380px] shrink-0 space-y-6">
+      
+      <div class="bg-[#051B11] rounded-[28px] p-6 text-white shadow-xs space-y-5">
+        <div class="space-y-1">
+          <span class="block text-[10px] font-bold uppercase tracking-wider text-[#DCAE5A]">
+            COMPLETION SUMMARY
+          </span>
+          <h3 class="text-xl font-extrabold text-white leading-tight">
+            Ready to launch
+          </h3>
+        </div>
+
+        <ul class="space-y-4 pt-2">
+          <li class="flex items-start gap-3 text-xs">
+            <div class="w-5 h-5 rounded-full bg-[#133824] flex items-center justify-center shrink-0 mt-0.5">
+              <svg class="w-3.5 h-3.5 text-[#DCAE5A]" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+            </div>
+            <div class="space-y-0.5">
+              <span class="block text-[10px] font-bold tracking-wider text-[#7A9A8A] uppercase">ORGANIZATION</span>
+              <span class="font-semibold text-white/95">{{ orgName }}</span>
+            </div>
+          </li>
+
+          <li class="flex items-start gap-3 text-xs">
+            <div class="w-5 h-5 rounded-full bg-[#133824] flex items-center justify-center shrink-0 mt-0.5">
+              <svg class="w-3.5 h-3.5 text-[#DCAE5A]" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+            </div>
+            <div class="space-y-0.5">
+              <span class="block text-[10px] font-bold tracking-wider text-[#7A9A8A] uppercase">COURSE</span>
+              <span class="font-semibold text-white/95">{{ courseName }}</span>
+            </div>
+          </li>
+
+          <li class="flex items-start gap-3 text-xs">
+            <div class="w-5 h-5 rounded-full bg-[#133824] flex items-center justify-center shrink-0 mt-0.5">
+              <svg class="w-3.5 h-3.5 text-[#DCAE5A]" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+            </div>
+            <div class="space-y-0.5">
+              <span class="block text-[10px] font-bold tracking-wider text-[#7A9A8A] uppercase">HOLES CONFIGURED</span>
+              <span class="font-semibold text-white/95">{{ holesConfigured }}</span>
+            </div>
+          </li>
+
+          <li class="flex items-start gap-3 text-xs">
+            <div class="w-5 h-5 rounded-full bg-[#133824] flex items-center justify-center shrink-0 mt-0.5">
+              <svg class="w-3.5 h-3.5 text-[#DCAE5A]" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+            </div>
+            <div class="space-y-0.5">
+              <span class="block text-[10px] font-bold tracking-wider text-[#7A9A8A] uppercase">TEE BOXES</span>
+              <span class="font-semibold text-white/95">{{ teeBoxes.join(' • ') }}</span>
+            </div>
+          </li>
+
+          <li class="flex items-start gap-3 text-xs">
+            <div class="w-5 h-5 rounded-full bg-[#133824] flex items-center justify-center shrink-0 mt-0.5">
+              <svg class="w-3.5 h-3.5 text-[#DCAE5A]" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+            </div>
+            <div class="space-y-0.5">
+              <span class="block text-[10px] font-bold tracking-wider text-[#7A9A8A] uppercase">BRANDING ASSETS</span>
+              <span class="font-semibold text-white/95">{{ brandingAssets }}</span>
+            </div>
+          </li>
+
+          <li class="flex items-start gap-3 text-xs">
+            <div class="w-5 h-5 rounded-full bg-[#133824] flex items-center justify-center shrink-0 mt-0.5">
+              <svg class="w-3.5 h-3.5 text-[#DCAE5A]" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+            </div>
+            <div class="space-y-0.5">
+              <span class="block text-[10px] font-bold tracking-wider text-[#7A9A8A] uppercase">SCORECARD IMPORTED</span>
+              <span class="font-semibold text-white/95">{{ scorecardImported }}</span>
+            </div>
+          </li>
+        </ul>
+        <div class="bg-[#133824] rounded-2xl p-4 mt-6 space-y-1.5">
+          <h4 class="text-xs font-bold text-white">
+            What happens next?
+          </h4>
+          <p class="text-[11px] text-[#7A9A8A] leading-relaxed font-medium">
+            Your course goes live, tournament tools unlock, and you'll land on the Admin Dashboard.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<div *ngIf="showHoleBuilderModal" class="fixed inset-0 bg-[#051B11]/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+  <div class="bg-white border border-[#E1D9CD] rounded-3xl w-full max-w-4xl max-h-[85vh] shadow-2xl flex flex-col overflow-hidden animate-fade-in">
+    <div class="px-6 py-5 border-b border-[#E1D9CD]/50 flex items-center justify-between bg-[#FAF7F2]">
+      <div class="space-y-1">
+        <h3 class="text-lg font-extrabold text-[#051B11]">
+          18-Hole Course Matrix
+        </h3>
+        <p class="text-xs text-[#5E806D] font-medium">
+          Modify Par, Handicap Indices, and Yardages for each of your tee boxes.
+        </p>
+      </div>
+      <button type="button" (click)="showHoleBuilderModal = false" class="text-[#5E806D] hover:text-[#051B11] transition-colors focus:outline-none cursor-pointer">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <div class="flex-grow overflow-auto p-6">
+      <div class="inline-block min-w-full align-middle">
+        <table class="min-w-full divide-y divide-[#E1D9CD]/40">
+          <thead>
+            <tr class="bg-[#FAF7F2]/50 text-left text-xs font-bold text-[#051B11] uppercase tracking-wider">
+              <th scope="col" class="py-3 px-4">Hole</th>
+              <th scope="col" class="py-3 px-4">Par</th>
+              <th scope="col" class="py-3 px-4">Handicap</th>
+              @for (tee of teeBoxes; track tee) {
+                <th scope="col" class="py-3 px-4 font-bold uppercase">{{ tee }} Yards</th>
+              }
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#E1D9CD]/30 bg-white">
+            @for (hole of holesList; track hole.holeNumber) {
+              <tr class="hover:bg-[#FAF7F2]/30 text-xs font-medium text-[#051B11]">
+                <td class="py-2.5 px-4 font-bold text-sm">{{ hole.holeNumber }}</td>
+                <td class="py-2.5 px-4">
+                  <select [(ngModel)]="hole.par" class="bg-white border border-[#E1D9CD] rounded-lg px-2 py-1 text-xs focus:ring-[#DCAE5A] focus:outline-none">
+                    <option [value]="3">3</option>
+                    <option [value]="4">4</option>
+                    <option [value]="5">5</option>
+                  </select>
+                </td>
+                <td class="py-2.5 px-4">
+                  <input type="number" [(ngModel)]="hole.handicap" min="1" max="18" class="w-16 bg-white border border-[#E1D9CD] rounded-lg px-2 py-1 text-xs focus:ring-[#DCAE5A] focus:outline-none">
+                </td>
+                @for (tee of teeBoxes; track tee) {
+                  <td class="py-2.5 px-4">
+                    <input type="number" [(ngModel)]="hole.yards[tee]" class="w-20 bg-white border border-[#E1D9CD] rounded-lg px-2 py-1 text-xs focus:ring-[#DCAE5A] focus:outline-none">
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="px-6 py-4 border-t border-[#E1D9CD]/50 flex items-center justify-end gap-3 bg-[#FAF7F2]">
+      <button type="button" (click)="showHoleBuilderModal = false" class="px-4 py-2 bg-white border border-[#E1D9CD] hover:bg-[#FAF7F2] text-[#051B11] text-xs font-bold rounded-xl transition-colors focus:outline-none cursor-pointer">
+        Cancel
+      </button>
+      <button type="button" (click)="saveHoles()" class="px-5 py-2 bg-[#051B11] hover:bg-[#082b1c] text-white text-xs font-bold rounded-xl shadow-xs transition-colors focus:outline-none cursor-pointer">
+        Save & Apply Configuration
+      </button>
+    </div>
+  </div>
 </div>
