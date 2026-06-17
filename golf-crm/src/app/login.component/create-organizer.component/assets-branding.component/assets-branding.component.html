@@ -124,18 +124,18 @@
                       {{ isCopied ? 'COPIED' : 'COPY' }}
                     </button>
                   </div>
-                  <div class="flex flex-wrap items-center gap-2">
+                   <div class="flex flex-wrap items-center gap-2">
                     @for (preset of colorPresets; track preset.hex) {
                       @if (selectedColor.toLowerCase() === preset.hex.toLowerCase()) {
                         <button type="button" (click)="selectColor(preset.hex)"
                                 [title]="preset.name"
                                 class="w-8 h-8 rounded-full border-2 border-[#DCAE5A] flex items-center justify-center p-[2.5px] transition-transform hover:scale-105 cursor-pointer focus:outline-none">
-                          <span [class]="preset.tailwindClass" class="w-full h-full rounded-full border border-black/5"></span>
+                          <span [style.background-color]="preset.hex" class="w-full h-full rounded-full border border-black/5"></span>
                         </button>
                       } @else {
                         <button type="button" (click)="selectColor(preset.hex)"
                                 [title]="preset.name"
-                                [class]="preset.tailwindClass"
+                                [style.background-color]="preset.hex"
                                 class="w-6 h-6 rounded-full border border-black/10 flex items-center justify-center transition-transform hover:scale-110 cursor-pointer shadow-xs focus:outline-none">
                         </button>
                       }

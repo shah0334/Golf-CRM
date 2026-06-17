@@ -15,11 +15,17 @@ export class OrganizationCourseComponent implements OnInit {
   private fb = inject(FormBuilder);
   private registrationService = inject(RegistrationService);
   form!: FormGroup;
+  isAddCourseMode = false;
 
   ngOnInit() {
+    this.isAddCourseMode = localStorage.getItem('isAddCourseMode') === 'true';
+    
     const data = this.registrationService.getData();
+
     const initialInvite = data.inviteCode || '';
     const initialOrgName = data.orgName || data.clubName || '';
+    const initialEmail = data.orgEmail || data.email || '';
+    const initialPhone = data.phone || '';
     let initialSlug = data.urlSlug || '';
     
     if (!initialSlug && initialOrgName) {
@@ -33,8 +39,8 @@ export class OrganizationCourseComponent implements OnInit {
       orgName: [initialOrgName, [Validators.required]],
       courseName: [data.courseName || '', [Validators.required]],
       urlSlug: [initialSlug, []],
-      email: [data.orgEmail || data.email || '', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
-      phone: [data.phone || '', [Validators.required, Validators.pattern('^[+]?[0-9\\s\\-\\(\\)]{7,20}$')]],
+      email: [initialEmail, [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
+      phone: [initialPhone, [Validators.required, Validators.pattern('^[+]?[0-9\\s\\-\\(\\)]{7,20}$')]],
       inviteCode: [initialInvite, [Validators.required]]
     });
 
@@ -71,7 +77,7 @@ export class OrganizationCourseComponent implements OnInit {
 
   onSubmit() {
     if (this.form.valid) {
-      const formValue = this.form.value;
+      const formValue = this.form.getRawValue();
       this.registrationService.updateData({
         orgName: formValue.orgName,
         courseName: formValue.courseName,

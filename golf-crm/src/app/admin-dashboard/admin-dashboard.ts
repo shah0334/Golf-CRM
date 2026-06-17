@@ -2,6 +2,7 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { RegistrationService } from '../services/registration.service';
 
 interface Course {
   id: string;
@@ -30,6 +31,7 @@ interface Tournament {
 export class AdminDashboard implements OnInit {
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private registrationService = inject(RegistrationService);
 
   isSigningOut = false;
 
@@ -133,16 +135,17 @@ export class AdminDashboard implements OnInit {
             : 72;
           const webUrl = org.websiteUrl || `golfscorepro.com/course/${org.urlSlug || 'oak-valley'}`;
 
-          this.courses = [
-            {
-              id: 'CRS-001',
-              name: org.courseName,
-              holes: holesCount,
-              par: parValue,
-              status: 'ACTIVE',
-              url: webUrl
-            }
-          ];
+          const primaryCourse: Course = {
+            id: 'CRS-001',
+            name: org.courseName,
+            holes: holesCount,
+            par: parValue,
+            status: 'ACTIVE',
+            url: webUrl
+          };
+
+          const additionalCourses: Course[] = org.courses || [];
+          this.courses = [primaryCourse, ...additionalCourses];
         }
       }
     } catch (e) {
@@ -182,15 +185,9 @@ export class AdminDashboard implements OnInit {
   }
 
   addCourse() {
-    const nextId = `CRS-00${this.courses.length + 1}`;
-    this.courses.push({
-      id: nextId,
-      name: `New Augusta Club Course`,
-      holes: 18,
-      par: 72,
-      status: 'DRAFT',
-      url: `golfscorepro.com/course/new-augusta-${this.courses.length + 1}`,
-    });
+    this.registrationService.clear();
+    localStorage.setItem('isAddCourseMode', 'true');
+    this.router.navigate(['/organization-course']);
   }
 
   createTournament() {

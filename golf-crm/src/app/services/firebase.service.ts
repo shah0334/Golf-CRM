@@ -38,6 +38,29 @@ export class FirebaseService {
     return from(this.runRealRegistration(data));
   }
 
+  updateOrganization(email: string, uid: string, updatedData: any): Observable<any> {
+    if (!this.isFirebaseConfigured) {
+      try {
+        const key = 'mock_firebase_organizers';
+        const existingRaw = localStorage.getItem(key);
+        const existing = existingRaw ? JSON.parse(existingRaw) : [];
+        const index = existing.findIndex((org: any) => 
+          (uid && (org.uid === uid || org.id === uid)) || (email && org.email === email)
+        );
+        if (index !== -1) {
+          existing[index] = { ...existing[index], ...updatedData };
+          localStorage.setItem(key, JSON.stringify(existing));
+          return of({ success: true, user: existing[index] });
+        }
+      } catch (e) {
+        return throwError(() => e);
+      }
+      return throwError(() => new Error('ORGANIZATION_NOT_FOUND'));
+    }
+
+    return from(this.runRealUpdate(email, uid, updatedData));
+  }
+
   login(email: string, password: string): Observable<any> {
     if (!this.isFirebaseConfigured) {
       console.log('Simulating login check for:', email);
@@ -299,6 +322,83 @@ export class FirebaseService {
     }
 
     return of({ success: true, mode: 'simulated' });
+  }
+
+  private async runRealUpdate(email: string, uid: string, updatedData: any): Promise<any> {
+    const projectId = environment.firebase.projectId;
+    const firestoreUrlQuery = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents:runQuery`;
+
+    const filter = uid 
+      ? {
+          fieldFilter: {
+            field: { fieldPath: 'uid' },
+            op: 'EQUAL',
+            value: { stringValue: uid }
+          }
+        }
+      : {
+          fieldFilter: {
+            field: { fieldPath: 'email' },
+            op: 'EQUAL',
+            value: { stringValue: email }
+          }
+        };
+
+    const queryBody = {
+      structuredQuery: {
+        from: [{ collectionId: 'Organizations' }],
+        where: filter
+      }
+    };
+
+    const queryResponse = await fetch(firestoreUrlQuery, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(queryBody)
+    });
+
+    if (!queryResponse.ok) {
+      const errorJson = await queryResponse.json();
+      throw new Error(errorJson.error?.message || 'Update search query failed');
+    }
+
+    const results = await queryResponse.json();
+    const validResults = results.filter((r: any) => r.document);
+
+    if (validResults.length === 0) {
+      throw new Error('ORGANIZATION_NOT_FOUND');
+    }
+
+    const doc = validResults[0].document;
+    const docName = doc.name;
+
+    const existingFields = this.mapFromFirestore(doc.fields);
+    const mergedPayload = {
+      ...existingFields,
+      ...updatedData
+    };
+
+    const updateUrl = `https://firestore.googleapis.com/v1/${docName}`;
+    const firestoreBody = {
+      fields: this.mapToFirestore(mergedPayload).mapValue.fields
+    };
+
+    const updateResponse = await fetch(updateUrl, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(firestoreBody)
+    });
+
+    if (!updateResponse.ok) {
+      const errorJson = await updateResponse.json();
+      throw new Error(errorJson.error?.message || 'Failed to update organization document in Firestore');
+    }
+
+    const updateResult = await updateResponse.json();
+    return {
+      success: true,
+      user: mergedPayload
+    };
   }
 
   // Recursive converter to format JS objects into Firestore REST API structured JSON

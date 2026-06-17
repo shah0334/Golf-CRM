@@ -35,6 +35,7 @@ export class AssetsBrandingComponent implements OnInit {
   selectedColor = '#0F3D2E'; 
   customColor = '#0F3D2E';
   isCopied = false;
+  isAddCourseMode = false;
   
   colorPresets = [
     { name: 'Forest Green', hex: '#0F3D2E', tailwindClass: 'bg-[#0F3D2E]' },
@@ -48,6 +49,7 @@ export class AssetsBrandingComponent implements OnInit {
   ];
 
   ngOnInit() {
+    this.isAddCourseMode = localStorage.getItem('isAddCourseMode') === 'true';
     const data = this.registrationService.getData();
     this.clubName = data.orgName || data.clubName || 'Your Club';
     this.websiteUrl = data.websiteUrl || (data.urlSlug ? `https://${data.urlSlug}.golfscorepro.com` : '');
@@ -56,6 +58,9 @@ export class AssetsBrandingComponent implements OnInit {
     if (data.selectedColor) {
       this.selectedColor = data.selectedColor;
       this.customColor = data.selectedColor;
+    } else {
+      this.selectedColor = '#0F3D2E';
+      this.customColor = '#0F3D2E';
     }
     this.logoFileName = data.logoFileName || null;
     this.logoPreview = data.logoPreview || null;
@@ -129,6 +134,10 @@ export class AssetsBrandingComponent implements OnInit {
           setTimeout(() => {
             this.logoPreview = compressedBase64;
             this.isUploadingLogo = false;
+            this.registrationService.updateData({
+              logoFileName: this.logoFileName,
+              logoPreview: this.logoPreview
+            });
             this.cdr.detectChanges();
           }, 700);
         });
@@ -173,6 +182,10 @@ export class AssetsBrandingComponent implements OnInit {
           setTimeout(() => {
             this.scorecardPreview = compressedBase64;
             this.isUploadingScorecard = false;
+            this.registrationService.updateData({
+              scorecardFileName: this.scorecardFileName,
+              scorecardPreview: this.scorecardPreview
+            });
             this.cdr.detectChanges();
           }, 700);
         });
@@ -184,6 +197,10 @@ export class AssetsBrandingComponent implements OnInit {
   removeLogo() {
     this.logoFileName = null;
     this.logoPreview = null;
+    this.registrationService.updateData({
+      logoFileName: null,
+      logoPreview: null
+    });
   }
 
   removeBanner() {
@@ -194,6 +211,10 @@ export class AssetsBrandingComponent implements OnInit {
   removeScorecard() {
     this.scorecardFileName = null;
     this.scorecardPreview = null;
+    this.registrationService.updateData({
+      scorecardFileName: null,
+      scorecardPreview: null
+    });
   }
 
   copyHex() {
@@ -206,7 +227,140 @@ export class AssetsBrandingComponent implements OnInit {
   }
 
   extractFromLogo() {
-    this.selectColor('#0F3D2E');
+    if (!this.logoPreview) {
+      this.errorMessage = 'Please upload a logo first before extracting colors.';
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.errorMessage = null;
+    const img = new Image();
+    img.src = this.logoPreview;
+    img.crossOrigin = 'Anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      canvas.width = 50;
+      canvas.height = 50;
+      ctx.drawImage(img, 0, 0, 50, 50);
+
+      const imgData = ctx.getImageData(0, 0, 50, 50);
+      const data = imgData.data;
+
+      const colorMap = new Map<string, number>();
+
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        const a = data[i + 3];
+
+        if (a < 50) continue;
+
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+        const diff = max - min;
+        
+        if (r > 240 && g > 240 && b > 240) continue;
+        if (r < 20 && g < 20 && b < 20) continue;
+
+        const factor = 16;
+        const gr = Math.round(r / factor) * factor;
+        const gg = Math.round(g / factor) * factor;
+        const gb = Math.round(b / factor) * factor;
+
+        const hex = this.rgbToHex(gr, gg, gb);
+        
+        const weight = diff > 20 ? 2 : 1;
+        colorMap.set(hex, (colorMap.get(hex) || 0) + weight);
+      }
+
+      let sortedColors = Array.from(colorMap.entries())
+        .sort((a, b) => b[1] - a[1])
+        .map(entry => entry[0]);
+
+      if (sortedColors.length === 0) {
+        const fallbackMap = new Map<string, number>();
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i];
+          const g = data[i + 1];
+          const b = data[i + 2];
+          const a = data[i + 3];
+          if (a < 50) continue;
+          
+          const factor = 16;
+          const gr = Math.round(r / factor) * factor;
+          const gg = Math.round(g / factor) * factor;
+          const gb = Math.round(b / factor) * factor;
+          const hex = this.rgbToHex(gr, gg, gb);
+          fallbackMap.set(hex, (fallbackMap.get(hex) || 0) + 1);
+        }
+        sortedColors = Array.from(fallbackMap.entries())
+          .sort((a, b) => b[1] - a[1])
+          .map(entry => entry[0]);
+      }
+
+      if (sortedColors.length > 0) {
+        const uniqueColors: string[] = [];
+        for (const color of sortedColors) {
+          if (uniqueColors.length >= 5) break;
+          let tooSimilar = false;
+          for (const uColor of uniqueColors) {
+            if (this.colorDistance(color, uColor) < 30) {
+              tooSimilar = true;
+              break;
+            }
+          }
+          if (!tooSimilar) {
+            uniqueColors.push(color);
+          }
+        }
+
+        if (uniqueColors.length > 0) {
+          const newPresets = uniqueColors.map((hex, idx) => ({
+            name: `Logo Color ${idx + 1}`,
+            hex: hex,
+            tailwindClass: ''
+          }));
+
+          this.colorPresets = [
+            ...newPresets,
+            ...this.colorPresets.filter(p => !uniqueColors.some(uc => uc.toLowerCase() === p.hex.toLowerCase()))
+          ].slice(0, 12); 
+
+          this.selectColor(uniqueColors[0]);
+        }
+      } else {
+        this.errorMessage = 'Could not extract colors from the logo.';
+      }
+      this.cdr.detectChanges();
+    };
+
+    img.onerror = () => {
+      this.errorMessage = 'Failed to load logo image for color extraction.';
+      this.cdr.detectChanges();
+    };
+  }
+
+  private rgbToHex(r: number, g: number, b: number): string {
+    const clamp = (val: number) => Math.min(255, Math.max(0, val));
+    const toHexPart = (val: number) => {
+      const hex = clamp(val).toString(16);
+      return hex.length === 1 ? '0' + hex : hex;
+    };
+    return '#' + toHexPart(r) + toHexPart(g) + toHexPart(b);
+  }
+
+  private colorDistance(c1: string, c2: string): number {
+    const r1 = parseInt(c1.substring(1, 3), 16);
+    const g1 = parseInt(c1.substring(3, 5), 16);
+    const b1 = parseInt(c1.substring(5, 7), 16);
+    const r2 = parseInt(c2.substring(1, 3), 16);
+    const g2 = parseInt(c2.substring(3, 5), 16);
+    const b2 = parseInt(c2.substring(5, 7), 16);
+    return Math.sqrt((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2);
   }
 
   skipStep() {

@@ -23,6 +23,9 @@ const step3Guard = () => {
   const router = inject(Router);
   const regService = inject(RegistrationService);
   const data = regService.getData();
+  if (localStorage.getItem('isAddCourseMode') === 'true') {
+    return true;
+  }
   if (data.clubName && data.email && data.password) {
     return true;
   }
@@ -34,6 +37,9 @@ const step4Guard = () => {
   const router = inject(Router);
   const regService = inject(RegistrationService);
   const data = regService.getData();
+  if (localStorage.getItem('isAddCourseMode') === 'true') {
+    return true;
+  }
   const step3Complete = data.orgName && data.courseName && data.orgEmail && data.phone && data.inviteCode;
   if (step3Complete || data.skippedStep3) {
     return true;
@@ -46,6 +52,9 @@ const step5Guard = () => {
   const router = inject(Router);
   const regService = inject(RegistrationService);
   const data = regService.getData();
+  if (localStorage.getItem('isAddCourseMode') === 'true') {
+    return true;
+  }
   const step3Complete = data.orgName && data.courseName && data.orgEmail && data.phone && data.inviteCode;
   if (step3Complete || data.skippedStep3) {
     return true;
