@@ -1,0 +1,7 @@
+.glass {
+    -webkit-backdrop-filter: blur(20px)saturate(140%);
+    backdrop-filter: blur(20px) saturate(140%);
+    background: #ffffff14;
+    border: 1px solid #ffffff24;
+    border: 1px solid lab(100% -.0000298023 .0000119209 / .14);
+}

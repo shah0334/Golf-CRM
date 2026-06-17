@@ -1,7 +1,11 @@
 <div class="min-h-screen w-full relative bg-golf-dark text-white font-sans flex items-stretch">
-    <div class="absolute inset-0 bg-cover bg-center z-0" style="background-image: url('golf_course_bg.png');"></div>
-    <div class="absolute inset-0 bg-gradient-to-tr from-[#051B11]/97 via-[#052414]/92 to-[#041D10]/85 z-10"></div>
+   <div class="absolute inset-0 bg-cover bg-center z-0"
+     style="background-image: url('golf_course_bg.png');"></div>
 
+<div class="absolute inset-0 z-10 bg-gradient-to-tr from-black/60 via-[#052414]/80 to-[#041D10]/85"></div>
+<div class="absolute inset-0 z-20"
+     style="background: radial-gradient(circle at top left, rgba(252, 228, 150, 0.35), transparent 40%);">
+</div>
     <section class="hidden lg:flex lg:w-1/2 relative z-20 flex-col p-8 sm:p-12 md:p-16">
         <div class="flex-grow flex flex-col justify-center mx-auto max-w-lg min-[1700px]:max-w-2xl w-full">
             <div class="flex items-center gap-3 mb-12">
@@ -24,7 +28,7 @@
                 </div>
 
                 <h1 class="text-4xl xl:text-5xl font-serif font-bold leading-tight tracking-tight text-white">
-                    Manage Golf Tournaments with <span class="text-golf-accent italic font-normal">Confidence</span>.
+                    Manage Golf Tournaments with <span class="text-golf-accent italic font-bold">Confidence</span>.
                 </h1>
 
                 <p class="text-golf-text-muted text-lg leading-relaxed">
@@ -69,17 +73,19 @@
                 </a>
             </div>
         </div>
-        
-        <div class="mt-auto pt-8 flex gap-6 text-sm text-golf-text-muted justify-center w-full">
+                <div class="flex-grow flex flex-col justify-center mx-auto max-w-lg min-[1700px]:max-w-2xl w-full">
+
+        <div class="mt-auto pt-8 flex gap-6 text-sm text-golf-text-muted w-full">
             <span>&copy; 2026 GolfScore Pro</span>
             <a href="#" class="hover:text-white transition-colors">Privacy</a>
             <a href="#" class="hover:text-white transition-colors">Terms</a>
+        </div>
         </div>
     </section>
 
     <section class="w-full lg:w-1/2 flex flex-col p-6 sm:p-12 md:p-16 relative z-20">
         <div class="flex-grow flex items-center justify-center w-full">
-            <div class="w-full max-w-lg min-[1700px]:max-w-2xl bg-golf-card border border-golf-border rounded-3xl p-8 sm:p-10 shadow-2xl flex flex-col">
+            <div class="glass w-full max-w-lg min-[1700px]:max-w-2xl bg-golf-card border border-golf-border rounded-3xl p-8 sm:p-10 shadow-2xl flex flex-col">
                 <div class="flex justify-center mb-6">
                     <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-golf-dark/60 border border-golf-border/50 text-golf-accent text-xs font-semibold">
                         <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
@@ -123,7 +129,7 @@
 
                 <form class="space-y-5">
                     <div>
-                        <label for="email" class="block text-sm font-medium text-golf-text-muted mb-2">Email Address</label>
+                        <label for="email" class="block text-sm text-white/70 mb-2">Email Address</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-golf-text-muted/80">
                                 <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
@@ -136,7 +142,7 @@
                     </div>
 
                     <div>
-                        <label for="password" class="block text-sm font-medium text-golf-text-muted mb-2">Password</label>
+                        <label for="password" class="block text-sm text-white/70 mb-2">Password</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-golf-text-muted/80">
                                 <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
@@ -154,10 +160,16 @@
                     </div>
 
                     <div class="flex items-center justify-between pt-1">
-                        <label class="flex items-center gap-2 text-sm text-gray-200 select-none cursor-pointer">
-                            <input type="checkbox" class="w-4.5 h-4.5 rounded accent-golf-accent text-golf-dark border-golf-input-border focus:ring-golf-accent cursor-pointer">
-                            <span>Remember me</span>
-                        </label>
+<label class="flex items-center gap-2 cursor-pointer">
+  
+  <input type="checkbox" class="checkbox" />
+
+  <div class="box">
+    <span class="tick">✔</span>
+  </div>
+
+  <span>Remember me</span>
+</label>
                         <a href="#" class="text-sm font-semibold text-golf-accent hover:text-golf-accent-light transition-colors">Forgot password?</a>
                     </div>
 
