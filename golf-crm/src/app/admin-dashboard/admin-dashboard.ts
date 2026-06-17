@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -29,6 +29,9 @@ interface Tournament {
 })
 export class AdminDashboard implements OnInit {
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
+
+  isSigningOut = false;
 
   orgName = 'Oak Valley Golf Club';
   userName = 'Tournament Admin';
@@ -95,13 +98,55 @@ export class AdminDashboard implements OnInit {
 
   ngOnInit() {
     this.orgName = localStorage.getItem('orgName') || 'Oak Valley Golf Club';
-        const words = this.orgName.split(' ').filter(w => w.length > 0);
+    
+    // Default user initials calculation
+    const words = this.orgName.split(' ').filter(w => w.length > 0);
     if (words.length >= 2) {
       this.userInitials = (words[0][0] + words[1][0]).toUpperCase();
     } else if (words.length === 1) {
       this.userInitials = words[0].substring(0, 2).toUpperCase();
     } else {
       this.userInitials = 'OV';
+    }
+
+    // Load dynamic organization details if available
+    try {
+      const activeOrgRaw = localStorage.getItem('activeOrganization');
+      if (activeOrgRaw) {
+        const org = JSON.parse(activeOrgRaw);
+        
+        this.orgName = org.orgName || org.clubName || this.orgName;
+        
+        // Recalculate initials for the loaded organization name
+        const updatedWords = this.orgName.split(' ').filter(w => w.length > 0);
+        if (updatedWords.length >= 2) {
+          this.userInitials = (updatedWords[0][0] + updatedWords[1][0]).toUpperCase();
+        } else if (updatedWords.length === 1) {
+          this.userInitials = updatedWords[0].substring(0, 2).toUpperCase();
+        }
+
+        // Prefill courses list with the actual course configured during signup
+        if (org.courseName) {
+          const holesCount = org.course?.holesList?.length || 18;
+          const parValue = org.course?.holesList 
+            ? org.course.holesList.reduce((acc: number, h: any) => acc + (Number(h.par) || 4), 0) 
+            : 72;
+          const webUrl = org.websiteUrl || `golfscorepro.com/course/${org.urlSlug || 'oak-valley'}`;
+
+          this.courses = [
+            {
+              id: 'CRS-001',
+              name: org.courseName,
+              holes: holesCount,
+              par: parValue,
+              status: 'ACTIVE',
+              url: webUrl
+            }
+          ];
+        }
+      }
+    } catch (e) {
+      console.error('Error loading active organization details on dashboard:', e);
     }
   }
 
@@ -169,7 +214,11 @@ export class AdminDashboard implements OnInit {
   }
 
   signOut() {
-    localStorage.clear();
-    this.router.navigate(['/']);
+    this.isSigningOut = true;
+    this.cdr.detectChanges();
+    setTimeout(() => {
+      localStorage.clear();
+      this.router.navigate(['/']);
+    }, 800);
   }
 }

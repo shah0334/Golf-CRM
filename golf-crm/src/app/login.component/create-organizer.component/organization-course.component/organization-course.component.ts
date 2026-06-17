@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { RegistrationService } from '../../../services/registration.service';
 
 @Component({
   selector: 'app-organization-course',
@@ -12,16 +13,29 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 export class OrganizationCourseComponent implements OnInit {
   private router = inject(Router);
   private fb = inject(FormBuilder);
+  private registrationService = inject(RegistrationService);
   form!: FormGroup;
 
   ngOnInit() {
+    const data = this.registrationService.getData();
+    const initialInvite = data.inviteCode || '';
+    const initialOrgName = data.orgName || data.clubName || '';
+    let initialSlug = data.urlSlug || '';
+    
+    if (!initialSlug && initialOrgName) {
+      initialSlug = initialOrgName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+    }
+
     this.form = this.fb.group({
-      orgName: ['', [Validators.required]],
-      courseName: ['', [Validators.required]],
-      urlSlug: ['', [Validators.required]],
-      email: ['', [Validators.required, Validators.email]],
-      phone: ['', [Validators.required, Validators.pattern('^[+]?[0-9\\s\\-\\(\\)]{7,20}$')]],
-      inviteCode: ['', [Validators.required]]
+      orgName: [initialOrgName, [Validators.required]],
+      courseName: [data.courseName || '', [Validators.required]],
+      urlSlug: [initialSlug, []],
+      email: [data.orgEmail || data.email || '', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
+      phone: [data.phone || '', [Validators.required, Validators.pattern('^[+]?[0-9\\s\\-\\(\\)]{7,20}$')]],
+      inviteCode: [initialInvite, [Validators.required]]
     });
 
     this.form.get('orgName')?.valueChanges.subscribe(val => {
@@ -36,25 +50,41 @@ export class OrganizationCourseComponent implements OnInit {
       }
       this.form.get('urlSlug')?.markAsTouched();
     });
+
+    this.form.get('urlSlug')?.valueChanges.subscribe(val => {
+      if (val) {
+        const sanitized = val
+          .toLowerCase()
+          .replace(/[^a-z0-9-]+/g, '')
+          .replace(/--+/g, '-'); // prevent double dashes
+        if (val !== sanitized) {
+          this.form.get('urlSlug')?.setValue(sanitized, { emitEvent: false });
+        }
+      }
+    });
   }
 
-  regenerateInviteCode() {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let code = '';
-    for (let i = 0; i < 8; i++) {
-      code += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    this.form.get('inviteCode')?.setValue(code);
+  skipStep() {
+    this.registrationService.updateData({ skippedStep3: true });
+    this.router.navigate(['/assets-branding']);
   }
 
   onSubmit() {
-    // if (this.form.valid) {
-    //   localStorage.setItem('orgName', this.form.get('orgName')?.value || '');
-    //   localStorage.setItem('courseName', this.form.get('courseName')?.value || '');
-    //   localStorage.setItem('websiteUrl', this.form.get('urlSlug')?.value ? `https://${this.form.get('urlSlug')?.value}.golfscorepro.com` : '');
-    //   this.router.navigate(['/assets-branding']);
-    // } else {
-    //   this.form.markAllAsTouched();
-    // }
+    if (this.form.valid) {
+      const formValue = this.form.value;
+      this.registrationService.updateData({
+        orgName: formValue.orgName,
+        courseName: formValue.courseName,
+        urlSlug: formValue.urlSlug,
+        orgEmail: formValue.email,
+        phone: formValue.phone,
+        inviteCode: formValue.inviteCode,
+        websiteUrl: formValue.urlSlug ? `https://${formValue.urlSlug}.golfscorepro.com` : '',
+        skippedStep3: false // reset skipped flag if filled in
+      });
+      this.router.navigate(['/assets-branding']);
+    } else {
+      this.form.markAllAsTouched();
+    }
   }
 }

@@ -157,9 +157,17 @@
         </div>
       </label>
 
-      <button type="button" (click)="signOut(); isMobileMenuOpen = false"
-        class="w-full py-3 bg-red-600/25 border border-red-500/35 text-red-300 hover:text-red-200 font-bold rounded-xl text-sm transition-all duration-200 cursor-pointer">
-        Sign Out
+      <button type="button" (click)="signOut(); isMobileMenuOpen = false" [disabled]="isSigningOut"
+        class="w-full py-3 bg-red-600/25 border border-red-500/35 text-red-300 hover:text-red-200 font-bold rounded-xl text-sm transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+        @if (isSigningOut) {
+          <svg class="animate-spin h-4 w-4 text-red-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span>Signing Out...</span>
+        } @else {
+          <span>Sign Out</span>
+        }
       </button>
     </div>
   </div>
@@ -234,14 +242,22 @@
               </span>
             </div>
           </div>
-          <button type="button" (click)="signOut()"
-            class="px-4 py-2 bg-white border border-[#E1D9CD] hover:bg-red-50 hover:border-red-200 text-xs font-bold rounded-full transition-all duration-200 shadow-2xs flex items-center gap-2 text-[#051B11] hover:text-red-600 focus:outline-none cursor-pointer">
-            <svg class="w-4 h-4 text-[#5E806D] hover:text-red-500 transition-colors" fill="none" stroke="currentColor"
-              stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
-            </svg>
-            Sign Out
+          <button type="button" (click)="signOut()" [disabled]="isSigningOut"
+            class="px-4 py-2 bg-white border border-[#E1D9CD] hover:bg-red-50 hover:border-red-200 text-xs font-bold rounded-full transition-all duration-200 shadow-2xs flex items-center gap-2 text-[#051B11] hover:text-red-600 focus:outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+            @if (isSigningOut) {
+              <svg class="animate-spin h-3.5 w-3.5 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>Signing Out...</span>
+            } @else {
+              <svg class="w-4 h-4 text-[#5E806D] hover:text-red-500 transition-colors" fill="none" stroke="currentColor"
+                stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+              </svg>
+              <span>Sign Out</span>
+            }
           </button>
         </div>
       </div>

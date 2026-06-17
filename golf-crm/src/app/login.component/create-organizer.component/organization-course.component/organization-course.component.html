@@ -13,7 +13,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="space-y-2">
             <label class="block text-[11px] font-bold tracking-wider text-[#5E806D] uppercase">
-              Organization / Club Name *
+              Organization / Club Name <span class="text-red-500">*</span>
             </label>
             <div class="relative">
               <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#5E806D]/80">
@@ -22,7 +22,7 @@
                 </svg>
               </div>
               <input type="text" formControlName="orgName"
-                     [ngClass]="form.get('orgName')?.invalid && form.get('orgName')?.touched ? 'border-red-500 text-red-600 focus:ring-red-200 focus:border-red-500' : 'border-[#E1D9CD] text-[#051B11] focus:ring-[#DCAE5A]/20 focus:border-[#DCAE5A]'"
+                     [ngClass]="form.get('orgName')?.invalid && form.get('orgName')?.touched ? 'border-red-500 text-[#051B11] focus:ring-red-200 focus:border-red-500' : 'border-[#E1D9CD] text-[#051B11] focus:ring-[#DCAE5A]/20 focus:border-[#DCAE5A]'"
                      class="block w-full pl-11 pr-4 py-3.5 bg-white border rounded-xl placeholder-[#5E806D]/50 focus:outline-none focus:ring-2 transition-all text-sm font-semibold"
                      placeholder="Enter Organization Name">
             </div>
@@ -37,7 +37,7 @@
           </div>
           <div class="space-y-2">
             <label class="block text-[11px] font-bold tracking-wider text-[#5E806D] uppercase">
-              Primary Course Display Name *
+              Primary Course Display Name <span class="text-red-500">*</span>
             </label>
             <div class="relative">
               <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#5E806D]/80">
@@ -47,7 +47,7 @@
                 </svg>
               </div>
               <input type="text" formControlName="courseName"
-                     [ngClass]="form.get('courseName')?.invalid && form.get('courseName')?.touched ? 'border-red-500 text-red-600 focus:ring-red-200 focus:border-red-500' : 'border-[#E1D9CD] text-[#051B11] focus:ring-[#DCAE5A]/20 focus:border-[#DCAE5A]'"
+                     [ngClass]="form.get('courseName')?.invalid && form.get('courseName')?.touched ? 'border-red-500 text-[#051B11] focus:ring-red-200 focus:border-red-500' : 'border-[#E1D9CD] text-[#051B11] focus:ring-[#DCAE5A]/20 focus:border-[#DCAE5A]'"
                      class="block w-full pl-11 pr-4 py-3.5 bg-white border rounded-xl placeholder-[#5E806D]/50 focus:outline-none focus:ring-2 transition-all text-sm font-semibold"
                      placeholder="Enter Course Name">
             </div>
@@ -63,7 +63,7 @@
         </div>
         <div class="space-y-2">
           <label class="block text-[11px] font-bold tracking-wider text-[#5E806D] uppercase">
-            Organization URL Slug *
+            Organization URL Slug
           </label>
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#5E806D]/80">
@@ -72,23 +72,24 @@
               </svg>
             </div>
             <input type="text" formControlName="urlSlug"
-                   [ngClass]="form.get('urlSlug')?.invalid && form.get('urlSlug')?.touched ? 'border-red-500 text-red-600 focus:ring-red-200 focus:border-red-500' : 'border-[#E1D9CD] text-[#051B11] focus:ring-[#DCAE5A]/20 focus:border-[#DCAE5A]'"
+                   [ngClass]="form.get('urlSlug')?.invalid && form.get('urlSlug')?.touched ? 'border-red-500 text-[#051B11] focus:ring-red-200 focus:border-red-500' : 'border-[#E1D9CD] text-[#051B11] focus:ring-[#DCAE5A]/20 focus:border-[#DCAE5A]'"
                    class="block w-full pl-11 pr-4 py-3.5 bg-white border rounded-xl placeholder-[#5E806D]/50 focus:outline-none focus:ring-2 transition-all text-sm font-semibold"
                    placeholder="organization-name">
           </div>
-          @if (form.get('urlSlug')?.invalid && form.get('urlSlug')?.touched) {
-            <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
-              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-              </svg>
-              <span>URL slug is required.</span>
-            </div>
-          }
+          <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FAF7F2] border border-[#E1D9CD] rounded-full text-xs font-semibold text-[#5E806D] mt-2 w-fit">
+            <svg class="w-3.5 h-3.5 text-[#DCAE5A] shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 110-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 18.6 8.354a1 1 0 010 1.292l-4.454 1.154-1.179 4.456a1 1 0 01-1.934 0l-1.179-4.456L5.4 9.646a1 1 0 010-1.292l4.454-1.154 1.179-4.456A1 1 0 0112 2z" clip-rule="evenodd" />
+            </svg>
+            <span>golfscorepro.com/ <strong class="text-[#051B11] font-bold">{{ form.get('urlSlug')?.value || 'your-slug' }}</strong></span>
+          </div>
+          <p class="text-xs text-[#5E806D] font-medium pt-0.5">
+            This will be used in your organization URL.
+          </p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="space-y-2">
             <label class="block text-[11px] font-bold tracking-wider text-[#5E806D] uppercase">
-              Contact Email *
+              Contact Email <span class="text-red-500">*</span>
             </label>
             <div class="relative">
               <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#5E806D]/80">
@@ -97,7 +98,7 @@
                 </svg>
               </div>
               <input type="email" formControlName="email"
-                     [ngClass]="form.get('email')?.invalid && form.get('email')?.touched ? 'border-red-500 text-red-600 focus:ring-red-200 focus:border-red-500' : 'border-[#E1D9CD] text-[#051B11] focus:ring-[#DCAE5A]/20 focus:border-[#DCAE5A]'"
+                     [ngClass]="form.get('email')?.invalid && form.get('email')?.touched ? 'border-red-500 text-[#051B11] focus:ring-red-200 focus:border-red-500' : 'border-[#E1D9CD] text-[#051B11] focus:ring-[#DCAE5A]/20 focus:border-[#DCAE5A]'"
                      class="block w-full pl-11 pr-4 py-3.5 bg-white border rounded-xl placeholder-[#5E806D]/50 focus:outline-none focus:ring-2 transition-all text-sm font-semibold"
                      placeholder="contact@example.com">
             </div>
@@ -112,7 +113,7 @@
           </div>
           <div class="space-y-2">
             <label class="block text-[11px] font-bold tracking-wider text-[#5E806D] uppercase">
-              Contact Phone *
+              Contact Phone <span class="text-red-500">*</span>
             </label>
             <div class="relative">
               <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#5E806D]/80">
@@ -121,7 +122,7 @@
                 </svg>
               </div>
               <input type="text" formControlName="phone"
-                     [ngClass]="form.get('phone')?.invalid && form.get('phone')?.touched ? 'border-red-500 text-red-600 focus:ring-red-200 focus:border-red-500' : 'border-[#E1D9CD] text-[#051B11] focus:ring-[#DCAE5A]/20 focus:border-[#DCAE5A]'"
+                     [ngClass]="form.get('phone')?.invalid && form.get('phone')?.touched ? 'border-red-500 text-[#051B11] focus:ring-red-200 focus:border-red-500' : 'border-[#E1D9CD] text-[#051B11] focus:ring-[#DCAE5A]/20 focus:border-[#DCAE5A]'"
                      class="block w-full pl-11 pr-4 py-3.5 bg-white border rounded-xl placeholder-[#5E806D]/50 focus:outline-none focus:ring-2 transition-all text-sm font-semibold"
                      placeholder="+1 234 567 890">
             </div>
@@ -138,7 +139,7 @@
         <div class="space-y-2">
           <div class="flex justify-between items-center">
             <label class="block text-[11px] font-bold tracking-wider text-[#5E806D] uppercase">
-              Staff Invite Code *
+              Staff Invite Code <span class="text-red-500">*</span>
             </label>
           </div>
           <div class="relative">
@@ -148,9 +149,18 @@
               </svg>
             </div>
             <input type="text" formControlName="inviteCode"
+                   [ngClass]="form.get('inviteCode')?.invalid && form.get('inviteCode')?.touched ? 'border-red-500 text-[#051B11] focus:ring-red-200 focus:border-red-500' : 'border-[#E1D9CD] text-[#051B11] focus:ring-[#DCAE5A]/20 focus:border-[#DCAE5A]'"
                    class="block w-full pl-11 pr-4 py-3.5 bg-white border rounded-xl placeholder-[#5E806D]/50 focus:outline-none focus:ring-2 transition-all text-sm font-semibold"
                    placeholder="Enter Staff Invite Code">
           </div>
+          @if (form.get('inviteCode')?.invalid && form.get('inviteCode')?.touched) {
+            <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
+              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+              </svg>
+              <span>Staff Invite Code is required.</span>
+            </div>
+          }
           <p class="text-xs text-[#5E806D] font-medium pt-0.5">
             Share this code with staff to join your organization.
           </p>
@@ -163,9 +173,9 @@
             </svg>
             Back
           </a>
-          <a routerLink="/assets-branding" class="text-sm font-bold text-[#5E806D] hover:text-[#051B11] transition-colors cursor-pointer">
+          <button type="button" (click)="skipStep()" class="text-sm font-bold text-[#5E806D] hover:text-[#051B11] transition-colors cursor-pointer bg-transparent border-none p-0 align-baseline">
             Skip For Now
-          </a>
+          </button>
           </div>
        
           <button type="submit" class="px-6 py-2.5 bg-[#051B11] hover:bg-[#082b1c] text-white font-bold rounded-xl text-sm shadow-md transition-colors flex items-center gap-2 cursor-pointer">

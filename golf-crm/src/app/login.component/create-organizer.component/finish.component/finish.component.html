@@ -40,7 +40,16 @@
           <div class="space-y-3">
             <input type="text" [(ngModel)]="teeBoxNames" (ngModelChange)="onTeeBoxNamesChange($event)"
                    placeholder="Black, Blue, White, Red"
-                   class="block w-full rounded-xl border border-[#E1D9CD] bg-white py-2.5 px-4 text-[#051B13] placeholder-[#5E806D]/60 text-sm focus:border-[#DCAE5A] focus:outline-none focus:ring-1 focus:ring-[#DCAE5A]">
+                   [ngClass]="teeBoxError ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-[#E1D9CD] focus:ring-[#DCAE5A]/20 focus:border-[#DCAE5A]'"
+                   class="block w-full rounded-xl border bg-white py-2.5 px-4 text-[#051B13] placeholder-[#5E806D]/60 text-sm focus:outline-none focus:ring-1">
+            @if (teeBoxError) {
+              <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                </svg>
+                <span>Tee box names are required.</span>
+              </div>
+            }
             
             <div class="flex flex-wrap gap-2 mt-3">
               @for (tee of teeBoxes; track tee) {
@@ -110,7 +119,16 @@
             <div class="flex flex-col md:flex-row items-start">
               <div class="relative flex-grow w-full md:w-[70%]">
                 <input type="text" [disabled]="courseUrlAutoGenerate" [value]="courseUrl" (input)="onCourseUrlManualChange($any($event.target).value)"
-                       class="block w-full rounded-xl border border-[#E1D9CD] bg-white py-2.5 ps-4 text-[#051B11] placeholder-[#5E806D]/60 text-sm focus:border-[#DCAE5A] focus:outline-none focus:ring-1 focus:ring-[#DCAE5A] disabled:bg-[#FAF7F2]/50 disabled:text-[#5E806D]">
+                       [ngClass]="courseUrlError ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-[#E1D9CD] focus:ring-[#DCAE5A]/20 focus:border-[#DCAE5A]'"
+                       class="block w-full rounded-xl border bg-white py-2.5 ps-4 text-[#051B11] placeholder-[#5E806D]/60 text-sm focus:outline-none focus:ring-1 disabled:bg-[#FAF7F2]/50 disabled:text-[#5E806D]">
+                @if (courseUrlError) {
+                  <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                    </svg>
+                    <span>Course URL slug is required.</span>
+                  </div>
+                }
               </div>
               <label class="flex items-center gap-2 cursor-pointer py-2 px-3 hover:bg-[#FAF7F2] rounded-xl transition-colors select-none">
                 <input type="checkbox" [(ngModel)]="courseUrlAutoGenerate" (ngModelChange)="onCourseUrlAutoGenerateChange($event)"
@@ -123,29 +141,38 @@
               Preview: <span class="text-[#051B11] font-bold">golfscorepro.com{{ courseUrl }}</span>
             </p>
           </div>
+          @if (errorMessage) {
+            <div class="flex items-center gap-2 p-3.5 mb-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold">
+              <svg class="w-4.5 h-4.5 shrink-0 text-red-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+              </svg>
+              <span>{{ errorMessage }}</span>
+            </div>
+          }
+
           <div class="flex items-center justify-between pt-6 border-t border-[#E1D9CD]/40 mt-8">
-                            <div class="flex flex-col items-center sm:flex-row gap-2">
-
-        <a routerLink="/assets-branding" 
-           class="px-5 py-2.5 bg-white border border-[#E1D9CD] hover:bg-[#FAF7F2] text-[#051B11] font-bold rounded-xl text-sm transition-colors flex items-center gap-2 cursor-pointer focus:outline-none">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-          </svg>
-          Back
-        </a>
-
-        <a routerLink="/" class="text-sm font-bold text-[#5E806D] hover:text-[#051B11] transition-colors cursor-pointer">
-          Skip For Now
-        </a>
-</div>
-        <button type="button" (click)="finishSetup()" 
-                class="px-6 py-2.5 bg-[#051B11] hover:bg-[#082b1c] text-white font-bold rounded-xl text-sm shadow-md transition-colors flex items-center gap-2 cursor-pointer focus:outline-none">
-          Finish Onboarding
-          <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-          </svg>
-        </button>
-      </div>
+            <div class="flex flex-col items-center sm:flex-row gap-2">
+              <a routerLink="/assets-branding" 
+                 class="px-5 py-2.5 bg-white border border-[#E1D9CD] hover:bg-[#FAF7F2] text-[#051B11] font-bold rounded-xl text-sm transition-colors flex items-center gap-2 cursor-pointer focus:outline-none">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                </svg>
+                Back
+              </a>
+              <a routerLink="/" class="text-sm font-bold text-[#5E806D] hover:text-[#051B11] transition-colors cursor-pointer">
+                Skip For Now
+              </a>
+            </div>
+            <button type="button" (click)="finishSetup()" [disabled]="isSubmitting"
+                    class="px-6 py-2.5 bg-[#051B11] hover:bg-[#082b1c] text-white font-bold rounded-xl text-sm shadow-md transition-colors flex items-center gap-2 cursor-pointer focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
+              <span>{{ isSubmitting ? 'Completing Onboarding...' : 'Finish Onboarding' }}</span>
+              @if (!isSubmitting) {
+                <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+              }
+            </button>
+          </div>
         </div>
       </div>      
 
