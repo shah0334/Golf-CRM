@@ -5,6 +5,7 @@ import { StepperLayoutComponent } from './login.component/create-organizer.compo
 import { OrganizationCourseComponent } from './login.component/create-organizer.component/organization-course.component/organization-course.component';
 import { AssetsBrandingComponent } from './login.component/create-organizer.component/assets-branding.component/assets-branding.component';
 import { FinishComponent } from './login.component/create-organizer.component/finish.component/finish.component';
+import { AdminDashboard } from './admin-dashboard/admin-dashboard';
 
 export const routes: Routes = [
   { path: '', component: LoginComponent },
@@ -17,6 +18,8 @@ export const routes: Routes = [
       { path: 'assets-branding', component: AssetsBrandingComponent },
       { path: 'finish', component: FinishComponent }
     ]
-  }
+  },
+  { path: 'admin-dashboard', component: AdminDashboard },
 ];
+
 
