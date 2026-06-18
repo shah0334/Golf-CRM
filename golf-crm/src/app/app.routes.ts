@@ -7,6 +7,7 @@ import { OrganizationCourseComponent } from './login.component/create-organizer.
 import { AssetsBrandingComponent } from './login.component/create-organizer.component/assets-branding.component/assets-branding.component';
 import { FinishComponent } from './login.component/create-organizer.component/finish.component/finish.component';
 import { AdminDashboard } from './admin-dashboard/admin-dashboard';
+import { RosterComponent } from './admin-dashboard/roster.component/roster.component';
 import { RegistrationService } from './services/registration.service';
 
 const authGuard = () => {
@@ -76,6 +77,7 @@ export const routes: Routes = [
     ]
   },
   { path: 'admin-dashboard', component: AdminDashboard, canActivate: [authGuard] },
+  { path: 'admin-dashboard/roster', component: RosterComponent, canActivate: [authGuard] },
 ];
 
 

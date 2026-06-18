@@ -11,6 +11,14 @@ interface Course {
   par: number;
   status: 'ACTIVE' | 'DRAFT' | 'ARCHIVED';
   url: string;
+  logoPreview?: string | null;
+  scorecardPreview?: string | null;
+  branding?: {
+    logoPreview?: string | null;
+    scorecardPreview?: string | null;
+    logoFileName?: string | null;
+    scorecardFileName?: string | null;
+  };
 }
 
 interface Tournament {
@@ -43,6 +51,7 @@ export class AdminDashboard implements OnInit {
   showArchived = false;
   isMobileMenuOpen = false;
   copiedCourseId: string | null = null;
+  selectedScorecardUrl: string | null = null;
 
   courses: Course[] = [
     {
@@ -141,10 +150,22 @@ export class AdminDashboard implements OnInit {
             holes: holesCount,
             par: parValue,
             status: 'ACTIVE',
-            url: webUrl
+            url: webUrl,
+            logoPreview: org.logoPreview || org.branding?.logoPreview || null,
+            scorecardPreview: org.scorecardPreview || org.branding?.scorecardPreview || null
           };
 
-          const additionalCourses: Course[] = org.courses || [];
+          const additionalCourses: Course[] = (org.courses || []).map((c: any) => ({
+            id: c.id,
+            name: c.name,
+            holes: c.holes,
+            par: c.par,
+            status: c.status,
+            url: c.url,
+            logoPreview: c.logoPreview || c.branding?.logoPreview || null,
+            scorecardPreview: c.scorecardPreview || c.branding?.scorecardPreview || null
+          }));
+          
           this.courses = [primaryCourse, ...additionalCourses];
         }
       }
@@ -208,6 +229,15 @@ export class AdminDashboard implements OnInit {
 
   deleteTournament(id: string) {
     this.tournaments = this.tournaments.filter(t => t.id !== id);
+  }
+
+  showScorecard(course: Course) {
+    const url = course.scorecardPreview || course.branding?.scorecardPreview || null;
+    if (url) {
+      this.selectedScorecardUrl = url;
+    } else {
+      alert('No scorecard image has been uploaded for this course.');
+    }
   }
 
   signOut() {
