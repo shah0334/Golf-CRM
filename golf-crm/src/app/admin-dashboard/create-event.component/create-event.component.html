@@ -1,0 +1,1027 @@
+<div class="min-h-screen bg-[#FAF7F2] text-[#051B11] font-sans flex flex-col justify-between py-8 px-4 sm:px-8 relative">
+  <!-- Header section -->
+  <header class="max-w-5xl mx-auto w-full space-y-6">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div class="flex items-center gap-4">
+        <!-- Back button -->
+        <button type="button"
+                (click)="currentStep > 1 ? prevStep() : router.navigate(['/admin-dashboard'])"
+                class="w-10 h-10 bg-white border border-[#E1D9CD] hover:border-[#5E806D] rounded-full flex items-center justify-center text-[#051B11] hover:text-[#5E806D] transition-colors shadow-2xs cursor-pointer focus:outline-none">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+          </svg>
+        </button>
+        <div>
+          <h1 class="text-2xl sm:text-3.5xl font-serif font-extrabold tracking-tight text-[#051B11] leading-none">
+            Create New Event
+          </h1>
+          <p class="text-xs sm:text-sm text-[#7A9A8A] font-semibold mt-1.5">
+            Configure your tournament, clinic, camp, or golf event.
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="px-3 py-1 bg-white border border-[#E1D9CD] text-[#051B11] text-[10px] font-extrabold uppercase rounded-full tracking-wider shadow-2xs">
+          Step {{ currentStep }} of {{ totalSteps }}
+        </span>
+        <span class="px-3 py-1 bg-[#DCAE5A]/15 border border-[#DCAE5A]/35 text-[#DCAE5A] text-[10px] font-extrabold uppercase rounded-full tracking-wider shadow-2xs">
+          {{ getEventTypeName() }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Stepper layout progress bar -->
+    <div class="w-full overflow-x-auto pb-2 scrollbar-none">
+      <div class="flex items-center gap-4 min-w-[800px] py-1">
+        @for (step of steps; track step.number) {
+          <div class="flex items-center gap-2.5 shrink-0" (click)="goToStep(step.number)">
+            <!-- Circle indicator -->
+            <button type="button"
+                    [ngClass]="{
+                      'bg-[#051B11] text-white border-transparent shadow-xs': step.number === currentStep,
+                      'bg-[#DCAE5A]/15 border-[#DCAE5A]/35 text-[#DCAE5A] shadow-2xs': step.number < currentStep,
+                      'bg-white border-[#E1D9CD] text-[#7A9A8A] hover:border-[#5E806D]': step.number > currentStep
+                    }"
+                    class="w-8 h-8 rounded-full border flex items-center justify-center text-xs font-extrabold transition-all cursor-pointer focus:outline-none">
+              @if (step.number < currentStep) {
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+              } @else {
+                {{ step.number }}
+              }
+            </button>
+            <span [ngClass]="{'text-[#051B11] font-bold': step.number === currentStep, 'text-[#7A9A8A] font-semibold': step.number !== currentStep}"
+                  class="text-xs tracking-tight transition-colors">
+              {{ step.label }}
+            </span>
+            <!-- Line divider (omit for last step) -->
+            @if (step.number !== totalSteps) {
+              <div [ngClass]="{
+                'bg-[#DCAE5A]': step.number < currentStep,
+                'bg-[#E1D9CD]/80': step.number >= currentStep
+              }"
+              class="w-8 h-[1px]"></div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </header>
+
+  <!-- Main wizard content card -->
+  <main class="max-w-5xl mx-auto w-full flex-grow mt-6 flex flex-col">
+    <div class="bg-white border border-[#E1D9CD]/70 rounded-3xl p-6 sm:p-10 shadow-xs flex-grow flex flex-col justify-between min-h-[480px]">
+      
+      <!-- STEP 1: EVENT TYPE SELECTION -->
+      @if (currentStep === 1) {
+        <div class="space-y-6 flex-grow">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-serif font-extrabold text-[#051B11]">
+              Choose Event Type
+            </h2>
+            <p class="text-xs sm:text-sm text-[#7A9A8A] font-semibold mt-1">
+              Selecting an event type dynamically updates relevant settings.
+            </p>
+          </div>
+
+          <!-- 2x2 Grid of Event Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+            @for (type of eventTypes; track type.id) {
+              <div (click)="selectEventType(type.id)"
+                   [ngClass]="{
+                     'bg-[#051B11] border-[#DCAE5A]/45 text-white shadow-lg ring-1 ring-[#DCAE5A]/25': selectedEventType === type.id,
+                     'bg-white border-[#E1D9CD] hover:border-[#5E806D]/60 hover:shadow-2xs text-[#051B11]': selectedEventType !== type.id
+                   }"
+                   class="relative p-6 rounded-2xl border transition-all duration-200 cursor-pointer flex justify-between overflow-hidden group">
+                
+                <!-- Card content -->
+                <div class="space-y-4 pr-12 z-10 flex flex-col justify-between">
+                  <!-- Icon indicator wrapper -->
+                  <div [ngClass]="{
+                    'bg-[#DCAE5A]/15 border-[#DCAE5A]/35 text-[#DCAE5A]': selectedEventType === type.id,
+                    'bg-[#051B11]/5 border-[#051B11]/10 text-[#051B11]': selectedEventType !== type.id
+                  }"
+                  class="w-10 h-10 rounded-xl border flex items-center justify-center text-lg shadow-2xs">
+                    {{ type.icon }}
+                  </div>
+                  <div class="space-y-1">
+                    <h3 class="text-base font-extrabold leading-none">
+                      {{ type.title }}
+                    </h3>
+                    <p [ngClass]="{
+                      'text-[#7A9A8A]/90': selectedEventType === type.id,
+                      'text-[#7A9A8A]': selectedEventType !== type.id
+                    }"
+                    class="text-xs font-semibold leading-relaxed">
+                      {{ type.description }}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Checkmark badge (only shown for active selection) -->
+                @if (selectedEventType === type.id) {
+                  <div class="absolute top-4 right-4 w-5 h-5 rounded-full bg-[#DCAE5A] text-[#051B11] flex items-center justify-center shadow-xs">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                  </div>
+                }
+
+                <!-- Watermark background decoration -->
+                <div [ngClass]="{
+                  'text-white opacity-[0.03]': selectedEventType === type.id,
+                  'text-[#051B11] opacity-[0.04]': selectedEventType !== type.id
+                }"
+                class="absolute -right-4 -bottom-6 select-none pointer-events-none transition-transform duration-300 group-hover:scale-105">
+                  @if (type.id === 'tournament') {
+                    <svg class="w-32 h-32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                      <!-- Cup -->
+                      <path d="M6 4h12v5c0 3.3-2.7 6-6 6s-6-2.7-6-6V4z" />
+                      <!-- Handles -->
+                      <path d="M6 6H4c-1.1 0-2 0.9-2 2v1c0 1.7 1.3 3 3 3h1" />
+                      <path d="M18 6h2c1.1 0 2 0.9 2 2v1c0 1.7-1.3 3-3 3h-1" />
+                      <!-- Stem -->
+                      <path d="M12 15v4" />
+                      <!-- Base -->
+                      <path d="M8 19h8l2 3H6z" />
+                    </svg>
+                  } @else if (type.id === 'clinic') {
+                    <svg class="w-32 h-32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10" />
+                      <circle cx="12" cy="12" r="6" />
+                      <circle cx="12" cy="12" r="2" />
+                    </svg>
+                  } @else if (type.id === 'camp') {
+                    <svg class="w-32 h-32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                      <!-- Flagpole -->
+                      <path d="M8 22V2" />
+                      <!-- Flag (triangular golf pin flag) -->
+                      <path d="M8 4l11 5-11 5" />
+                      <!-- Green hill/ground at the bottom -->
+                      <path d="M2 22c4-2 16-2 20 0" />
+                    </svg>
+                  } @else if (type.id === 'general') {
+                    <svg class="w-32 h-32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                      <!-- Outer binder board -->
+                      <rect x="3" y="4" width="18" height="17" rx="2" />
+                      <!-- Binder rings/loops on top -->
+                      <path d="M16 2v4M8 2v4" />
+                      <!-- Header line -->
+                      <path d="M3 9h18" />
+                      <!-- Grid lines for columns -->
+                      <path d="M9 9v12M15 9v12" />
+                      <!-- Grid lines for rows -->
+                      <path d="M3 13h18M3 17h18" />
+                    </svg>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- STEP 2: EVENT DETAILS -->
+      @if (currentStep === 2) {
+        <div class="space-y-6 flex-grow">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-serif font-extrabold text-[#051B11]">
+              Event Details
+            </h2>
+            <p class="text-xs sm:text-sm text-[#7A9A8A] font-semibold mt-1">
+              Name your event and confirm its category.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 mt-8">
+            <!-- Event Name -->
+            <div>
+              <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                Event Name <span class="text-[#DCAE5A]">*</span>
+              </label>
+              <input type="text"
+                     [(ngModel)]="eventName"
+                     name="eventName"
+                     placeholder="e.g., Spring Member Open"
+                     class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] placeholder-[#7A9A8A]/50 font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none" />
+            </div>
+
+            <!-- Event Type (Dynamic Dropdown) -->
+            <div>
+              <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                Event Type <span class="text-[#DCAE5A]">*</span>
+              </label>
+              <div class="relative">
+                <select [(ngModel)]="selectedEventType"
+                        name="selectedEventType"
+                        class="w-full px-5 py-3.5 bg-white border border-[#051B11] focus:border-[#5E806D] text-[#051B11] font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none appearance-none cursor-pointer pr-12">
+                  <option value="tournament">Tournament</option>
+                  <option value="clinic">Clinic</option>
+                  <option value="camp">Camp</option>
+                  <option value="general">General Event</option>
+                </select>
+                <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-[#051B11]">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Event Category -->
+            <div>
+              <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                Event Category <span class="text-[#DCAE5A]">*</span>
+              </label>
+              <div class="relative">
+                <select [(ngModel)]="eventCategory"
+                        name="eventCategory"
+                        class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none appearance-none cursor-pointer pr-12">
+                  <option value="Tournament">Tournament</option>
+                  <option value="Clinic">Clinic</option>
+                  <option value="Camp">Camp</option>
+                  <option value="Social">Social</option>
+                  <option value="Club Event">Club Event</option>
+                </select>
+                <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-[#051B11]">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- DYNAMIC FIELDS FOR CLINIC -->
+            @if (selectedEventType === 'clinic') {
+              <!-- Instructor Name -->
+              <div>
+                <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                  Instructor Name
+                </label>
+                <input type="text"
+                       [(ngModel)]="instructorName"
+                       name="instructorName"
+                       placeholder="PGA Pro Name"
+                       class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] placeholder-[#7A9A8A]/50 font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none" />
+              </div>
+
+              <!-- Maximum Participants -->
+              <div>
+                <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                  Maximum Participants
+                </label>
+                <input type="number"
+                       [(ngModel)]="maxParticipants"
+                       name="maxParticipants"
+                       placeholder="24"
+                       class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] placeholder-[#7A9A8A]/50 font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none" />
+              </div>
+              <!-- Empty spacer to keep Session Schedule on a new row -->
+              <div></div>
+
+              <!-- Session Schedule (Full Width) -->
+              <div class="md:col-span-2">
+                <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                  Session Schedule
+                </label>
+                <textarea [(ngModel)]="sessionSchedule"
+                          name="sessionSchedule"
+                          placeholder="Sat 9–11 AM: Putting fundamentals..."
+                          rows="3"
+                          class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] placeholder-[#7A9A8A]/50 font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none resize-none"></textarea>
+              </div>
+            }
+
+            <!-- DYNAMIC FIELDS FOR CAMP -->
+            @if (selectedEventType === 'camp') {
+              <!-- Camp Duration -->
+              <div>
+                <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                  Camp Duration
+                </label>
+                <input type="text"
+                       [(ngModel)]="campDuration"
+                       name="campDuration"
+                       placeholder="3 days"
+                       class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] placeholder-[#7A9A8A]/50 font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none" />
+              </div>
+
+              <!-- Maximum Participants -->
+              <div>
+                <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                  Maximum Participants
+                </label>
+                <input type="number"
+                       [(ngModel)]="maxParticipants"
+                       name="maxParticipants"
+                       placeholder="32"
+                       class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] placeholder-[#7A9A8A]/50 font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none" />
+              </div>
+              <!-- Empty spacer to keep Daily Schedule on a new row -->
+              <div></div>
+
+              <!-- Daily Schedule (Full Width) -->
+              <div class="md:col-span-2">
+                <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                  Daily Schedule
+                </label>
+                <textarea [(ngModel)]="dailySchedule"
+                          name="dailySchedule"
+                          placeholder="Day 1: Intro & evaluations..."
+                          rows="3"
+                          class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] placeholder-[#7A9A8A]/50 font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none resize-none"></textarea>
+              </div>
+            }
+
+            <!-- DYNAMIC FIELDS FOR GENERAL EVENT -->
+            @if (selectedEventType === 'general') {
+              <!-- Venue Information -->
+              <div>
+                <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                  Venue Information
+                </label>
+                <input type="text"
+                       [(ngModel)]="venueInformation"
+                       name="venueInformation"
+                       placeholder="Club House Ballroom"
+                       class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] placeholder-[#7A9A8A]/50 font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none" />
+              </div>
+
+              <!-- Event Description (Full Width) -->
+              <div class="md:col-span-2">
+                <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                  Event Description
+                </label>
+                <textarea [(ngModel)]="eventDescription"
+                          name="eventDescription"
+                          placeholder="Tell guests what to expect..."
+                          rows="3"
+                          class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] placeholder-[#7A9A8A]/50 font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none resize-none"></textarea>
+              </div>
+            }
+
+            <!-- Empty spacer for tournament (so category sits nicely by itself, or layout is consistent) -->
+            @if (selectedEventType === 'tournament') {
+              <div></div>
+            }
+
+          </div>
+        </div>
+      }
+
+      <!-- STEP 3: PLAYERS & REGISTRATION -->
+      @if (currentStep === 3) {
+        <div class="space-y-6 flex-grow">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-serif font-extrabold text-[#051B11]">
+              Players & Registration
+            </h2>
+            <p class="text-xs sm:text-sm text-[#7A9A8A] font-semibold mt-1">
+              Control how players access scorecards and register.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 mt-8">
+            <!-- Scorecard Access Mode -->
+            <div>
+              <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                Scorecard Access Mode <span class="text-[#DCAE5A]">*</span>
+              </label>
+              <div class="relative">
+                <select [(ngModel)]="scorecardAccessMode"
+                        name="scorecardAccessMode"
+                        class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none appearance-none cursor-pointer pr-12">
+                  <option value="Public Registration">Public Registration</option>
+                  <option value="Private Access">Private Access</option>
+                </select>
+                <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-[#051B11]">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- How Will Players Join? (Dynamic Border when active) -->
+            <div>
+              <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                How Will Players Join? <span class="text-[#DCAE5A]">*</span>
+              </label>
+              <div class="relative">
+                <select [(ngModel)]="playersJoinMode"
+                        name="playersJoinMode"
+                        class="w-full px-5 py-3.5 bg-white border border-[#051B11] focus:border-[#5E806D] text-[#051B11] font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none appearance-none cursor-pointer pr-12">
+                  <option value="Group / Team Sign-Up">Group / Team Sign-Up</option>
+                  <option value="Individual Sign-Up">Individual Sign-Up</option>
+                  <option value="Invite Only">Invite Only</option>
+                </select>
+                <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-[#051B11]">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Organizer Name -->
+            <div>
+              <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                Organizer Name <span class="text-[#DCAE5A]">*</span>
+              </label>
+              <input type="text"
+                     [(ngModel)]="organizerName"
+                     name="organizerName"
+                     placeholder="John Anderson"
+                     class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] placeholder-[#7A9A8A]/50 font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none" />
+            </div>
+
+            <!-- Organizer Email -->
+            <div>
+              <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                Organizer Email <span class="text-[#DCAE5A]">*</span>
+              </label>
+              <input type="email"
+                     [(ngModel)]="organizerEmail"
+                     name="organizerEmail"
+                     placeholder="john@oakvalley.com"
+                     class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] placeholder-[#7A9A8A]/50 font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none" />
+            </div>
+
+          </div>
+        </div>
+      }
+
+      <!-- STEP 4: COURSE & DATE -->
+      @if (currentStep === 4) {
+        <div class="space-y-6 flex-grow">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-serif font-extrabold text-[#051B11]">
+              Course & Date
+            </h2>
+            <p class="text-xs sm:text-sm text-[#7A9A8A] font-semibold mt-1">
+              Pick the course, schedule, and event lifecycle status.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 mt-8">
+            <!-- Select Course (Full width) -->
+            <div class="md:col-span-2">
+              <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                Select Course <span class="text-[#DCAE5A]">*</span>
+              </label>
+              <div class="relative">
+                <select [(ngModel)]="selectedCourse"
+                        name="selectedCourse"
+                        class="w-full px-5 py-3.5 bg-white border border-[#051B11] focus:border-[#5E806D] text-[#051B11] font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none appearance-none cursor-pointer pr-12">
+                  <option value="— Choose a course —">— Choose a course —</option>
+                  <option value="Oak Valley Championship Course">Oak Valley Championship Course</option>
+                  <option value="Pine Ridge Executive Course">Pine Ridge Executive Course</option>
+                </select>
+                <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-[#051B11]">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Event Date -->
+            <div>
+              <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                Event Date <span class="text-[#DCAE5A]">*</span>
+              </label>
+              <div class="relative">
+                <input type="date"
+                       [(ngModel)]="eventDate"
+                       name="eventDate"
+                       class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none" />
+              </div>
+            </div>
+
+            <!-- Event Status -->
+            <div>
+              <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                Event Status <span class="text-[#DCAE5A]">*</span>
+              </label>
+              <div class="relative">
+                <select [(ngModel)]="eventStatus"
+                        name="eventStatus"
+                        class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none appearance-none cursor-pointer pr-12">
+                  <option value="Draft">Draft</option>
+                  <option value="live">Open (Live)</option>
+                  
+                </select>
+                <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-[#051B11]">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Action Buttons (Left-aligned) -->
+            <div class="md:col-span-2 flex flex-wrap gap-3 mt-4">
+              <button type="button"
+                      class="px-5 py-2.5 bg-white border border-[#E1D9CD] hover:border-[#5E806D] text-[#051B11] hover:text-[#5E806D] font-bold rounded-full text-xs transition-all flex items-center shadow-2xs cursor-pointer focus:outline-none">
+                <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v4M8 19h8M6 4h12v5c0 3.3-2.7 6-6 6s-6-2.7-6-6V4zM6 6H4c-1.1 0-2 0.9-2 2v1c0 1.7 1.3 3 3 3h1M18 6h2c1.1 0 2 0.9 2 2v1c0 1.7-1.3 3-3 3h-1" />
+                </svg>
+                Open Tournament Scorecard
+              </button>
+              <button type="button"
+                      class="px-5 py-2.5 bg-white border border-[#E1D9CD] hover:border-[#5E806D] text-[#051B11] hover:text-[#5E806D] font-bold rounded-full text-xs transition-all flex items-center shadow-2xs cursor-pointer focus:outline-none">
+                <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+                Copy Scorecard Link
+              </button>
+            </div>
+
+          </div>
+        </div>
+      }
+
+      <!-- STEP 5: FORMAT -->
+      @if (currentStep === 5) {
+        <div class="space-y-6 flex-grow">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-serif font-extrabold text-[#051B11]">
+              Format
+            </h2>
+            @if (selectedEventType === 'tournament') {
+              <p class="text-xs sm:text-sm text-[#7A9A8A] font-semibold mt-1">
+                Configure the scoring format and rules for the tournament.
+              </p>
+            } @else {
+              <p class="text-xs sm:text-sm text-[#7A9A8A] font-semibold mt-1">
+                Tournament-specific scoring is hidden for this event type.
+              </p>
+            }
+          </div>
+
+          @if (selectedEventType === 'tournament') {
+            <!-- Tournament Scoring Fields -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 mt-8">
+              <!-- Scoring Format -->
+              <div>
+                <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                  Scoring Format <span class="text-[#DCAE5A]">*</span>
+                </label>
+                <div class="relative">
+                  <select [(ngModel)]="scoringFormat"
+                          name="scoringFormat"
+                          class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none appearance-none cursor-pointer pr-12">
+                    <option value="Stroke Play">Stroke Play</option>
+                    <option value="Stableford">Stableford</option>
+                    <option value="Scramble">Scramble</option>
+                  </select>
+                  <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-[#051B11]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Handicap Calculation -->
+              <div>
+                <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                  Handicap Calculation <span class="text-[#DCAE5A]">*</span>
+                </label>
+                <div class="relative">
+                  <select [(ngModel)]="handicapCalculation"
+                          name="handicapCalculation"
+                          class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none appearance-none cursor-pointer pr-12">
+                    <option value="No Handicap">No Handicap</option>
+                    <option value="Course Handicap">Course Handicap</option>
+                    <option value="GHIN Index">GHIN Index</option>
+                  </select>
+                  <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-[#051B11]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Holes to Play -->
+              <div>
+                <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                  Holes to Play <span class="text-[#DCAE5A]">*</span>
+                </label>
+                <div class="relative">
+                  <select [(ngModel)]="holesToPlay"
+                          name="holesToPlay"
+                          class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none appearance-none cursor-pointer pr-12">
+                    <option value="18 Holes">18 Holes</option>
+                    <option value="9 Holes">9 Holes</option>
+                  </select>
+                  <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-[#051B11]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          } @else {
+            <!-- Beautiful skip alert block -->
+            <div class="mt-4">
+              <div class="bg-[#FAF7F2]/60 border border-[#E1D9CD] rounded-2xl p-5 flex items-center gap-3">
+                <svg class="w-5 h-5 text-[#7A9A8A] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" x2="12" y1="8" y2="12" />
+                  <line x1="12" x2="12.01" y1="16" y2="16" />
+                </svg>
+                <span class="text-xs sm:text-sm font-semibold text-[#7A9A8A]">
+                  @if (selectedEventType === 'general') {
+                    General events skip tournament scoring settings.
+                  } @else if (selectedEventType === 'clinic') {
+                    Clinics skip tournament scoring settings.
+                  } @else if (selectedEventType === 'camp') {
+                    Camps skip tournament scoring settings.
+                  }
+                </span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- STEP 6: SPONSORS & BRANDING -->
+      @if (currentStep === 6) {
+        <div class="space-y-6 flex-grow">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-serif font-extrabold text-[#051B11]">
+              Sponsors & Branding
+            </h2>
+            <p class="text-xs sm:text-sm text-[#7A9A8A] font-semibold mt-1">
+              Recognize partners with tiers, logos, and links.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 mt-8">
+            <!-- Sponsor Tier (Select dropdown, pre-selected "Presenting" with active border) -->
+            <div>
+              <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                Sponsor Tier
+              </label>
+              <div class="relative">
+                <select [(ngModel)]="sponsorTier"
+                        name="sponsorTier"
+                        class="w-full px-5 py-3.5 bg-white border border-[#051B11] focus:border-[#5E806D] text-[#051B11] font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none appearance-none cursor-pointer pr-12">
+                  <option value="Presenting">Presenting</option>
+                  <option value="Platinum">Platinum</option>
+                  <option value="Gold">Gold</option>
+                  <option value="Silver">Silver</option>
+                  <option value="Hole">Hole</option>
+                </select>
+                <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-[#051B11]">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sponsor Display Name -->
+            <div>
+              <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                Sponsor Display Name
+              </label>
+              <input type="text"
+                     [(ngModel)]="sponsorDisplayName"
+                     name="sponsorDisplayName"
+                     placeholder="Acme Country Club"
+                     class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] placeholder-[#7A9A8A]/50 font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none" />
+            </div>
+
+            <!-- Sponsor Website -->
+            <div>
+              <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                Sponsor Website
+              </label>
+              <input type="text"
+                     [(ngModel)]="sponsorWebsite"
+                     name="sponsorWebsite"
+                     placeholder="https://"
+                     class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] placeholder-[#7A9A8A]/50 font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none" />
+            </div>
+
+            <!-- Sponsor Logo Upload -->
+            <div>
+              <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                Sponsor Logo Upload
+              </label>
+              <div class="w-full py-3.5 px-5 bg-white border border-dashed border-[#E1D9CD] hover:border-[#5E806D] rounded-2xl flex items-center justify-center text-[#7A9A8A] font-semibold text-sm shadow-3xs transition-colors cursor-pointer select-none">
+                <svg class="w-4 h-4 mr-1.5 text-[#7A9A8A]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                </svg>
+                Upload logo
+              </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="md:col-span-2 flex flex-wrap gap-3 mt-4">
+              <button type="button"
+                      (click)="addSponsor()"
+                      class="px-5 py-2.5 bg-[#051B11] hover:bg-[#082b1c] text-white font-bold rounded-full text-xs transition-all flex items-center shadow-xs cursor-pointer focus:outline-none">
+                <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Add Sponsor
+              </button>
+              <button type="button"
+                      (click)="clearSponsorForm()"
+                      class="px-5 py-2.5 bg-white border border-[#E1D9CD] hover:border-[#5E806D] text-[#051B11] font-bold rounded-full text-xs transition-all flex items-center shadow-2xs cursor-pointer focus:outline-none">
+                <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Clear Sponsor Form
+              </button>
+            </div>
+
+          </div>
+        </div>
+      }
+
+      <!-- STEP 7: REVIEW & LINKS -->
+      @if (currentStep === 7) {
+        <div class="space-y-8 flex-grow">
+          <!-- CARD 1: EVENT ID & ADMIN TOKEN -->
+          <div class="bg-white border border-[#E1D9CD]/50 rounded-2xl p-6 shadow-3xs space-y-4">
+            <div>
+              <h3 class="text-base font-serif font-extrabold text-[#051B11]">
+                Event ID & Admin Token
+              </h3>
+              <p class="text-xs text-[#7A9A8A] font-semibold mt-0.5">
+                Auto-generated identifiers for this event.
+              </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Event ID -->
+              <div>
+                <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                  Event ID
+                </label>
+                <div class="flex justify-between items-center w-full px-5 py-3.5 bg-[#FAF7F2]/60 border border-[#E1D9CD] text-[#051B11] font-semibold text-sm rounded-2xl shadow-3xs">
+                  <span>EVT-ODCGZG</span>
+                  <button type="button" class="text-[#7A9A8A] hover:text-[#051B11] cursor-pointer focus:outline-none">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Admin Token -->
+              <div>
+                <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
+                  Admin Token
+                </label>
+                <div class="flex justify-between items-center w-full px-5 py-3.5 bg-[#FAF7F2]/60 border border-[#E1D9CD] text-[#051B11] font-semibold text-sm rounded-2xl shadow-3xs">
+                  <span>ADM-915ONG-MYRI</span>
+                  <button type="button" class="text-[#7A9A8A] hover:text-[#051B11] cursor-pointer focus:outline-none">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 2: LINKS & QR CODES -->
+          <div class="bg-white border border-[#E1D9CD]/50 rounded-2xl p-6 shadow-3xs space-y-6">
+            <div>
+              <h3 class="text-base font-serif font-extrabold text-[#051B11]">
+                Links & QR Codes
+              </h3>
+              <p class="text-xs text-[#7A9A8A] font-semibold mt-0.5">
+                Share scorecards, leaderboards, rosters, and registration links.
+              </p>
+            </div>
+
+            <!-- Links list -->
+            <div class="space-y-4">
+              <!-- Tournament Scorecard -->
+              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-[#FAF7F2]/30 border border-[#E1D9CD]/50 rounded-2xl gap-4">
+                <div>
+                  <label class="block text-[9px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-1">TOURNAMENT SCORECARD</label>
+                  <span class="text-xs sm:text-sm font-semibold text-[#051B11] break-all">https://golfscorepro.com/s/evt-odcgzg</span>
+                </div>
+                <button type="button" class="px-4 py-2 bg-[#051B11] hover:bg-[#082b1c] text-white font-bold rounded-full text-[10px] sm:text-xs flex items-center shadow-xs cursor-pointer focus:outline-none shrink-0 gap-1.5 transition-colors">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                  </svg>
+                  Copy Tournament Scorecard
+                </button>
+              </div>
+
+              <!-- Live Leaderboard -->
+              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-[#FAF7F2]/30 border border-[#E1D9CD]/50 rounded-2xl gap-4">
+                <div>
+                  <label class="block text-[9px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-1">LIVE LEADERBOARD</label>
+                  <span class="text-xs sm:text-sm font-semibold text-[#051B11] break-all">https://golfscorepro.com/l/evt-odcgzg</span>
+                </div>
+                <button type="button" class="px-4 py-2 bg-[#051B11] hover:bg-[#082b1c] text-white font-bold rounded-full text-[10px] sm:text-xs flex items-center shadow-xs cursor-pointer focus:outline-none shrink-0 gap-1.5 transition-colors">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                  </svg>
+                  Copy Live Leaderboard
+                </button>
+              </div>
+
+              <!-- Roster -->
+              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-[#FAF7F2]/30 border border-[#E1D9CD]/50 rounded-2xl gap-4">
+                <div>
+                  <label class="block text-[9px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-1">ROSTER</label>
+                  <span class="text-xs sm:text-sm font-semibold text-[#051B11] break-all">https://golfscorepro.com/r/evt-odcgzg</span>
+                </div>
+                <button type="button" class="px-4 py-2 bg-[#051B11] hover:bg-[#082b1c] text-white font-bold rounded-full text-[10px] sm:text-xs flex items-center shadow-xs cursor-pointer focus:outline-none shrink-0 gap-1.5 transition-colors">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                  </svg>
+                  Copy Roster
+                </button>
+              </div>
+
+              <!-- Registration -->
+              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-[#FAF7F2]/30 border border-[#E1D9CD]/50 rounded-2xl gap-4">
+                <div>
+                  <label class="block text-[9px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-1">REGISTRATION</label>
+                  <span class="text-xs sm:text-sm font-semibold text-[#051B11] break-all">https://golfscorepro.com/reg/evt-odcgzg</span>
+                </div>
+                <button type="button" class="px-4 py-2 bg-[#051B11] hover:bg-[#082b1c] text-white font-bold rounded-full text-[10px] sm:text-xs flex items-center shadow-xs cursor-pointer focus:outline-none shrink-0 gap-1.5 transition-colors">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                  </svg>
+                  Copy Registration
+                </button>
+              </div>
+            </div>
+
+            <!-- QR Codes Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-4">
+              <!-- Scorecard QR -->
+              <div class="border border-[#E1D9CD]/60 rounded-2xl p-5 text-center bg-white shadow-3xs flex flex-col justify-between min-h-[160px]">
+                <div class="bg-[#051B11] w-24 h-24 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-2xs">
+                  <svg class="w-16 h-16 text-[#DCAE5A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="6" height="6" rx="1" />
+                    <rect x="15" y="3" width="6" height="6" rx="1" />
+                    <rect x="3" y="15" width="6" height="6" rx="1" />
+                    <rect x="5" y="5" width="2" height="2" fill="currentColor" />
+                    <rect x="17" y="5" width="2" height="2" fill="currentColor" />
+                    <rect x="5" y="17" width="2" height="2" fill="currentColor" />
+                    <path d="M10 3h2v2h-2zm0 4h2v2h-2zm5 10h2v2h-2zm0-4h2v2h-2zm-5 4h2v2h-2zm4 0h1v1h-1zm2 2h1v1h-1zm-4-7h2v1h-2zm6 2h1v1h-1zm-8 4h1v1h-1zm5-7h1v1h-1z" fill="currentColor" />
+                  </svg>
+                </div>
+                <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider">SCORECARD</label>
+              </div>
+
+              <!-- Registration QR -->
+              <div class="border border-[#E1D9CD]/60 rounded-2xl p-5 text-center bg-white shadow-3xs flex flex-col justify-between min-h-[160px]">
+                <div class="bg-[#051B11] w-24 h-24 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-2xs">
+                  <svg class="w-16 h-16 text-[#DCAE5A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="6" height="6" rx="1" />
+                    <rect x="15" y="3" width="6" height="6" rx="1" />
+                    <rect x="3" y="15" width="6" height="6" rx="1" />
+                    <rect x="5" y="5" width="2" height="2" fill="currentColor" />
+                    <rect x="17" y="5" width="2" height="2" fill="currentColor" />
+                    <rect x="5" y="17" width="2" height="2" fill="currentColor" />
+                    <path d="M10 3h2v2h-2zm0 4h2v2h-2zm5 10h2v2h-2zm0-4h2v2h-2zm-5 4h2v2h-2zm4 0h1v1h-1zm2 2h1v1h-1zm-4-7h2v1h-2zm6 2h1v1h-1zm-8 4h1v1h-1zm5-7h1v1h-1z" fill="currentColor" />
+                  </svg>
+                </div>
+                <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider">REGISTRATION</label>
+              </div>
+
+              <!-- Live Leaderboard QR -->
+              <div class="border border-[#E1D9CD]/60 rounded-2xl p-5 text-center bg-white shadow-3xs flex flex-col justify-between min-h-[160px]">
+                <div class="bg-[#051B11] w-24 h-24 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-2xs">
+                  <svg class="w-16 h-16 text-[#DCAE5A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="6" height="6" rx="1" />
+                    <rect x="15" y="3" width="6" height="6" rx="1" />
+                    <rect x="3" y="15" width="6" height="6" rx="1" />
+                    <rect x="5" y="5" width="2" height="2" fill="currentColor" />
+                    <rect x="17" y="5" width="2" height="2" fill="currentColor" />
+                    <rect x="5" y="17" width="2" height="2" fill="currentColor" />
+                    <path d="M10 3h2v2h-2zm0 4h2v2h-2zm5 10h2v2h-2zm0-4h2v2h-2zm-5 4h2v2h-2zm4 0h1v1h-1zm2 2h1v1h-1zm-4-7h2v1h-2zm6 2h1v1h-1zm-8 4h1v1h-1zm5-7h1v1h-1z" fill="currentColor" />
+                  </svg>
+                </div>
+                <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider">LIVE LEADERBOARD</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 3: SAVE ACTIONS -->
+          <div class="bg-white border border-[#E1D9CD]/50 rounded-2xl p-6 shadow-3xs space-y-4">
+            <div>
+              <h3 class="text-base font-serif font-extrabold text-[#051B11]">
+                Save Actions
+              </h3>
+              <p class="text-xs text-[#7A9A8A] font-semibold mt-0.5">
+                Finalize, save changes, or close the event.
+              </p>
+            </div>
+
+            <div class="flex flex-wrap gap-3">
+              <button type="button"
+                      (click)="loadExisting()"
+                      class="px-5 py-2.5 bg-white border border-[#E1D9CD] hover:border-[#5E806D] text-[#051B11] hover:text-[#5E806D] font-bold rounded-full text-xs transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer focus:outline-none">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" />
+                </svg>
+                Load Existing (by ID)
+              </button>
+              <button type="button"
+                      (click)="saveChanges()"
+                      class="px-5 py-2.5 bg-white border border-[#E1D9CD] hover:border-[#5E806D] text-[#051B11] hover:text-[#5E806D] font-bold rounded-full text-xs transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer focus:outline-none">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                  <polyline points="17 21 17 13 7 13 7 21" />
+                  <polyline points="7 3 7 8 15 8" />
+                </svg>
+                Save Changes
+              </button>
+              <button type="button"
+                      (click)="closeTournament()"
+                      class="px-5 py-2.5 bg-white border border-[#E1D9CD] hover:border-[#5E806D] text-[#051B11] hover:text-[#5E806D] font-bold rounded-full text-xs transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer focus:outline-none">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+                Close Tournament
+              </button>
+              <button type="button"
+                      (click)="createTournament()"
+                      class="px-5 py-2.5 bg-[#051B11] hover:bg-[#082b1c] text-white font-bold rounded-full text-xs transition-all flex items-center gap-1.5 shadow-xs cursor-pointer focus:outline-none">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+                Create Tournament
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+    </div>
+  </main>
+
+  <!-- Bottom actions bar footer -->
+  <footer class="max-w-5xl mx-auto w-full mt-6">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[#E1D9CD]/50">
+      <!-- Muted left indicator -->
+      <div class="flex items-center gap-2 text-[10px] sm:text-xs font-bold text-[#7A9A8A]">
+        @if (areRequiredFieldsComplete()) {
+          <span class="w-2 h-2 rounded-full bg-emerald-500 block"></span>
+          All required fields complete
+        } @else {
+          <span class="w-2 h-2 rounded-full bg-amber-500 block"></span>
+          Some required fields missing
+        }
+      </div>
+
+      <!-- Action buttons -->
+      <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+        <button type="button"
+                (click)="prevStep()"
+                [disabled]="currentStep === 1"
+                class="px-6 py-2.5 bg-white border border-[#E1D9CD] hover:border-[#5E806D] text-[#7A9A8A] hover:text-[#051B11] disabled:text-[#7A9A8A]/40 disabled:border-[#E1D9CD]/60 font-bold rounded-full text-xs transition-all cursor-pointer focus:outline-none disabled:cursor-not-allowed shadow-2xs">
+          Back
+        </button>
+        <button type="button"
+                (click)="saveDraft()"
+                class="px-6 py-2.5 bg-white border border-[#E1D9CD] hover:border-[#5E806D] text-[#051B11] font-bold rounded-full text-xs transition-all cursor-pointer focus:outline-none shadow-2xs">
+          Save Draft
+        </button>
+        @if (currentStep === totalSteps) {
+          <button type="button"
+                  (click)="createTournament()"
+                  class="px-7 py-2.5 bg-[#DCAE5A] hover:bg-[#cda04f] text-[#051B11] font-extrabold rounded-full text-xs transition-all flex items-center justify-center gap-1 cursor-pointer focus:outline-none shadow-xs">
+            Create Tournament
+          </button>
+        } @else {
+          <button type="button"
+                  (click)="nextStep()"
+                  [disabled]="currentStep === totalSteps"
+                  class="px-7 py-2.5 bg-[#051B11] hover:bg-[#082b1c] disabled:bg-[#051B11]/50 text-white disabled:text-white/70 font-bold rounded-full text-xs transition-all flex items-center justify-center gap-1 cursor-pointer focus:outline-none disabled:cursor-not-allowed shadow-xs">
+            Continue
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+          </button>
+        }
+      </div>
+    </div>
+  </footer>
+</div>

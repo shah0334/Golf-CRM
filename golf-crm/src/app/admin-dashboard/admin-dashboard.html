@@ -45,8 +45,8 @@
           </svg>
           Staff
         </a>
-        <a href="javascript:void(0)"
-          class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-[#7A9A8A] hover:bg-[#133824]/50 hover:text-white transition-all">
+        <a routerLink="/admin-dashboard/leaderboard"
+          class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-[#7A9A8A] hover:bg-[#133824]/50 hover:text-white transition-all cursor-pointer">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round"
               d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v5.25c0 .621-.504 1.125-1.125 1.125h-2.25A1.125 1.125 0 013 18.375v-5.25zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125v-9.75zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v14.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
@@ -108,8 +108,8 @@
           class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/80 hover:bg-[#133824]/50">
           Staff
         </a>
-        <a href="javascript:void(0)" (click)="isMobileMenuOpen = false"
-          class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/80 hover:bg-[#133824]/50">
+        <a routerLink="/admin-dashboard/leaderboard" (click)="isMobileMenuOpen = false"
+          class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/80 hover:bg-[#133824]/50 cursor-pointer">
           Leaderboards
         </a>
         <a href="javascript:void(0)" (click)="isMobileMenuOpen = false"
@@ -160,13 +160,16 @@
       <button type="button" (click)="signOut(); isMobileMenuOpen = false" [disabled]="isSigningOut"
         class="w-full py-3 bg-red-600/25 border border-red-500/35 text-red-300 hover:text-red-200 font-bold rounded-xl text-sm transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
         @if (isSigningOut) {
-          <svg class="animate-spin h-4 w-4 text-red-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <span>Signing Out...</span>
+        <svg class="animate-spin h-4 w-4 text-red-300" xmlns="http://www.w3.org/2000/svg" fill="none"
+          viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+          </path>
+        </svg>
+        <span>Signing Out...</span>
         } @else {
-          <span>Sign Out</span>
+        <span>Sign Out</span>
         }
       </button>
     </div>
@@ -245,18 +248,21 @@
           <button type="button" (click)="signOut()" [disabled]="isSigningOut"
             class="px-4 py-2 bg-white border border-[#E1D9CD] hover:bg-red-50 hover:border-red-200 text-xs font-bold rounded-full transition-all duration-200 shadow-2xs flex items-center gap-2 text-[#051B11] hover:text-red-600 focus:outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
             @if (isSigningOut) {
-              <svg class="animate-spin h-3.5 w-3.5 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              <span>Signing Out...</span>
+            <svg class="animate-spin h-3.5 w-3.5 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none"
+              viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+              </path>
+            </svg>
+            <span>Signing Out...</span>
             } @else {
-              <svg class="w-4 h-4 text-[#5E806D] hover:text-red-500 transition-colors" fill="none" stroke="currentColor"
-                stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
-              </svg>
-              <span>Sign Out</span>
+            <svg class="w-4 h-4 text-[#5E806D] hover:text-red-500 transition-colors" fill="none" stroke="currentColor"
+              stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+            </svg>
+            <span>Sign Out</span>
             }
           </button>
         </div>
@@ -312,12 +318,13 @@
               <div
                 class="w-11 h-11 rounded-2xl bg-[#051B11] text-[#DCAE5A] flex items-center justify-center shrink-0 shadow-xs overflow-hidden">
                 @if (course.logoPreview || course.branding?.logoPreview) {
-                  <img [src]="course.logoPreview || course.branding?.logoPreview" class="w-full h-full object-contain" alt="Course Logo">
+                <img [src]="course.logoPreview || course.branding?.logoPreview" class="w-full h-full object-contain"
+                  alt="Course Logo">
                 } @else {
-                  <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                      d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" />
-                  </svg>
+                <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" />
+                </svg>
                 }
               </div>
               <div class="space-y-1 min-w-0 flex-grow">
@@ -401,7 +408,7 @@
               </svg>
             </div>
             <div class="space-y-0.5 mt-4">
-              <h4 class="text-sm font-extrabold text-[#051B11]">Create Tournament</h4>
+              <h4 class="text-sm font-extrabold text-[#051B11]">Create Event</h4>
               <span class="text-xs text-[#5E806D] font-medium flex items-center gap-1">Get started <span
                   class="font-light text-[10px]">></span></span>
             </div>
@@ -440,7 +447,7 @@
             </div>
           </div>
 
-          <div
+          <!-- <div
             class="bg-white border border-[#E1D9CD] rounded-3xl p-5 shadow-2xs hover:border-[#DCAE5A]/50 hover:shadow-xs transition-all cursor-pointer flex flex-col justify-between min-h-[140px]">
             <div class="w-10 h-10 rounded-xl bg-[#FAF7F2] flex items-center justify-center text-[#051B11] shadow-2xs">
               <svg class="w-5 h-5 text-[#CCA24D]" fill="none" stroke="currentColor" stroke-width="2"
@@ -454,7 +461,7 @@
               <span class="text-xs text-[#5E806D] font-medium flex items-center gap-1">Get started <span
                   class="font-light text-[10px]">></span></span>
             </div>
-          </div>
+          </div> -->
         </div>
       </section>
       <section class="space-y-4">
@@ -464,7 +471,7 @@
           </h3>
           <button type="button" (click)="createTournament()"
             class="px-4 py-2 bg-[#051B11] hover:bg-[#082b1c] text-white text-xs font-bold rounded-full transition-colors flex items-center gap-1.5 shadow-xs focus:outline-none cursor-pointer">
-            <span class="text-sm font-light leading-none">+</span> Create Tournament
+            <span class="text-sm font-light leading-none">+</span> Create Event
           </button>
         </div>
 
@@ -509,8 +516,8 @@
                 </div>
                 <span class="text-[8px] text-[#5E806D] truncate leading-none">View tournament...</span>
               </a>
-              <button type="button"
-                class="flex flex-col items-start gap-1 p-2 bg-[#FAF7F2]/40 border border-[#E1D9CD]/55 hover:border-[#DCAE5A]/40 rounded-xl transition-all focus:outline-none text-left">
+              <a routerLink="/admin-dashboard/leaderboard"
+                class="flex flex-col items-start gap-1 p-2 bg-[#FAF7F2]/40 border border-[#E1D9CD]/55 hover:border-[#DCAE5A]/40 rounded-xl transition-all focus:outline-none text-left cursor-pointer">
                 <div class="flex items-center gap-1">
                   <svg class="w-3.5 h-3.5 text-[#5E806D]" fill="none" stroke="currentColor" stroke-width="2"
                     viewBox="0 0 24 24">
@@ -520,7 +527,7 @@
                   <span class="text-[10px] font-bold text-[#051B11]">Leaderboard</span>
                 </div>
                 <span class="text-[8px] text-[#5E806D] truncate leading-none">Live leaderboard...</span>
-              </button>
+              </a>
               <a routerLink="/admin-dashboard/roster"
                 class="flex flex-col items-start gap-1 p-2 bg-[#FAF7F2]/40 border border-[#E1D9CD]/55 hover:border-[#DCAE5A]/40 rounded-xl transition-all focus:outline-none text-left cursor-pointer">
                 <div class="flex items-center gap-1">
@@ -599,12 +606,15 @@
 </div>
 
 <!-- Scorecard Modal -->
-<div *ngIf="selectedScorecardUrl" class="fixed inset-0 bg-[#051B11]/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-  <div class="bg-white border border-[#E1D9CD] rounded-3xl w-full max-w-2xl shadow-2xl flex flex-col overflow-hidden animate-fade-in">
+<div *ngIf="selectedScorecardUrl"
+  class="fixed inset-0 bg-[#051B11]/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+  <div
+    class="bg-white border border-[#E1D9CD] rounded-3xl w-full max-w-2xl shadow-2xl flex flex-col overflow-hidden animate-fade-in">
     <!-- Modal Header -->
     <div class="px-6 py-4 border-b border-[#E1D9CD]/50 flex items-center justify-between bg-[#FAF7F2]">
       <h3 class="text-base font-extrabold text-[#051B11]">Scorecard Preview</h3>
-      <button type="button" (click)="selectedScorecardUrl = null" class="text-[#5E806D] hover:text-[#051B11] transition-colors focus:outline-none cursor-pointer">
+      <button type="button" (click)="selectedScorecardUrl = null"
+        class="text-[#5E806D] hover:text-[#051B11] transition-colors focus:outline-none cursor-pointer">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
@@ -612,11 +622,13 @@
     </div>
     <!-- Modal Body -->
     <div class="p-6 bg-[#FAF7F2]/30 flex items-center justify-center max-h-[70vh] overflow-y-auto">
-      <img [src]="selectedScorecardUrl" alt="Scorecard" class="max-w-full max-h-[60vh] object-contain rounded-2xl shadow-md border border-[#E1D9CD]">
+      <img [src]="selectedScorecardUrl" alt="Scorecard"
+        class="max-w-full max-h-[60vh] object-contain rounded-2xl shadow-md border border-[#E1D9CD]">
     </div>
     <!-- Modal Footer -->
     <div class="px-6 py-4 border-t border-[#E1D9CD]/50 bg-[#FAF7F2] flex justify-end">
-      <button type="button" (click)="selectedScorecardUrl = null" class="px-5 py-2.5 bg-[#051B11] hover:bg-[#082b1c] text-white text-xs font-bold rounded-xl transition-colors cursor-pointer focus:outline-none">
+      <button type="button" (click)="selectedScorecardUrl = null"
+        class="px-5 py-2.5 bg-[#051B11] hover:bg-[#082b1c] text-white text-xs font-bold rounded-xl transition-colors cursor-pointer focus:outline-none">
         Close
       </button>
     </div>
@@ -625,35 +637,38 @@
 
 <!-- QR Code Modal -->
 @if (showQrModal) {
-  <div class="fixed inset-0 bg-[#051B11]/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-[#051B11] border border-[#DCAE5A]/50 rounded-3xl w-full max-w-sm shadow-2xl flex flex-col overflow-hidden animate-fade-in text-white">
-      <!-- Modal Header -->
-      <div class="px-6 py-4 border-b border-[#2d473b] flex items-center justify-between bg-[#0c251a]">
-        <h3 class="text-xs font-extrabold text-[#DCAE5A] uppercase tracking-wider">Scorecard QR Code</h3>
-        <button type="button" (click)="closeQrModal()" class="text-[#7A9A8A] hover:text-white transition-colors focus:outline-none cursor-pointer">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+<div class="fixed inset-0 bg-[#051B11]/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+  <div
+    class="bg-[#051B11] border border-[#DCAE5A]/50 rounded-3xl w-full max-w-sm shadow-2xl flex flex-col overflow-hidden animate-fade-in text-white">
+    <!-- Modal Header -->
+    <div class="px-6 py-4 border-b border-[#2d473b] flex items-center justify-between bg-[#0c251a]">
+      <h3 class="text-xs font-extrabold text-[#DCAE5A] uppercase tracking-wider">Scorecard QR Code</h3>
+      <button type="button" (click)="closeQrModal()"
+        class="text-[#7A9A8A] hover:text-white transition-colors focus:outline-none cursor-pointer">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <!-- Modal Body -->
+    <div class="p-6 bg-[#03140C] flex flex-col items-center justify-center text-center gap-4">
+      <div class="p-3 bg-white rounded-2xl shadow-lg border border-[#DCAE5A]/30">
+        <img [src]="qrCodeUrl" alt="Scorecard QR Code" class="w-[200px] h-[200px] object-contain">
       </div>
-      <!-- Modal Body -->
-      <div class="p-6 bg-[#03140C] flex flex-col items-center justify-center text-center gap-4">
-        <div class="p-3 bg-white rounded-2xl shadow-lg border border-[#DCAE5A]/30">
-          <img [src]="qrCodeUrl" alt="Scorecard QR Code" class="w-[200px] h-[200px] object-contain">
-        </div>
-        <div class="space-y-1">
-          <h4 class="text-sm font-extrabold text-white">{{ qrCourseName }}</h4>
-          <p class="text-xs text-[#7A9A8A] font-semibold leading-relaxed">
-            Scan this QR code with any mobile device to view and submit live scores on the interactive scorecard.
-          </p>
-        </div>
-      </div>
-      <!-- Modal Footer -->
-      <div class="px-6 py-4 border-t border-[#2d473b] bg-[#0c251a] flex justify-end">
-        <button type="button" (click)="closeQrModal()" class="px-5 py-2.5 bg-[#051B11] border border-[#2d473b] hover:border-[#DCAE5A]/40 text-white text-xs font-bold rounded-xl transition-all cursor-pointer focus:outline-none">
-          Close
-        </button>
+      <div class="space-y-1">
+        <h4 class="text-sm font-extrabold text-white">{{ qrCourseName }}</h4>
+        <p class="text-xs text-[#7A9A8A] font-semibold leading-relaxed">
+          Scan this QR code with any mobile device to view and submit live scores on the interactive scorecard.
+        </p>
       </div>
     </div>
+    <!-- Modal Footer -->
+    <div class="px-6 py-4 border-t border-[#2d473b] bg-[#0c251a] flex justify-end">
+      <button type="button" (click)="closeQrModal()"
+        class="px-5 py-2.5 bg-[#051B11] border border-[#2d473b] hover:border-[#DCAE5A]/40 text-white text-xs font-bold rounded-xl transition-all cursor-pointer focus:outline-none">
+        Close
+      </button>
+    </div>
   </div>
+</div>
 }

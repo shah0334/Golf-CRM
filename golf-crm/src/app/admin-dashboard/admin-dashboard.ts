@@ -298,15 +298,7 @@ export class AdminDashboard implements OnInit {
   }
 
   createTournament() {
-    const nextId = `TRN-${1045 + this.tournaments.length}`;
-    this.tournaments.push({
-      id: nextId,
-      name: `Fall Invitational Cup`,
-      date: 'Oct 12, 2026',
-      players: 48,
-      tag: 'TOURNAMENT',
-      status: 'UPCOMING',
-    });
+    this.router.navigate(['/admin-dashboard/create-event']);
   }
 
   archiveTournament(id: string) {

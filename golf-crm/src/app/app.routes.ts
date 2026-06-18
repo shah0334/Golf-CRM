@@ -9,6 +9,8 @@ import { FinishComponent } from './login.component/create-organizer.component/fi
 import { AdminDashboard } from './admin-dashboard/admin-dashboard';
 import { RosterComponent } from './admin-dashboard/roster.component/roster.component';
 import { ScorecardComponent } from './admin-dashboard/scorecard.component/scorecard.component';
+import { CreateEventComponent } from './admin-dashboard/create-event.component/create-event.component';
+import { LeaderboardComponent } from './admin-dashboard/leaderboard.component/leaderboard.component';
 import { RegistrationService } from './services/registration.service';
 
 const authGuard = () => {
@@ -80,6 +82,8 @@ export const routes: Routes = [
   { path: 'admin-dashboard', component: AdminDashboard, canActivate: [authGuard] },
   { path: 'admin-dashboard/roster', component: RosterComponent, canActivate: [authGuard] },
   { path: 'admin-dashboard/scorecard/:id', component: ScorecardComponent },
+  { path: 'admin-dashboard/create-event', component: CreateEventComponent, canActivate: [authGuard] },
+  { path: 'admin-dashboard/leaderboard', component: LeaderboardComponent, canActivate: [authGuard] },
 ];
 
 
