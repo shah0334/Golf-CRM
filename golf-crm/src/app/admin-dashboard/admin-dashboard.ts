@@ -54,6 +54,9 @@ export class AdminDashboard implements OnInit {
   isMobileMenuOpen = false;
   copiedCourseId: string | null = null;
   selectedScorecardUrl: string | null = null;
+  showQrModal = false;
+  qrCodeUrl = '';
+  qrCourseName = '';
 
   courses: Course[] = [
     {
@@ -199,12 +202,26 @@ export class AdminDashboard implements OnInit {
   }
 
   copyLink(course: Course) {
-    navigator.clipboard.writeText(course.url).then(() => {
+    const scorecardUrl = window.location.origin + '/admin-dashboard/scorecard/' + course.id;
+    navigator.clipboard.writeText(scorecardUrl).then(() => {
       this.copiedCourseId = course.id;
       setTimeout(() => {
         this.copiedCourseId = null;
       }, 2000);
     });
+  }
+
+  showQrCode(course: Course) {
+    const scorecardUrl = window.location.origin + '/admin-dashboard/scorecard/' + course.id;
+    this.qrCourseName = course.name;
+    this.qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(scorecardUrl)}`;
+    this.showQrModal = true;
+  }
+
+  closeQrModal() {
+    this.showQrModal = false;
+    this.qrCodeUrl = '';
+    this.qrCourseName = '';
   }
 
   addCourse() {

@@ -1,0 +1,53 @@
+/* Custom scrollbar styling for the scorecard tables */
+.overflow-x-auto::-webkit-scrollbar {
+  height: 6px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: #03140C;
+  border-radius: 8px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #2d473b;
+  border-radius: 8px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: #DCAE5A;
+}
+
+/* Custom styles for the input fields */
+input[type="text"]:focus {
+  box-shadow: 0 0 0 2px rgba(220, 174, 90, 0.2);
+}
+
+/* Slide in animation for statistics cards */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out forwards;
+}
+
+/* Smooth zoom on card hover */
+.hover-lift {
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+.glass{
+background-image: radial-gradient(ellipse at top right, rgba(212, 175, 55, 0.45), transparent 10%), 
+radial-gradient(ellipse at bottom left, rgba(27, 94, 32, 0.7), transparent 15%), 
+linear-gradient(135deg, #0F3D2E 0%, #132314 100%);
+}
