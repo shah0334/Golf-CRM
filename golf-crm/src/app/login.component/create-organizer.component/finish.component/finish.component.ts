@@ -45,6 +45,7 @@ export class FinishComponent implements OnInit {
 
   ngOnInit() {
     this.isAddCourseMode = localStorage.getItem('isAddCourseMode') === 'true';
+    const isEditMode = localStorage.getItem('isEditCourseMode') === 'true';
     const data = this.registrationService.getData();
 
     this.orgName = data.orgName || data.clubName || '';
@@ -56,16 +57,33 @@ export class FinishComponent implements OnInit {
     this.scorecardImported = data.scorecardPreview ? 'Yes' : 'No'; 
 
     if (this.isAddCourseMode) {
-      this.teeBoxNames = '';
-      this.teeBoxes = [];
+      if (isEditMode && data.teeBoxes && data.teeBoxes.length > 0) {
+        this.teeBoxes = data.teeBoxes;
+        this.teeBoxNames = data.teeBoxes.join(', ');
+      } else {
+        this.teeBoxNames = '';
+        this.teeBoxes = [];
+      }
     } else {
       this.teeBoxNames = 'Black, Blue, White, Red';
       this.teeBoxes = ['Black', 'Blue', 'White', 'Red'];
     }
 
     this.onTeeBoxNamesChange(this.teeBoxNames);
-    this.generateUrlSlug();
-    this.initializeHoles();
+    
+    this.courseUrlAutoGenerate = !isEditMode;
+    if (isEditMode && data.courseUrl) {
+      this.courseUrl = data.courseUrl;
+    } else {
+      this.generateUrlSlug();
+    }
+
+    if (isEditMode && data.holesList && data.holesList.length === 18) {
+      this.holesList = data.holesList;
+      this.holesConfigured = '18 holes (Configured)';
+    } else {
+      this.initializeHoles();
+    }
   }
 
   onTeeBoxNamesChange(val: string) {
@@ -379,33 +397,83 @@ export class FinishComponent implements OnInit {
       const parValue = this.holesList.reduce((acc, h) => acc + (Number(h.par) || 4), 0);
       const displayWebUrl = webUrl || `golfscorepro.com${this.courseUrl}`;
 
-      const newCourse: any = {
-        id: 'CRS-' + String((activeOrg.courses || []).length + 2).padStart(3, '0'),
-        name: registrationData.courseName || '',
-        holes: holesCount,
-        par: parValue,
-        status: 'ACTIVE' as const,
-        url: displayWebUrl,
-        courseUrl: this.courseUrl,
-        holesList: this.holesList,
-        teeBoxes: this.teeBoxes,
-        branding: {
-          logoFileName: logoFile,
-          logoPreview: logoPrev,
-          bannerFileName: registrationData.bannerFileName || null,
-          bannerPreview: registrationData.bannerPreview || null,
-          scorecardFileName: registrationData.scorecardFileName || null,
-          scorecardPreview: registrationData.scorecardPreview || null,
-          websiteUrl: webUrl,
-          bookingUrl: bookUrl,
-          selectedColor: registrationData.selectedColor || activeOrg.selectedColor || activeOrg.branding?.selectedColor || '#0F3D2E'
-        }
-      };
+      const isEditMode = localStorage.getItem('isEditCourseMode') === 'true';
+      const editCourseId = localStorage.getItem('editCourseId');
 
-      if (!activeOrg.courses) {
-        activeOrg.courses = [];
+      if (isEditMode && editCourseId) {
+        if (editCourseId === 'CRS-001') {
+          activeOrg.courseName = registrationData.courseName || '';
+          activeOrg.logoPreview = logoPrev;
+          activeOrg.logoFileName = logoFile;
+          activeOrg.websiteUrl = webUrl;
+          activeOrg.bookingUrl = bookUrl;
+          activeOrg.selectedColor = registrationData.selectedColor || activeOrg.selectedColor || '#0F3D2E';
+          activeOrg.course = {
+            teeBoxes: this.teeBoxes,
+            holesList: this.holesList,
+            courseUrl: this.courseUrl
+          };
+          if (registrationData.scorecardPreview) {
+            activeOrg.scorecardPreview = registrationData.scorecardPreview;
+          }
+        } else {
+          if (activeOrg.courses) {
+            const index = activeOrg.courses.findIndex((c: any) => c.id === editCourseId);
+            if (index !== -1) {
+              activeOrg.courses[index] = {
+                id: editCourseId,
+                name: registrationData.courseName || '',
+                holes: holesCount,
+                par: parValue,
+                status: activeOrg.courses[index].status || 'ACTIVE',
+                url: displayWebUrl,
+                courseUrl: this.courseUrl,
+                holesList: this.holesList,
+                teeBoxes: this.teeBoxes,
+                branding: {
+                  logoFileName: logoFile,
+                  logoPreview: logoPrev,
+                  bannerFileName: registrationData.bannerFileName || null,
+                  bannerPreview: registrationData.bannerPreview || null,
+                  scorecardFileName: registrationData.scorecardFileName || null,
+                  scorecardPreview: registrationData.scorecardPreview || null,
+                  websiteUrl: webUrl,
+                  bookingUrl: bookUrl,
+                  selectedColor: registrationData.selectedColor || '#0F3D2E'
+                }
+              };
+            }
+          }
+        }
+      } else {
+        const newCourse: any = {
+          id: 'CRS-' + String((activeOrg.courses || []).length + 2).padStart(3, '0'),
+          name: registrationData.courseName || '',
+          holes: holesCount,
+          par: parValue,
+          status: 'ACTIVE' as const,
+          url: displayWebUrl,
+          courseUrl: this.courseUrl,
+          holesList: this.holesList,
+          teeBoxes: this.teeBoxes,
+          branding: {
+            logoFileName: logoFile,
+            logoPreview: logoPrev,
+            bannerFileName: registrationData.bannerFileName || null,
+            bannerPreview: registrationData.bannerPreview || null,
+            scorecardFileName: registrationData.scorecardFileName || null,
+            scorecardPreview: registrationData.scorecardPreview || null,
+            websiteUrl: webUrl,
+            bookingUrl: bookUrl,
+            selectedColor: registrationData.selectedColor || '#0F3D2E'
+          }
+        };
+
+        if (!activeOrg.courses) {
+          activeOrg.courses = [];
+        }
+        activeOrg.courses.push(newCourse);
       }
-      activeOrg.courses.push(newCourse);
 
       const updatePayload = {
         orgName: activeOrg.orgName,
@@ -415,7 +483,14 @@ export class FinishComponent implements OnInit {
         phone: activeOrg.phone,
         inviteCode: activeOrg.inviteCode,
         urlSlug: activeOrg.urlSlug,
-        courses: activeOrg.courses
+        courses: activeOrg.courses || [],
+        logoPreview: activeOrg.logoPreview || null,
+        logoFileName: activeOrg.logoFileName || null,
+        websiteUrl: activeOrg.websiteUrl || '',
+        bookingUrl: activeOrg.bookingUrl || '',
+        selectedColor: activeOrg.selectedColor || '#0F3D2E',
+        course: activeOrg.course || null,
+        scorecardPreview: activeOrg.scorecardPreview || null
       };
 
       this.firebaseService.updateOrganization(originalEmail, originalUid, updatePayload).subscribe({
@@ -428,6 +503,8 @@ export class FinishComponent implements OnInit {
             localStorage.setItem('orgName', activeOrg.orgName || activeOrg.clubName);
           }
           localStorage.removeItem('isAddCourseMode');
+          localStorage.removeItem('isEditCourseMode');
+          localStorage.removeItem('editCourseId');
           this.registrationService.clear();
 
           this.router.navigate(['/admin-dashboard']);

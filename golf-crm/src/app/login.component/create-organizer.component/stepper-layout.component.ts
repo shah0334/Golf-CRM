@@ -12,6 +12,8 @@ import { filter } from 'rxjs/operators';
 export class StepperLayoutComponent implements OnInit {
   private router = inject(Router);
   currentStep = 3;
+  isAddCourseMode = false;
+  isEditCourseMode = false;
 
   ngOnInit() {
     this.updateStep();
@@ -23,6 +25,9 @@ export class StepperLayoutComponent implements OnInit {
   }
 
   private updateStep() {
+    this.isAddCourseMode = localStorage.getItem('isAddCourseMode') === 'true';
+    this.isEditCourseMode = localStorage.getItem('isEditCourseMode') === 'true';
+    
     const url = this.router.url;
     if (url.includes('organization-course')) {
       this.currentStep = 3;

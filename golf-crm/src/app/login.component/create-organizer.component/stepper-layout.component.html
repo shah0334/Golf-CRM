@@ -11,102 +11,116 @@
       </span>
     </div>
     <div class="text-sm font-semibold text-[#5E806D]">
-      Step <span class="text-[#051B11] font-bold">{{ currentStep }}</span> of 5
+      @if (isAddCourseMode) {
+        {{ isEditCourseMode ? 'Edit Course' : 'Add Course' }} — Step <span class="text-[#051B11] font-bold">{{ currentStep - 2 }}</span> of 3
+      } @else {
+        Step <span class="text-[#051B11] font-bold">{{ currentStep }}</span> of 5
+      }
     </div>
   </header>
 
   <div class="w-full bg-[#FAF7F2] py-4 px-6 sm:px-12 border-b border-[#E1D9CD]/80 overflow-x-auto">
     <div class="max-w-5xl mx-auto min-w-[640px] flex items-center justify-between">
       
-      <a routerLink="/create-organizer" class="flex items-center gap-2 shrink-0 hover:opacity-85 transition-opacity">
-        <div class="w-6 h-6 rounded-full bg-[#051B11] text-[#DCAE5A] flex items-center justify-center shadow-xs">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-          </svg>
+      @if (!isAddCourseMode) {
+        <a routerLink="/create-organizer" class="flex items-center gap-2 shrink-0 hover:opacity-85 transition-opacity">
+          <div class="w-6 h-6 rounded-full bg-[#051B11] text-[#DCAE5A] flex items-center justify-center shadow-xs">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <span class="text-xs sm:text-sm font-semibold text-[#051B11]">Account</span>
+        </a>
+
+        <div class="flex-grow h-[1px] mx-4 bg-[#051B11]/30"></div>
+
+        <a routerLink="/create-organizer" class="flex items-center gap-2 shrink-0 hover:opacity-85 transition-opacity">
+          <div class="w-6 h-6 rounded-full bg-[#051B11] text-[#DCAE5A] flex items-center justify-center shadow-xs">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <span class="text-xs sm:text-sm font-semibold text-[#051B11]">Verify</span>
+        </a>
+
+        <div class="flex-grow h-[1px] mx-4 bg-[#051B11]/30"></div>
+      }
+
+      <!-- Step 3: Course Info / Organization & Course -->
+      @if (currentStep > 3) {
+        <a routerLink="/organization-course" class="flex items-center gap-2 shrink-0 hover:opacity-85 transition-opacity">
+          <div class="w-6 h-6 rounded-full bg-[#051B11] text-[#DCAE5A] flex items-center justify-center shadow-xs">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <span class="text-xs sm:text-sm font-semibold text-[#051B11]">
+            {{ isAddCourseMode ? 'Course Info' : 'Organization & Course' }}
+          </span>
+        </a>
+      } @else {
+        <div class="flex items-center gap-2 shrink-0">
+          <div class="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold bg-[#DCAE5A] text-white shadow-xs">
+            {{ isAddCourseMode ? '1' : '3' }}
+          </div>
+          <span class="text-xs sm:text-sm font-bold text-[#051B11]">
+            {{ isAddCourseMode ? 'Course Info' : 'Organization & Course' }}
+          </span>
         </div>
-        <span class="text-xs sm:text-sm font-semibold text-[#051B11]">Account</span>
-      </a>
+      }
 
       <div class="flex-grow h-[1px] mx-4 bg-[#051B11]/30"></div>
 
-      <a routerLink="/create-organizer" class="flex items-center gap-2 shrink-0 hover:opacity-85 transition-opacity">
-        <div class="w-6 h-6 rounded-full bg-[#051B11] text-[#DCAE5A] flex items-center justify-center shadow-xs">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-          </svg>
+      <!-- Step 4: Assets & Branding -->
+      @if (currentStep > 4) {
+        <a routerLink="/assets-branding" class="flex items-center gap-2 shrink-0 hover:opacity-85 transition-opacity">
+          <div class="w-6 h-6 rounded-full bg-[#051B11] text-[#DCAE5A] flex items-center justify-center shadow-xs">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <span class="text-xs sm:text-sm font-semibold text-[#051B11]">Assets & Branding</span>
+        </a>
+      } @else if (currentStep === 4) {
+        <div class="flex items-center gap-2 shrink-0">
+          <div class="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold bg-[#DCAE5A] text-white shadow-xs">
+            {{ isAddCourseMode ? '2' : '4' }}
+          </div>
+          <span class="text-xs sm:text-sm font-bold text-[#051B11]">Assets & Branding</span>
         </div>
-        <span class="text-xs sm:text-sm font-semibold text-[#051B11]">Verify</span>
-      </a>
+      } @else {
+        <div class="flex items-center gap-2 shrink-0 text-[#5E806D]">
+          <div class="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold border bg-transparent text-[#5E806D] border-[#E1D9CD]">
+            {{ isAddCourseMode ? '2' : '4' }}
+          </div>
+          <span class="text-xs sm:text-sm font-medium">Assets & Branding</span>
+        </div>
+      }
 
       <div class="flex-grow h-[1px] mx-4 bg-[#051B11]/30"></div>
 
-      <a *ngIf="currentStep > 3" routerLink="/organization-course" class="flex items-center gap-2 shrink-0 hover:opacity-85 transition-opacity">
-        <div class="w-6 h-6 rounded-full bg-[#051B11] text-[#DCAE5A] flex items-center justify-center shadow-xs">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-          </svg>
+      <!-- Step 5: Finish -->
+      @if (currentStep === 5) {
+        <div class="flex items-center gap-2 shrink-0">
+          <div class="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold bg-[#DCAE5A] text-white shadow-xs">
+            {{ isAddCourseMode ? '3' : '5' }}
+          </div>
+          <span class="text-xs sm:text-sm font-bold text-[#051B11]">Finish</span>
         </div>
-        <span class="text-xs sm:text-sm font-semibold text-[#051B11]">Organization & Course</span>
-      </a>
-      <div *ngIf="currentStep === 3" class="flex items-center gap-2 shrink-0">
-        <div class="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold bg-[#DCAE5A] text-white shadow-xs">
-          3
+      } @else {
+        <div class="flex items-center gap-2 shrink-0 text-[#5E806D]">
+          <div class="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold border bg-transparent text-[#5E806D] border-[#E1D9CD]">
+            {{ isAddCourseMode ? '3' : '5' }}
+          </div>
+          <span class="text-xs sm:text-sm font-medium">Finish</span>
         </div>
-        <span class="text-xs sm:text-sm font-bold text-[#051B11]">
-          Organization & Course
-        </span>
-      </div>
-
-      <div class="flex-grow h-[1px] mx-4 bg-[#051B11]/30"></div>
-
-      <a *ngIf="currentStep > 4" routerLink="/assets-branding" class="flex items-center gap-2 shrink-0 hover:opacity-85 transition-opacity">
-        <div class="w-6 h-6 rounded-full bg-[#051B11] text-[#DCAE5A] flex items-center justify-center shadow-xs">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-          </svg>
-        </div>
-        <span class="text-xs sm:text-sm font-semibold text-[#051B11]">Assets & Branding</span>
-      </a>
-      <div *ngIf="currentStep === 4" class="flex items-center gap-2 shrink-0">
-        <div class="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold bg-[#DCAE5A] text-white shadow-xs">
-          4
-        </div>
-        <span class="text-xs sm:text-sm font-bold text-[#051B11]">
-          Assets & Branding
-        </span>
-      </div>
-      <div *ngIf="currentStep < 4" class="flex items-center gap-2 shrink-0 text-[#5E806D]">
-        <div class="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold border bg-transparent text-[#5E806D] border-[#E1D9CD]">
-          4
-        </div>
-        <span class="text-xs sm:text-sm font-medium">
-          Assets & Branding
-        </span>
-      </div>
-
-      <div class="flex-grow h-[1px] mx-4 bg-[#E1D9CD]"></div>
-      <div *ngIf="currentStep === 5" class="flex items-center gap-2 shrink-0">
-        <div class="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold bg-[#DCAE5A] text-white shadow-xs">
-          5
-        </div>
-        <span class="text-xs sm:text-sm font-bold text-[#051B11]">
-          Finish
-        </span>
-      </div>
-      <div *ngIf="currentStep < 5" class="flex items-center gap-2 shrink-0 text-[#5E806D]">
-        <div class="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold border bg-transparent text-[#5E806D] border-[#E1D9CD]">
-          5
-        </div>
-        <span class="text-xs sm:text-sm font-medium">
-          Finish
-        </span>
-      </div>
+      }
 
     </div>
-        <div class="max-w-5xl mx-auto min-w-[640px] mt-3 relative h-[2.5px] bg-[#E1D9CD]/40 rounded-full">
+    <div class="max-w-5xl mx-auto min-w-[640px] mt-3 relative h-[2.5px] bg-[#E1D9CD]/40 rounded-full">
       <div class="absolute h-full bg-[#DCAE5A] rounded-full transition-all duration-300" 
-           [style.left]="currentStep === 3 ? '40%' : currentStep === 4 ? '68%' : '90%'" 
-           [style.width]="'8%'">
+           [style.left]="isAddCourseMode ? (currentStep === 3 ? '12%' : currentStep === 4 ? '50%' : '88%') : (currentStep === 3 ? '40%' : currentStep === 4 ? '68%' : '90%')" 
+           [style.width]="'6%'">
       </div>
     </div>
   </div>

@@ -42,10 +42,12 @@ export class OrganizationCourseComponent implements OnInit {
       data = {};
     }
 
+    const isEditMode = localStorage.getItem('isEditCourseMode') === 'true';
+
     const initialInvite = (this.isAddCourseMode && activeOrg?.inviteCode) || data.inviteCode || '';
     const initialOrgName = (this.isAddCourseMode && (activeOrg?.orgName || activeOrg?.clubName)) || data.orgName || data.clubName || '';
-    const initialEmail = this.isAddCourseMode ? '' : (data.orgEmail || data.email || '');
-    const initialPhone = this.isAddCourseMode ? '' : (data.phone || '');
+    const initialEmail = (this.isAddCourseMode && !isEditMode) ? '' : (data.orgEmail || data.email || '');
+    const initialPhone = (this.isAddCourseMode && !isEditMode) ? '' : (data.phone || '');
     let initialSlug = (this.isAddCourseMode && activeOrg?.urlSlug) || data.urlSlug || '';
     
     if (!initialSlug && initialOrgName) {
@@ -118,11 +120,32 @@ export class OrganizationCourseComponent implements OnInit {
         }
         
         if (activeOrg) {
+          const isEditMode = localStorage.getItem('isEditCourseMode') === 'true';
+          const editCourseId = localStorage.getItem('editCourseId');
           const newCourseName = formValue.courseName?.trim().toLowerCase();
-          const primaryCourseName = (activeOrg.courseName || '').trim().toLowerCase();
-          const otherCoursesNames = (activeOrg.courses || []).map((c: any) => (c.name || '').trim().toLowerCase());
           
-          if (newCourseName === primaryCourseName || otherCoursesNames.includes(newCourseName)) {
+          let isDuplicate = false;
+          
+          const primaryCourseName = (activeOrg.courseName || '').trim().toLowerCase();
+          if (newCourseName === primaryCourseName) {
+            if (!isEditMode || editCourseId !== 'CRS-001') {
+              isDuplicate = true;
+            }
+          }
+          
+          if (!isDuplicate) {
+            const otherCourses = activeOrg.courses || [];
+            for (const c of otherCourses) {
+              if ((c.name || '').trim().toLowerCase() === newCourseName) {
+                if (!isEditMode || c.id !== editCourseId) {
+                  isDuplicate = true;
+                  break;
+                }
+              }
+            }
+          }
+          
+          if (isDuplicate) {
             this.form.get('courseName')?.setErrors({ duplicateCourse: true });
             this.form.markAllAsTouched();
             return;

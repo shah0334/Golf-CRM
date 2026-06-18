@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { RegistrationService } from '../services/registration.service';
+import { FirebaseService } from '../services/firebase.service';
 
 interface Course {
   id: string;
@@ -40,6 +41,7 @@ export class AdminDashboard implements OnInit {
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
   private registrationService = inject(RegistrationService);
+  private firebaseService = inject(FirebaseService);
 
   isSigningOut = false;
 
@@ -208,6 +210,73 @@ export class AdminDashboard implements OnInit {
   addCourse() {
     this.registrationService.clear();
     localStorage.setItem('isAddCourseMode', 'true');
+    this.router.navigate(['/organization-course']);
+  }
+
+  editCourse(course: Course) {
+    this.registrationService.clear();
+    localStorage.setItem('isAddCourseMode', 'true');
+    localStorage.setItem('isEditCourseMode', 'true');
+    localStorage.setItem('editCourseId', course.id);
+
+    try {
+      const activeOrgRaw = localStorage.getItem('activeOrganization');
+      if (activeOrgRaw) {
+        const org = JSON.parse(activeOrgRaw);
+        
+        let courseDetails: any = null;
+        if (course.id === 'CRS-001') {
+          courseDetails = {
+            name: org.courseName,
+            teeBoxes: org.course?.teeBoxes || org.teeBoxes || [],
+            holesList: org.course?.holesList || org.holesList || [],
+            courseUrl: org.course?.courseUrl || org.courseUrl || '',
+            branding: {
+              logoFileName: org.logoFileName || org.branding?.logoFileName || null,
+              logoPreview: org.logoPreview || org.branding?.logoPreview || null,
+              bannerFileName: org.bannerFileName || org.branding?.bannerFileName || null,
+              bannerPreview: org.bannerPreview || org.branding?.bannerPreview || null,
+              scorecardFileName: org.scorecardFileName || org.branding?.scorecardFileName || null,
+              scorecardPreview: org.scorecardPreview || org.branding?.scorecardPreview || null,
+              websiteUrl: org.websiteUrl || org.branding?.websiteUrl || '',
+              bookingUrl: org.bookingUrl || org.branding?.bookingUrl || '',
+              selectedColor: org.selectedColor || org.branding?.selectedColor || '#0F3D2E'
+            }
+          };
+        } else {
+          const found = (org.courses || []).find((c: any) => c.id === course.id);
+          if (found) {
+            courseDetails = found;
+          }
+        }
+
+        if (courseDetails) {
+          this.registrationService.updateData({
+            orgName: org.orgName || org.clubName || '',
+            courseName: courseDetails.name || '',
+            urlSlug: org.urlSlug || '',
+            orgEmail: org.orgEmail || org.email || '',
+            phone: org.phone || '',
+            inviteCode: org.inviteCode || '',
+            logoFileName: courseDetails.branding?.logoFileName || null,
+            logoPreview: courseDetails.branding?.logoPreview || null,
+            bannerFileName: courseDetails.branding?.bannerFileName || null,
+            bannerPreview: courseDetails.branding?.bannerPreview || null,
+            scorecardFileName: courseDetails.branding?.scorecardFileName || null,
+            scorecardPreview: courseDetails.branding?.scorecardPreview || null,
+            websiteUrl: courseDetails.branding?.websiteUrl || courseDetails.url || '',
+            bookingUrl: courseDetails.branding?.bookingUrl || '',
+            selectedColor: courseDetails.branding?.selectedColor || '#0F3D2E',
+            teeBoxes: courseDetails.teeBoxes || [],
+            holesList: courseDetails.holesList || [],
+            courseUrl: courseDetails.courseUrl || ''
+          });
+        }
+      }
+    } catch (e) {
+      console.error('Error prefilling course details for editing:', e);
+    }
+
     this.router.navigate(['/organization-course']);
   }
 
