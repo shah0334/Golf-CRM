@@ -20,13 +20,33 @@ export class OrganizationCourseComponent implements OnInit {
   ngOnInit() {
     this.isAddCourseMode = localStorage.getItem('isAddCourseMode') === 'true';
     
-    const data = this.registrationService.getData();
+    let data = this.registrationService.getData();
 
-    const initialInvite = data.inviteCode || '';
-    const initialOrgName = data.orgName || data.clubName || '';
-    const initialEmail = data.orgEmail || data.email || '';
-    const initialPhone = data.phone || '';
-    let initialSlug = data.urlSlug || '';
+    let activeOrg: any = null;
+    if (this.isAddCourseMode) {
+      const activeOrgRaw = localStorage.getItem('activeOrganization');
+      if (activeOrgRaw) {
+        try {
+          activeOrg = JSON.parse(activeOrgRaw);
+        } catch (e) {
+          console.error('Error parsing active organization in ngOnInit:', e);
+        }
+      }
+    }
+
+    // If step 3 opens from a different email session, clear stale data
+    const activeOrgEmail = (activeOrg?.orgEmail || activeOrg?.email || '').trim().toLowerCase();
+    const storedEmail = (data.orgEmail || data.email || '').trim().toLowerCase();
+    if (this.isAddCourseMode && activeOrgEmail && storedEmail && activeOrgEmail !== storedEmail) {
+      this.registrationService.clear();
+      data = {};
+    }
+
+    const initialInvite = (this.isAddCourseMode && activeOrg?.inviteCode) || data.inviteCode || '';
+    const initialOrgName = (this.isAddCourseMode && (activeOrg?.orgName || activeOrg?.clubName)) || data.orgName || data.clubName || '';
+    const initialEmail = this.isAddCourseMode ? '' : (data.orgEmail || data.email || '');
+    const initialPhone = this.isAddCourseMode ? '' : (data.phone || '');
+    let initialSlug = (this.isAddCourseMode && activeOrg?.urlSlug) || data.urlSlug || '';
     
     if (!initialSlug && initialOrgName) {
       initialSlug = initialOrgName
@@ -40,9 +60,15 @@ export class OrganizationCourseComponent implements OnInit {
       courseName: [data.courseName || '', [Validators.required]],
       urlSlug: [initialSlug, []],
       email: [initialEmail, [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
-      phone: [initialPhone, [Validators.required, Validators.pattern('^[+]?[0-9\\s\\-\\(\\)]{7,20}$')]],
+      phone: [initialPhone, [Validators.pattern('^[+]?[0-9\\s\\-\\(\\)]{7,20}$')]],
       inviteCode: [initialInvite, [Validators.required]]
     });
+
+    if (this.isAddCourseMode) {
+      this.form.get('orgName')?.disable();
+      this.form.get('urlSlug')?.disable();
+      this.form.get('inviteCode')?.disable();
+    }
 
     this.form.get('orgName')?.valueChanges.subscribe(val => {
       if (val) {
@@ -78,6 +104,32 @@ export class OrganizationCourseComponent implements OnInit {
   onSubmit() {
     if (this.form.valid) {
       const formValue = this.form.getRawValue();
+
+      // Check for duplicate course names under this organization
+      if (this.isAddCourseMode) {
+        let activeOrg: any = null;
+        const activeOrgRaw = localStorage.getItem('activeOrganization');
+        if (activeOrgRaw) {
+          try {
+            activeOrg = JSON.parse(activeOrgRaw);
+          } catch (e) {
+            console.error('Error parsing active organization in onSubmit:', e);
+          }
+        }
+        
+        if (activeOrg) {
+          const newCourseName = formValue.courseName?.trim().toLowerCase();
+          const primaryCourseName = (activeOrg.courseName || '').trim().toLowerCase();
+          const otherCoursesNames = (activeOrg.courses || []).map((c: any) => (c.name || '').trim().toLowerCase());
+          
+          if (newCourseName === primaryCourseName || otherCoursesNames.includes(newCourseName)) {
+            this.form.get('courseName')?.setErrors({ duplicateCourse: true });
+            this.form.markAllAsTouched();
+            return;
+          }
+        }
+      }
+
       this.registrationService.updateData({
         orgName: formValue.orgName,
         courseName: formValue.courseName,

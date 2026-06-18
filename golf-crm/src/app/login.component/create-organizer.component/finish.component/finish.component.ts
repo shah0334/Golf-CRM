@@ -277,27 +277,61 @@ export class FinishComponent implements OnInit {
     if (!registrationData.orgName) missing.push('Organization Name (Step 3)');
     if (!registrationData.courseName) missing.push('Course Name (Step 3)');
     if (!registrationData.orgEmail) missing.push('Organization Email (Step 3)');
-    if (!registrationData.phone) missing.push('Phone Number (Step 3)');
     if (!registrationData.inviteCode) missing.push('Invite Code (Step 3)');
 
     // Step 4 Validation
-    if (!logoPrev && !logoFile) {
-      missing.push('Course Logo (Step 4)');
-    }
     if (!webUrl) {
       missing.push('Website URL (Step 4)');
     } else if (!isUrlValid(webUrl)) {
       invalid.push('Website URL (Step 4)');
     }
-    if (!bookUrl) {
-      missing.push('Book Online URL (Step 4)');
-    } else if (!isUrlValid(bookUrl)) {
+    if (bookUrl && !isUrlValid(bookUrl)) {
       invalid.push('Book Online URL (Step 4)');
     }
 
     // Step 5 Validation
     if (this.teeBoxError) missing.push('Tee Boxes (Step 5)');
     if (this.courseUrlError) missing.push('Course URL Slug (Step 5)');
+
+    // Hole Builder Validation (Required with all info)
+    let isHoleBuilderComplete = true;
+    let holeBuilderErrorMsg = '';
+
+    if (!this.holesList || this.holesList.length !== 18) {
+      isHoleBuilderComplete = false;
+      holeBuilderErrorMsg = 'Scorecard must contain exactly 18 holes.';
+    } else {
+      for (const hole of this.holesList) {
+        if (!hole.par || hole.par <= 0) {
+          isHoleBuilderComplete = false;
+          holeBuilderErrorMsg = `Hole ${hole.holeNumber} must have a valid Par value greater than 0.`;
+          break;
+        }
+        if (!hole.handicap || hole.handicap <= 0) {
+          isHoleBuilderComplete = false;
+          holeBuilderErrorMsg = `Hole ${hole.holeNumber} must have a valid Handicap Index greater than 0.`;
+          break;
+        }
+        if (!this.teeBoxes || this.teeBoxes.length === 0) {
+          isHoleBuilderComplete = false;
+          holeBuilderErrorMsg = 'At least one Tee Box must be defined.';
+          break;
+        }
+        for (const tee of this.teeBoxes) {
+          const yards = hole.yards?.[tee];
+          if (yards === undefined || yards === null || yards <= 0) {
+            isHoleBuilderComplete = false;
+            holeBuilderErrorMsg = `Hole ${hole.holeNumber} must have a valid yardage greater than 0 for Tee Box "${tee}".`;
+            break;
+          }
+        }
+        if (!isHoleBuilderComplete) break;
+      }
+    }
+
+    if (!isHoleBuilderComplete) {
+      missing.push(`Hole Builder: ${holeBuilderErrorMsg}`);
+    }
 
     if (missing.length > 0 || invalid.length > 0) {
       const messages: string[] = [];

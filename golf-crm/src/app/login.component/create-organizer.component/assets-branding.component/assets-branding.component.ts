@@ -385,17 +385,12 @@ export class AssetsBrandingComponent implements OnInit {
     const missing: string[] = [];
     const invalid: string[] = [];
 
-    if (!(this.logoPreview || this.logoUrl)) {
-      missing.push('Logo');
-    }
     if (!this.websiteUrl) {
       missing.push('Website URL');
     } else if (!isUrlValid(this.websiteUrl)) {
       invalid.push('Website URL');
     }
-    if (!this.bookingUrl) {
-      missing.push('Book Online URL');
-    } else if (!isUrlValid(this.bookingUrl)) {
+    if (this.bookingUrl && !isUrlValid(this.bookingUrl)) {
       invalid.push('Book Online URL');
     }
 

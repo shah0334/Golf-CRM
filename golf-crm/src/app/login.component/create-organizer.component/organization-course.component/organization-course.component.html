@@ -23,7 +23,7 @@
               </div>
               <input type="text" formControlName="orgName"
                      [ngClass]="form.get('orgName')?.invalid && form.get('orgName')?.touched ? 'border-red-500 text-[#051B11] focus:ring-red-200 focus:border-red-500' : 'border-[#E1D9CD] text-[#051B11] focus:ring-[#DCAE5A]/20 focus:border-[#DCAE5A]'"
-                     class="block w-full pl-11 pr-4 py-3.5 bg-white border rounded-xl placeholder-[#5E806D]/50 focus:outline-none focus:ring-2 transition-all text-sm font-semibold"
+                     class="block w-full pl-11 pr-4 py-3.5 bg-white border rounded-xl placeholder-[#5E806D]/50 focus:outline-none focus:ring-2 transition-all text-sm font-semibold disabled:bg-[#FAF7F2] disabled:text-[#5E806D]/60 disabled:cursor-not-allowed"
                      placeholder="Enter Organization Name">
             </div>
             @if (form.get('orgName')?.invalid && form.get('orgName')?.touched) {
@@ -56,7 +56,13 @@
                 <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
                 </svg>
-                <span>Course name is required.</span>
+                <span>
+                  @if (form.get('courseName')?.errors?.['duplicateCourse']) {
+                    Course with this name already exists.
+                  } @else {
+                    Course name is required.
+                  }
+                </span>
               </div>
             }
           </div>
@@ -73,7 +79,7 @@
             </div>
             <input type="text" formControlName="urlSlug"
                    [ngClass]="form.get('urlSlug')?.invalid && form.get('urlSlug')?.touched ? 'border-red-500 text-[#051B11] focus:ring-red-200 focus:border-red-500' : 'border-[#E1D9CD] text-[#051B11] focus:ring-[#DCAE5A]/20 focus:border-[#DCAE5A]'"
-                   class="block w-full pl-11 pr-4 py-3.5 bg-white border rounded-xl placeholder-[#5E806D]/50 focus:outline-none focus:ring-2 transition-all text-sm font-semibold"
+                   class="block w-full pl-11 pr-4 py-3.5 bg-white border rounded-xl placeholder-[#5E806D]/50 focus:outline-none focus:ring-2 transition-all text-sm font-semibold disabled:bg-[#FAF7F2] disabled:text-[#5E806D]/60 disabled:cursor-not-allowed"
                    placeholder="organization-name">
           </div>
           <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FAF7F2] border border-[#E1D9CD] rounded-full text-xs font-semibold text-[#5E806D] mt-2 w-fit">
@@ -113,7 +119,7 @@
           </div>
           <div class="space-y-2">
             <label class="block text-[11px] font-bold tracking-wider text-[#5E806D] uppercase">
-              Contact Phone <span class="text-red-500">*</span>
+              Contact Phone
             </label>
             <div class="relative">
               <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#5E806D]/80">
@@ -150,7 +156,7 @@
             </div>
             <input type="text" formControlName="inviteCode"
                    [ngClass]="form.get('inviteCode')?.invalid && form.get('inviteCode')?.touched ? 'border-red-500 text-[#051B11] focus:ring-red-200 focus:border-red-500' : 'border-[#E1D9CD] text-[#051B11] focus:ring-[#DCAE5A]/20 focus:border-[#DCAE5A]'"
-                   class="block w-full pl-11 pr-4 py-3.5 bg-white border rounded-xl placeholder-[#5E806D]/50 focus:outline-none focus:ring-2 transition-all text-sm font-semibold"
+                   class="block w-full pl-11 pr-4 py-3.5 bg-white border rounded-xl placeholder-[#5E806D]/50 focus:outline-none focus:ring-2 transition-all text-sm font-semibold disabled:bg-[#FAF7F2] disabled:text-[#5E806D]/60 disabled:cursor-not-allowed"
                    placeholder="Enter Staff Invite Code">
           </div>
           @if (form.get('inviteCode')?.invalid && form.get('inviteCode')?.touched) {
