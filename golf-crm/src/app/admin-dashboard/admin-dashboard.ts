@@ -112,6 +112,14 @@ export class AdminDashboard implements OnInit {
       if (activeOrgRaw) {
         const org = JSON.parse(activeOrgRaw);
         
+        // Load tournaments from organization if available
+        if (org.tournaments && Array.isArray(org.tournaments) && org.tournaments.length > 0) {
+          this.tournaments = org.tournaments;
+        } else {
+          org.tournaments = this.tournaments;
+          localStorage.setItem('activeOrganization', JSON.stringify(org));
+        }
+
         // Prefill courses list with the actual course configured during signup
         if (org.courseName) {
           const holesCount = org.course?.holesList?.length || 18;
@@ -276,6 +284,19 @@ export class AdminDashboard implements OnInit {
     this.router.navigate(['/organization-course']);
   }
 
+  saveTournamentsToStorage() {
+    try {
+      const activeOrgRaw = localStorage.getItem('activeOrganization');
+      if (activeOrgRaw) {
+        const org = JSON.parse(activeOrgRaw);
+        org.tournaments = this.tournaments;
+        localStorage.setItem('activeOrganization', JSON.stringify(org));
+      }
+    } catch (e) {
+      console.error('Error saving updated tournaments list to storage:', e);
+    }
+  }
+
   createTournament() {
     this.router.navigate(['/admin-dashboard/create-event']);
   }
@@ -290,11 +311,16 @@ export class AdminDashboard implements OnInit {
         trn.status = 'ARCHIVED';
         alert(`Tournament "${trn.name}" archived successfully.`);
       }
+      this.saveTournamentsToStorage();
     }
   }
 
   deleteTournament(id: string) {
-    this.tournaments = this.tournaments.filter(t => t.id !== id);
+    if (confirm(`Are you sure you want to permanently delete "${this.tournaments.find(t => t.id === id)?.name}"?`)) {
+      this.tournaments = this.tournaments.filter(t => t.id !== id);
+      this.saveTournamentsToStorage();
+      alert('Tournament deleted successfully.');
+    }
   }
 
   showScorecard(course: Course) {

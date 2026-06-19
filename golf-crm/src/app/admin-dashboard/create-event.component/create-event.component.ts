@@ -126,6 +126,74 @@ export class CreateEventComponent implements OnInit {
   }
 
   createTournament() {
+    try {
+      const activeOrgRaw = localStorage.getItem('activeOrganization');
+      if (activeOrgRaw) {
+        const org = JSON.parse(activeOrgRaw);
+        if (!org.tournaments) {
+          org.tournaments = [
+            {
+              id: 'TRN-1042',
+              name: 'Spring Member Open',
+              date: 'Apr 18, 2026',
+              players: 84,
+              tag: 'TOURNAMENT',
+              status: 'ACTIVE',
+            },
+            {
+              id: 'TRN-1043',
+              name: 'Junior Skills Clinic',
+              date: 'May 04, 2026',
+              players: 24,
+              tag: 'CLINIC',
+              status: 'UPCOMING',
+            },
+            {
+              id: 'TRN-1044',
+              name: 'Summer Pro Camp',
+              date: 'Jun 10, 2026',
+              players: 32,
+              tag: 'CAMP',
+              status: 'UPCOMING',
+            },
+            {
+              id: 'TRN-1038',
+              name: 'Winter Classic',
+              date: 'Jan 22, 2026',
+              players: 96,
+              tag: 'TOURNAMENT',
+              status: 'COMPLETED',
+            }
+          ];
+        }
+
+        let tagVal: 'TOURNAMENT' | 'CLINIC' | 'CAMP' = 'TOURNAMENT';
+        if (this.selectedEventType === 'clinic') tagVal = 'CLINIC';
+        if (this.selectedEventType === 'camp') tagVal = 'CAMP';
+
+        const parsedDate = new Date(this.eventDate + 'T00:00:00');
+        let dateStr = 'Jun 20, 2026';
+        if (!isNaN(parsedDate.getTime())) {
+          dateStr = parsedDate.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+        }
+
+        const id = 'TRN-' + Math.floor(1000 + Math.random() * 9000);
+        const newTournament = {
+          id: id,
+          name: this.eventName || 'New Event',
+          date: dateStr,
+          players: this.maxParticipants || 0,
+          tag: tagVal,
+          status: (this.eventStatus ? this.eventStatus.toUpperCase() : 'ACTIVE')
+        };
+
+        org.tournaments.push(newTournament);
+        localStorage.setItem('activeOrganization', JSON.stringify(org));
+      }
+    } catch (e) {
+      console.error('Error saving new tournament to local storage:', e);
+    }
+
     alert('Tournament created successfully!');
     this.router.navigate(['/admin-dashboard']);
   }

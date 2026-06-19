@@ -30,7 +30,7 @@
           </svg>
           Courses
         </a>
-        <a href="javascript:void(0)"
+        <a routerLink="/admin-dashboard/events" routerLinkActive="bg-[#DCAE5A] text-[#051B11] font-bold"
           class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-[#7A9A8A] hover:bg-[#133824]/50 hover:text-white transition-all">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round"
@@ -44,14 +44,6 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
           </svg>
           Staff
-        </a>
-        <a routerLink="/admin-dashboard/leaderboard"
-          class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-[#7A9A8A] hover:bg-[#133824]/50 hover:text-white transition-all cursor-pointer font-sans">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v5.25c0 .621-.504 1.125-1.125 1.125h-2.25A1.125 1.125 0 013 18.375v-5.25zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125v-9.75zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v14.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
-          </svg>
-          Leaderboards
         </a>
         <a href="javascript:void(0)"
           class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-[#7A9A8A] hover:bg-[#133824]/50 hover:text-white transition-all">
@@ -102,7 +94,7 @@
           class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/80 hover:bg-[#133824]/50">
           Courses
         </a>
-        <a href="javascript:void(0)" (click)="isMobileMenuOpen = false"
+        <a routerLink="/admin-dashboard/events" (click)="isMobileMenuOpen = false" routerLinkActive="bg-[#DCAE5A] text-[#051B11] font-bold"
           class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/80 hover:bg-[#133824]/50">
           Events
         </a>
