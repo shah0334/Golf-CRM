@@ -2,6 +2,15 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AdminDashboard } from './admin-dashboard';
 import { provideRouter } from '@angular/router';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { AdminLayoutComponent } from './admin-layout.component';
+
+class MockAdminLayoutComponent {
+  searchQuery = '';
+  showArchived = false;
+  userName = 'Test Admin';
+  userInitials = 'TA';
+  orgName = 'Test Club';
+}
 
 describe('AdminDashboard', () => {
   let component: AdminDashboard;
@@ -14,7 +23,8 @@ describe('AdminDashboard', () => {
     await TestBed.configureTestingModule({
       imports: [AdminDashboard],
       providers: [
-        provideRouter([])
+        provideRouter([]),
+        { provide: AdminLayoutComponent, useClass: MockAdminLayoutComponent }
       ]
     })
     .compileComponents();
@@ -45,7 +55,7 @@ describe('AdminDashboard', () => {
   });
 
   it('should filter out archived tournaments when showArchived is false', () => {
-    component.showArchived = false;
+    component.layout.showArchived = false;
     
     // Archive one tournament
     component.archiveTournament('TRN-1042');
@@ -55,7 +65,7 @@ describe('AdminDashboard', () => {
   });
 
   it('should show both archived and non-archived tournaments when showArchived is true', () => {
-    component.showArchived = true;
+    component.layout.showArchived = true;
     
     // Archive one tournament
     component.archiveTournament('TRN-1042');

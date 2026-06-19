@@ -2,9 +2,8 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { RegistrationService } from '../services/registration.service';
-import { FirebaseService } from '../services/firebase.service';
-import { AdminLayoutComponent } from './admin-layout.component';
+import { RegistrationService } from '../../services/registration.service';
+import { AdminLayoutComponent } from '../admin-layout.component';
 
 interface Course {
   id: string;
@@ -23,26 +22,16 @@ interface Course {
   };
 }
 
-interface Tournament {
-  id: string;
-  name: string;
-  date: string;
-  players: number;
-  tag: 'TOURNAMENT' | 'CLINIC' | 'CAMP';
-  status: 'ACTIVE' | 'UPCOMING' | 'COMPLETED' | 'ARCHIVED';
-}
-
 @Component({
-  selector: 'app-admin-dashboard',
+  selector: 'app-courses-component',
   imports: [CommonModule, RouterLink, FormsModule],
-  templateUrl: './admin-dashboard.html',
-  styleUrl: './admin-dashboard.css',
+  templateUrl: './courses.component.html',
+  styleUrl: './courses.component.css',
 })
-export class AdminDashboard implements OnInit {
+export class CoursesComponent implements OnInit {
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
   private registrationService = inject(RegistrationService);
-  private firebaseService = inject(FirebaseService);
   public layout = inject(AdminLayoutComponent);
 
   copiedCourseId: string | null = null;
@@ -70,48 +59,13 @@ export class AdminDashboard implements OnInit {
     }
   ];
 
-  tournaments: Tournament[] = [
-    {
-      id: 'TRN-1042',
-      name: 'Spring Member Open',
-      date: 'Apr 18, 2026',
-      players: 84,
-      tag: 'TOURNAMENT',
-      status: 'ACTIVE',
-    },
-    {
-      id: 'TRN-1043',
-      name: 'Junior Skills Clinic',
-      date: 'May 04, 2026',
-      players: 24,
-      tag: 'CLINIC',
-      status: 'UPCOMING',
-    },
-    {
-      id: 'TRN-1044',
-      name: 'Summer Pro Camp',
-      date: 'Jun 10, 2026',
-      players: 32,
-      tag: 'CAMP',
-      status: 'UPCOMING',
-    },
-    {
-      id: 'TRN-1038',
-      name: 'Winter Classic',
-      date: 'Jan 22, 2026',
-      players: 96,
-      tag: 'TOURNAMENT',
-      status: 'COMPLETED',
-    }
-  ];
-
   ngOnInit() {
     // Load dynamic organization details if available
     try {
       const activeOrgRaw = localStorage.getItem('activeOrganization');
       if (activeOrgRaw) {
         const org = JSON.parse(activeOrgRaw);
-        
+
         // Prefill courses list with the actual course configured during signup
         if (org.courseName) {
           const holesCount = org.course?.holesList?.length || 18;
@@ -146,34 +100,20 @@ export class AdminDashboard implements OnInit {
         }
       }
     } catch (e) {
-      console.error('Error loading active organization details on dashboard:', e);
+      console.error('Error loading active organization details on courses view:', e);
     }
   }
 
   getFilteredCourses(): Course[] {
     return this.courses.filter(course => {
       const matchesSearch = course.name.toLowerCase().includes(this.layout.searchQuery.toLowerCase()) ||
-                            course.id.toLowerCase().includes(this.layout.searchQuery.toLowerCase());
-      
-      if (this.layout.showArchived) {
-        return matchesSearch && course.status === 'ARCHIVED';
-      } else {
-        return matchesSearch && course.status !== 'ARCHIVED';
-      }
-    });
-  }
-
-  getFilteredTournaments(): Tournament[] {
-    return this.tournaments.filter(trn => {
-      const matchesSearch = trn.name.toLowerCase().includes(this.layout.searchQuery.toLowerCase()) ||
-                            trn.id.toLowerCase().includes(this.layout.searchQuery.toLowerCase()) ||
-                            trn.tag.toLowerCase().includes(this.layout.searchQuery.toLowerCase()) ||
-                            trn.status.toLowerCase().includes(this.layout.searchQuery.toLowerCase());
+                            course.id.toLowerCase().includes(this.layout.searchQuery.toLowerCase()) ||
+                            course.url.toLowerCase().includes(this.layout.searchQuery.toLowerCase());
       
       if (this.layout.showArchived) {
         return matchesSearch;
       } else {
-        return matchesSearch && trn.status !== 'ARCHIVED';
+        return matchesSearch && course.status !== 'ARCHIVED';
       }
     });
   }
@@ -276,25 +216,59 @@ export class AdminDashboard implements OnInit {
     this.router.navigate(['/organization-course']);
   }
 
-  createTournament() {
-    this.router.navigate(['/admin-dashboard/create-event']);
-  }
-
-  archiveTournament(id: string) {
-    const trn = this.tournaments.find(t => t.id === id);
-    if (trn) {
-      if (trn.status === 'ARCHIVED') {
-        trn.status = 'ACTIVE';
-        alert(`Tournament "${trn.name}" restored successfully.`);
-      } else {
-        trn.status = 'ARCHIVED';
-        alert(`Tournament "${trn.name}" archived successfully.`);
+  saveCoursesToStorage() {
+    try {
+      const activeOrgRaw = localStorage.getItem('activeOrganization');
+      if (activeOrgRaw) {
+        const org = JSON.parse(activeOrgRaw);
+        
+        // Split courses into primary (CRS-001) and additional courses
+        const primaryCourse = this.courses.find(c => c.id === 'CRS-001');
+        if (primaryCourse) {
+          org.courseName = primaryCourse.name;
+          org.logoPreview = primaryCourse.logoPreview;
+          org.scorecardPreview = primaryCourse.scorecardPreview;
+        }
+        
+        const additionalCourses = this.courses.filter(c => c.id !== 'CRS-001').map(c => ({
+          id: c.id,
+          name: c.name,
+          holes: c.holes,
+          par: c.par,
+          status: c.status,
+          url: c.url,
+          logoPreview: c.logoPreview,
+          scorecardPreview: c.scorecardPreview
+        }));
+        org.courses = additionalCourses;
+        
+        localStorage.setItem('activeOrganization', JSON.stringify(org));
       }
+    } catch (e) {
+      console.error('Error saving updated courses list to storage:', e);
     }
   }
 
-  deleteTournament(id: string) {
-    this.tournaments = this.tournaments.filter(t => t.id !== id);
+  archiveCourse(id: string) {
+    const course = this.courses.find(c => c.id === id);
+    if (course) {
+      if (course.status === 'ARCHIVED') {
+        course.status = 'ACTIVE';
+        alert(`Course "${course.name}" restored successfully.`);
+      } else {
+        course.status = 'ARCHIVED';
+        alert(`Course "${course.name}" archived successfully.`);
+      }
+      this.saveCoursesToStorage();
+    }
+  }
+
+  deleteCourse(id: string) {
+    if (confirm(`Are you sure you want to permanently delete "${this.courses.find(c => c.id === id)?.name}"?`)) {
+      this.courses = this.courses.filter(c => c.id !== id);
+      this.saveCoursesToStorage();
+      alert('Course deleted successfully.');
+    }
   }
 
   showScorecard(course: Course) {
