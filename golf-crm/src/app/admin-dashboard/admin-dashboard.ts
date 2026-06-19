@@ -28,7 +28,7 @@ interface Tournament {
   date: string;
   players: number;
   tag: 'TOURNAMENT' | 'CLINIC' | 'CAMP';
-  status: 'ACTIVE' | 'UPCOMING' | 'COMPLETED';
+  status: 'ACTIVE' | 'UPCOMING' | 'COMPLETED' | 'ARCHIVED';
 }
 
 @Component({
@@ -194,10 +194,16 @@ export class AdminDashboard implements OnInit {
 
   getFilteredTournaments(): Tournament[] {
     return this.tournaments.filter(trn => {
-      return trn.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-             trn.id.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-             trn.tag.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-             trn.status.toLowerCase().includes(this.searchQuery.toLowerCase());
+      const matchesSearch = trn.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                            trn.id.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                            trn.tag.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                            trn.status.toLowerCase().includes(this.searchQuery.toLowerCase());
+      
+      if (this.showArchived) {
+        return matchesSearch;
+      } else {
+        return matchesSearch && trn.status !== 'ARCHIVED';
+      }
     });
   }
 
@@ -302,7 +308,16 @@ export class AdminDashboard implements OnInit {
   }
 
   archiveTournament(id: string) {
-    alert(`Tournament ${id} archived successfully.`);
+    const trn = this.tournaments.find(t => t.id === id);
+    if (trn) {
+      if (trn.status === 'ARCHIVED') {
+        trn.status = 'ACTIVE';
+        alert(`Tournament "${trn.name}" restored successfully.`);
+      } else {
+        trn.status = 'ARCHIVED';
+        alert(`Tournament "${trn.name}" archived successfully.`);
+      }
+    }
   }
 
   deleteTournament(id: string) {
