@@ -323,6 +323,11 @@ export class AdminDashboard implements OnInit {
     this.router.navigate(['/admin-dashboard/create-event']);
   }
 
+  editTournament(id: string) {
+    this.router.navigate(['/admin-dashboard/create-event'], { queryParams: { edit: id } });
+  }
+
+
   archiveTournament(id: string) {
     const trn = this.tournaments.find(t => t.id === id);
     if (trn) {

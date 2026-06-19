@@ -13,10 +13,10 @@
         </button>
         <div>
           <h1 class="text-2xl sm:text-3.5xl font-serif font-extrabold tracking-tight text-[#051B11] leading-none">
-            Create New Event
+            {{ isEditMode ? 'Edit Event' : 'Create New Event' }}
           </h1>
           <p class="text-xs sm:text-sm text-[#7A9A8A] font-semibold mt-1.5">
-            Configure your tournament, clinic, camp, or golf event.
+            {{ isEditMode ? 'Update your tournament, clinic, camp, or golf event.' : 'Configure your tournament, clinic, camp, or golf event.' }}
           </p>
         </div>
       </div>
@@ -812,7 +812,7 @@
           <button type="button"
                   (click)="createTournament()"
                   class="px-7 py-2.5 bg-[#DCAE5A] hover:bg-[#cda04f] text-[#051B11] font-extrabold rounded-full text-xs transition-all flex items-center justify-center gap-1 cursor-pointer focus:outline-none shadow-xs">
-            Create Tournament
+            {{ isEditMode ? 'Save Changes' : 'Create Tournament' }}
           </button>
         } @else {
           <button type="button"

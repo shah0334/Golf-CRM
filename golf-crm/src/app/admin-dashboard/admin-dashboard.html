@@ -223,7 +223,7 @@
           ID: {{ trn.id }} &bull; {{ trn.date }} &bull; {{ trn.players }} players
         </p>
       </div>
-      <div class="grid grid-cols-3 gap-2">
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
         <a [routerLink]="['/admin-dashboard/scorecard', trn.id]"
           class="flex flex-col items-start gap-1 p-2 bg-[#FAF7F2]/40 border border-[#E1D9CD]/55 hover:border-[#DCAE5A]/40 rounded-xl transition-all focus:outline-none text-left cursor-pointer">
           <div class="flex items-center gap-1">
@@ -269,6 +269,18 @@
             <span class="text-[10px] font-bold text-[#051B11]">Players</span>
           </div>
           <span class="text-[8px] text-[#5E806D] truncate leading-none">Add, remove, or...</span>
+        </button>
+        <button type="button" (click)="editTournament(trn.id)"
+          class="flex flex-col items-start gap-1 p-2 bg-[#FAF7F2]/40 border border-[#E1D9CD]/55 hover:border-[#DCAE5A]/40 rounded-xl transition-all focus:outline-none text-left cursor-pointer">
+          <div class="flex items-center gap-1">
+            <svg class="w-3.5 h-3.5 text-[#5E806D]" fill="none" stroke="currentColor" stroke-width="2"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
+            </svg>
+            <span class="text-[10px] font-bold text-[#051B11]">Edit Event</span>
+          </div>
+          <span class="text-[8px] text-[#5E806D] truncate leading-none">Modify event...</span>
         </button>
       </div>
       <div class="flex justify-end gap-3 pt-3 border-t border-[#E1D9CD]/35">
