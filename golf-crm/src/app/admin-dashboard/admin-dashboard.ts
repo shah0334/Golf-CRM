@@ -30,6 +30,7 @@ interface Tournament {
   players: number;
   tag: 'TOURNAMENT' | 'CLINIC' | 'CAMP';
   status: 'ACTIVE' | 'UPCOMING' | 'COMPLETED' | 'ARCHIVED';
+  playersJoinMode?: string;
 }
 
 @Component({

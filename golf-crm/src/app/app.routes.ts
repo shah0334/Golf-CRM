@@ -16,6 +16,8 @@ import { EventsComponent } from './admin-dashboard/events.component/events.compo
 import { AdminLayoutComponent } from './admin-dashboard/admin-layout.component';
 import { RegistrationService } from './services/registration.service';
 
+import { PlayerComponent } from './admin-dashboard/player.component/player.component';
+
 const authGuard = () => {
   const router = inject(Router);
   const activeOrg = localStorage.getItem('activeOrganization');
@@ -89,13 +91,16 @@ export const routes: Routes = [
     children: [
       { path: '', component: AdminDashboard },
       { path: 'courses', component: CoursesComponent },
-      { path: 'events', component: EventsComponent }
+      { path: 'events', component: EventsComponent },
+      { path: 'roster', component: RosterComponent },
+      { path: 'create-event', component: CreateEventComponent },
+      { path: 'leaderboard', component: LeaderboardComponent },
+
+      { path: 'player', component: PlayerComponent }
     ]
   },
-  { path: 'admin-dashboard/roster', component: RosterComponent, canActivate: [authGuard] },
   { path: 'admin-dashboard/scorecard/:id', component: ScorecardComponent },
-  { path: 'admin-dashboard/create-event', component: CreateEventComponent, canActivate: [authGuard] },
-  { path: 'admin-dashboard/leaderboard', component: LeaderboardComponent, canActivate: [authGuard] },
+
 ];
 
 

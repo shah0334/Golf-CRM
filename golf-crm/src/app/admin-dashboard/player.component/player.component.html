@@ -1,0 +1,392 @@
+<div class="min-h-screen bg-[#F5F5F5] p-6 flex flex-col items-center w-full">
+    <!-- Page Header -->
+    <div class="w-full max-w-5xl flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-[#0F3D2E]">
+                {{ registrationType === 'Individual' ? 'Add Individual Player' : 'Add Team' }}
+            </h1>
+            <p class="text-sm text-[#1F2937]">
+                {{ registrationType === 'Individual'
+                ? 'Register a player for this tournament and provide app access for score submission.'
+                : 'Register a team for this tournament and assign players for score tracking.' }}
+            </p>
+        </div>
+        <button class="flex items-center text-[#1B5E20] hover:text-[#0F3D2E] transition-colors font-semibold"
+            (click)="goBack()">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back
+        </button>
+    </div>
+    <!-- MAIN VIEW CONTAINER -->
+    <div *ngIf="selectedTournamentId" class="w-full max-w-5xl flex flex-col items-center">
+
+        <!-- ================= INDIVIDUAL REGISTRATION MODE ================= -->
+        <div *ngIf="registrationType === 'Individual'" class="w-full flex flex-col items-center">
+            <!-- Player Form Card -->
+            <div class="w-full bg-white rounded-2xl shadow-lg p-8 mb-8">
+                <form (ngSubmit)="savePlayer()" #playerForm="ngForm" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Player Name -->
+                        <div>
+                            <label class="block text-sm font-semibold text-[#1F2937] mb-1">Player Name <span
+                                    class="text-[#DCAE5A]">*</span></label>
+                            <input type="text" name="playerName" [(ngModel)]="playerName" required
+                                class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]" />
+                        </div>
+                        <!-- Email Address -->
+                        <div>
+                            <label class="block text-sm font-semibold text-[#1F2937] mb-1">Email Address <span
+                                    class="text-[#DCAE5A]">*</span></label>
+                            <input type="email" name="email" [(ngModel)]="email" required
+                                class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]" />
+                        </div>
+                        <!-- Password -->
+                        <div>
+                            <label class="block text-sm font-semibold text-[#1F2937] mb-1">
+                                Password <span *ngIf="!editingPlayer" class="text-[#DCAE5A]">*</span>
+                                <span *ngIf="editingPlayer" class="text-xs text-gray-400 font-normal"> (leave blank to
+                                    keep unchanged)</span>
+                            </label>
+                            <input type="password" name="password" [(ngModel)]="password" [required]="!editingPlayer"
+                                class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]" />
+                        </div>
+                        <!-- Phone Number (optional) -->
+                        <div>
+                            <label class="block text-sm font-semibold text-[#1F2937] mb-1">Phone Number</label>
+                            <input type="text" name="phone" [(ngModel)]="phone"
+                                class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]" />
+                        </div>
+                        <!-- Handicap (optional) -->
+                        <div>
+                            <label class="block text-sm font-semibold text-[#1F2937] mb-1">Handicap</label>
+                            <input type="number" name="handicap" [(ngModel)]="handicap" min="0"
+                                class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]" />
+                        </div>
+                        <!-- Notes (optional) -->
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-semibold text-[#1F2937] mb-1">Notes</label>
+                            <textarea name="notes" [(ngModel)]="notes" rows="3"
+                                placeholder="VIP player / Sponsor guest / Special instructions"
+                                class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Player Access Info Card -->
+                    <div class="bg-[#F5F5F5] border border-[#E1D9CD] rounded-md p-4 mt-4">
+                        <p class="text-sm text-[#1F2937] mb-2 font-medium">This player will use email and password to
+                            log into the mobile app and submit scores during the tournament.</p>
+                        <ul class="list-disc list-inside text-sm text-[#1F2937] space-y-1">
+                            <li>Login to mobile app</li>
+                            <li>Enter score</li>
+                            <li>View scorecard</li>
+                            <li>View leaderboard</li>
+                        </ul>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex space-x-4 mt-6">
+                        <button type="submit"
+                            class="flex-1 bg-[#1B5E20] text-white py-2 rounded-md hover:bg-[#0F3D2E] transition-colors flex items-center justify-center shadow-md hover:shadow-lg font-semibold">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            {{ editingPlayer ? 'Update Player' : 'Save Player' }}
+                        </button>
+                        <button type="button" (click)="cancel()"
+                            class="flex-1 border border-[#1B5E20] text-[#1B5E20] py-2 rounded-md hover:bg-[#1B5E20] hover:text-white transition-colors flex items-center justify-center shadow-md hover:shadow-lg font-semibold">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Player List Preview -->
+            <div class="w-full bg-white rounded-2xl shadow-lg p-6">
+                <h2 class="text-xl font-semibold text-[#0F3D2E] mb-4">Added Players</h2>
+                <table class="min-w-full table-auto">
+                    <thead>
+                        <tr class="bg-[#FAF7F2] border-b border-[#E1D9CD]/80">
+                            <th class="px-4 py-2 text-left text-sm font-semibold text-[#1F2937]">Player Name</th>
+                            <th class="px-4 py-2 text-left text-sm font-semibold text-[#1F2937]">Email</th>
+                            <th class="px-4 py-2 text-left text-sm font-semibold text-[#1F2937]">Handicap</th>
+                            <th class="px-4 py-2 text-left text-sm font-semibold text-[#1F2937]">Status</th>
+                            <th class="px-4 py-2 text-left text-sm font-semibold text-[#1F2937]">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let p of addedPlayers" class="border-b">
+                            <td class="px-4 py-3 text-sm text-[#1F2937] font-medium">{{p.name}}</td>
+                            <td class="px-4 py-3 text-sm text-[#1F2937]">{{p.email}}</td>
+                            <td class="px-4 py-3 text-sm text-[#1F2937]">{{p.handicap || '-'}} </td>
+                            <td class="px-4 py-3">
+                                <span class="px-2.5 py-1 text-xs font-semibold rounded-full"
+                                    [ngClass]="{'bg-green-100 text-green-800': p.status === 'Active', 'bg-blue-100 text-blue-800': p.status === 'Registered'}">
+                                    {{p.status}}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 flex space-x-4">
+                                <button (click)="editPlayer(p)"
+                                    class="text-[#1B5E20] hover:text-[#0F3D2E] transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                                    </svg>
+                                </button>
+                                <button (click)="removePlayer(p)"
+                                    class="text-red-600 hover:text-red-800 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                    </svg>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="addedPlayers.length === 0">
+                            <td colspan="5"
+                                class="px-4 py-4 text-center text-sm text-[#7A9A8A] font-semibold bg-[#FAF7F2]/30">No
+                                players added yet.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================= TEAM REGISTRATION MODE ================= -->
+        <div *ngIf="registrationType === 'Team'" class="w-full flex flex-col items-center">
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full mb-8">
+                <!-- Team Form Card -->
+                <div class="lg:col-span-2 bg-white rounded-2xl shadow-lg p-8">
+                    <form (ngSubmit)="saveTeam()" class="space-y-6">
+                        <h2 class="text-xl font-bold text-[#0F3D2E] border-b pb-2 mb-4">Team Details</h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Team Name -->
+                            <div>
+                                <label class="block text-sm font-semibold text-[#1F2937] mb-1">Team / Company Name <span
+                                        class="text-[#DCAE5A]">*</span></label>
+                                <input type="text" name="teamName" [(ngModel)]="teamName" required
+                                    class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]" />
+                            </div>
+                            <!-- Captain Name -->
+                            <div>
+                                <label class="block text-sm font-semibold text-[#1F2937] mb-1">Captain Name <span
+                                        class="text-[#DCAE5A]">*</span></label>
+                                <input type="text" name="captainName" [(ngModel)]="captainName" required
+                                    class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]" />
+                            </div>
+                            <!-- Status Dropdown -->
+                            <div>
+                                <label class="block text-sm font-semibold text-[#1F2937] mb-1">Status <span
+                                        class="text-[#DCAE5A]">*</span></label>
+                                <select name="teamStatus" [(ngModel)]="teamStatus" required
+                                    class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20] bg-white cursor-pointer">
+                                    <option value="Registered">Registered</option>
+                                    <option value="Checked In">Checked In</option>
+                                    <option value="Active">Active</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Tournament Settings Section -->
+                        <h2 class="text-lg font-bold text-[#0F3D2E] border-b pb-2 pt-4 mb-4">Tournament Settings</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Assigned Hole -->
+                            <div>
+                                <label class="block text-sm font-semibold text-[#1F2937] mb-1">Assigned Hole</label>
+                                <input type="text" name="assignedHole" [(ngModel)]="assignedHole"
+                                    placeholder="Leave blank for auto assignment"
+                                    class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]" />
+                            </div>
+                            <!-- Tee Box Override -->
+                            <div>
+                                <label class="block text-sm font-semibold text-[#1F2937] mb-1">Tee Box Override</label>
+                                <select name="teeBoxOverride" [(ngModel)]="teeBoxOverride"
+                                    class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20] bg-white cursor-pointer">
+                                    <option value="">Leave blank for event default</option>
+                                    <option value="Black">Black</option>
+                                    <option value="Blue">Blue</option>
+                                    <option value="White">White</option>
+                                    <option value="Gold">Gold</option>
+                                </select>
+                                <p class="text-[11px] text-gray-500 mt-1">Leave blank to use event default tee box.</p>
+                            </div>
+                        </div>
+
+                        <!-- Players Section -->
+                        <div class="pt-4">
+                            <div class="flex justify-between items-center border-b pb-2 mb-4">
+                                <h2 class="text-lg font-bold text-[#0F3D2E]">Players</h2>
+                                <button type="button" (click)="addTeamPlayerRow()"
+                                    class="bg-[#D4AF37] hover:bg-[#B89B2D] text-white px-3 py-1.5 rounded-md text-xs font-semibold flex items-center transition-colors">
+                                    <span class="text-sm font-light mr-1">+</span> Add Player
+                                </button>
+                            </div>
+
+                            <div class="space-y-3">
+                                <div *ngFor="let player of teamPlayers; let idx = index"
+                                    class="flex gap-4 items-center bg-[#FAF7F2] p-3 rounded-lg border border-[#E1D9CD]">
+                                    <span class="text-xs font-bold text-[#5E806D] shrink-0 w-16">Player {{ idx + 1
+                                        }}</span>
+                                    <!-- Player Name -->
+                                    <div class="flex-grow">
+                                        <input type="text" [(ngModel)]="player.name" name="playerName_{{idx}}"
+                                            placeholder="Player Name"
+                                            class="w-full px-3 py-1.5 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20] bg-white text-sm" />
+                                    </div>
+                                    <!-- Handicap -->
+                                    <div class="w-24">
+                                        <input type="number" [(ngModel)]="player.handicap" name="playerHandicap_{{idx}}"
+                                            placeholder="Handicap"
+                                            class="w-full px-3 py-1.5 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20] bg-white text-sm" />
+                                    </div>
+                                    <!-- Remove Row Button -->
+                                    <button type="button" (click)="removeTeamPlayerRow(idx)"
+                                        class="text-red-500 hover:text-red-700 font-semibold text-sm">
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions Buttons -->
+                        <div class="flex space-x-4 mt-8 pt-4 border-t border-[#E1D9CD]/50">
+                            <button type="submit"
+                                class="flex-1 bg-[#1B5E20] text-white py-2 rounded-md hover:bg-[#0F3D2E] transition-colors flex items-center justify-center shadow-md hover:shadow-lg font-semibold">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                                {{ editingTeam ? 'Update Team' : 'Save Team' }}
+                            </button>
+                            <button type="button" (click)="cancel()"
+                                class="flex-1 border border-[#1B5E20] text-[#1B5E20] py-2 rounded-md hover:bg-[#1B5E20] hover:text-white transition-colors flex items-center justify-center shadow-md hover:shadow-lg font-semibold">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Team Summary Preview Card -->
+                <div
+                    class="bg-gradient-to-br from-[#0F3D2E] to-[#133824] rounded-2xl shadow-xl p-6 text-white h-fit sticky top-6">
+                    <h3
+                        class="text-lg font-bold text-[#DCAE5A] border-b border-[#2d473b] pb-2 mb-4 uppercase tracking-wider">
+                        Team Live Preview</h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <span class="text-xs text-[#7A9A8A] font-bold uppercase tracking-wider block">Team /
+                                Company</span>
+                            <span class="text-xl font-bold truncate block">{{ teamName || '---' }}</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-[#7A9A8A] font-bold uppercase tracking-wider block">Captain</span>
+                            <span class="text-base font-semibold block">{{ captainName || '---' }}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <span class="text-xs text-[#7A9A8A] font-bold uppercase tracking-wider block">Total
+                                    Players</span>
+                                <span class="text-2xl font-extrabold block text-[#DCAE5A]">
+                                    {{ teamPlayers.filter(p => p.name.trim() !== '').length }}
+                                </span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-[#7A9A8A] font-bold uppercase tracking-wider block">Assigned
+                                    Hole</span>
+                                <span class="text-base font-bold block">{{ assignedHole || 'Auto' }}</span>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="text-xs text-[#7A9A8A] font-bold uppercase tracking-wider block">Tee Box
+                                Override</span>
+                            <span class="text-base font-bold block">{{ teeBoxOverride || 'Default' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 bg-[#03140C] border border-[#2d473b] p-4 rounded-xl">
+                        <span class="text-xs text-[#DCAE5A] font-bold uppercase tracking-wider block mb-2">Team List
+                            Summary</span>
+                        <ul class="text-xs space-y-1.5 text-[#FAF7F2]/80">
+                            <li *ngFor="let p of teamPlayers; let i = index">
+                                <span *ngIf="p.name.trim()">🏌️ {{ p.name }} (Handicap: {{ p.handicap !== null ?
+                                    p.handicap : '-' }})</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team List Preview Table -->
+            <div class="w-full bg-white rounded-2xl shadow-lg p-6">
+                <h2 class="text-xl font-semibold text-[#0F3D2E] mb-4">Added Teams</h2>
+                <table class="min-w-full table-auto">
+                    <thead>
+                        <tr class="bg-[#FAF7F2] border-b border-[#E1D9CD]/80">
+                            <th class="px-4 py-2 text-left text-sm font-semibold text-[#1F2937]">Team Name</th>
+                            <th class="px-4 py-2 text-left text-sm font-semibold text-[#1F2937]">Captain</th>
+                            <th class="px-4 py-2 text-left text-sm font-semibold text-[#1F2937]">Players Count</th>
+                            <th class="px-4 py-2 text-left text-sm font-semibold text-[#1F2937]">Status</th>
+                            <th class="px-4 py-2 text-left text-sm font-semibold text-[#1F2937]">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let t of addedTeams" class="border-b">
+                            <td class="px-4 py-3 text-sm text-[#1F2937] font-semibold">{{t.name}}</td>
+                            <td class="px-4 py-3 text-sm text-[#1F2937]">{{t.captain}}</td>
+                            <td class="px-4 py-3 text-sm text-[#1F2937]">{{t.players ? t.players.length : 0}} Players
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="px-2.5 py-1 text-xs font-semibold rounded-full" [ngClass]="{
+                                    'bg-green-100 text-green-800': t.status === 'Active', 
+                                    'bg-blue-100 text-blue-800': t.status === 'Registered',
+                                    'bg-yellow-100 text-yellow-800': t.status === 'Checked In'
+                                }">
+                                    {{t.status}}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 flex space-x-4">
+                                <button (click)="editTeam(t)"
+                                    class="text-[#1B5E20] hover:text-[#0F3D2E] transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                                    </svg>
+                                </button>
+                                <button (click)="removeTeam(t)"
+                                    class="text-red-600 hover:text-red-800 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                    </svg>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="addedTeams.length === 0">
+                            <td colspan="5"
+                                class="px-4 py-4 text-center text-sm text-[#7A9A8A] font-semibold bg-[#FAF7F2]/30">No
+                                teams added yet.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>

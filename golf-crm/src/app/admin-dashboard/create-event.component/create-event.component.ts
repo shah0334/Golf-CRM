@@ -347,7 +347,8 @@ export class CreateEventComponent implements OnInit {
           date: payload.date,
           players: payload.players,
           tag: payload.tag,
-          status: payload.status
+          status: payload.status,
+          playersJoinMode: payload.playersJoinMode
         };
         if (index !== -1) {
           org.tournaments[index] = { ...org.tournaments[index], ...summary };
