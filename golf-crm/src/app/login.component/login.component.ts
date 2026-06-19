@@ -26,9 +26,13 @@ export class LoginComponent implements OnInit {
   isLoading = false;
 
   ngOnInit() {
+    const savedEmail = localStorage.getItem('rememberedEmail') || '';
+    const shouldRemember = localStorage.getItem('rememberMe') === 'true';
+
     this.form = this.fb.group({
-      email: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
-      password: ['', [Validators.required]]
+      email: [savedEmail, [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
+      password: ['', [Validators.required]],
+      rememberMe: [shouldRemember]
     });
   }
 
@@ -45,7 +49,7 @@ export class LoginComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = null;
 
-    const { email, password } = this.form.value;
+    const { email, password, rememberMe } = this.form.value;
 
     this.firebaseService.login(email, password).subscribe({
       next: (response: any) => {
@@ -55,6 +59,15 @@ export class LoginComponent implements OnInit {
         const orgData = response.user;
         localStorage.setItem('orgName', orgData.orgName || orgData.clubName || 'Oak Valley Golf Club');
         localStorage.setItem('activeOrganization', JSON.stringify(orgData));
+
+        // Save or remove Remember Me credentials
+        if (rememberMe) {
+          localStorage.setItem('rememberedEmail', email);
+          localStorage.setItem('rememberMe', 'true');
+        } else {
+          localStorage.removeItem('rememberedEmail');
+          localStorage.removeItem('rememberMe');
+        }
 
         // Redirect to admin dashboard
         this.router.navigate(['/admin-dashboard']);

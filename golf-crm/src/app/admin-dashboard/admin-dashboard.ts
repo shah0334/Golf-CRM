@@ -322,7 +322,19 @@ export class AdminDashboard implements OnInit {
     this.isSigningOut = true;
     this.cdr.detectChanges();
     setTimeout(() => {
+      // Preserve remember me keys before clearing
+      const rememberedEmail = localStorage.getItem('rememberedEmail');
+      const rememberMe = localStorage.getItem('rememberMe');
+
       localStorage.clear();
+
+      if (rememberedEmail) {
+        localStorage.setItem('rememberedEmail', rememberedEmail);
+      }
+      if (rememberMe) {
+        localStorage.setItem('rememberMe', rememberMe);
+      }
+
       this.router.navigate(['/']);
     }, 800);
   }
