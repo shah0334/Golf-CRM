@@ -120,6 +120,28 @@ export class AdminDashboard implements OnInit {
           localStorage.setItem('activeOrganization', JSON.stringify(org));
         }
 
+        // Fetch tournaments from Firebase subcollection to be fresh
+        const orgDocId = this.firebaseService.getOrgDocId();
+        this.firebaseService.getTournaments(orgDocId).subscribe({
+          next: (list) => {
+            if (list && list.length > 0) {
+              this.tournaments = list;
+              this.saveTournamentsToStorage();
+              this.cdr.detectChanges();
+            }
+          }
+        });
+
+        // Fetch courses from Firebase subcollection to be fresh
+        this.firebaseService.getCourses(orgDocId).subscribe({
+          next: (list) => {
+            if (list && list.length > 0) {
+              this.courses = list;
+              this.cdr.detectChanges();
+            }
+          }
+        });
+
         // Prefill courses list with the actual course configured during signup
         if (org.courseName) {
           const holesCount = org.course?.holesList?.length || 18;
@@ -304,22 +326,43 @@ export class AdminDashboard implements OnInit {
   archiveTournament(id: string) {
     const trn = this.tournaments.find(t => t.id === id);
     if (trn) {
-      if (trn.status === 'ARCHIVED') {
-        trn.status = 'ACTIVE';
-        alert(`Tournament "${trn.name}" restored successfully.`);
-      } else {
-        trn.status = 'ARCHIVED';
-        alert(`Tournament "${trn.name}" archived successfully.`);
-      }
-      this.saveTournamentsToStorage();
+      const nextStatus = trn.status === 'ARCHIVED' ? 'ACTIVE' : 'ARCHIVED';
+      const orgDocId = this.firebaseService.getOrgDocId();
+      this.firebaseService.updateTournament(orgDocId, id, { status: nextStatus }).subscribe({
+        next: () => {
+          trn.status = nextStatus;
+          if (nextStatus === 'ACTIVE') {
+            alert(`Tournament "${trn.name}" restored successfully.`);
+          } else {
+            alert(`Tournament "${trn.name}" archived successfully.`);
+          }
+          this.saveTournamentsToStorage();
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Failed to archive tournament in Firebase:', err);
+          alert('Failed to archive tournament on server. Please try again.');
+        }
+      });
     }
   }
 
   deleteTournament(id: string) {
-    if (confirm(`Are you sure you want to permanently delete "${this.tournaments.find(t => t.id === id)?.name}"?`)) {
-      this.tournaments = this.tournaments.filter(t => t.id !== id);
-      this.saveTournamentsToStorage();
-      alert('Tournament deleted successfully.');
+    const trn = this.tournaments.find(t => t.id === id);
+    if (trn && confirm(`Are you sure you want to permanently delete "${trn.name}"?`)) {
+      const orgDocId = this.firebaseService.getOrgDocId();
+      this.firebaseService.deleteTournament(orgDocId, id).subscribe({
+        next: () => {
+          this.tournaments = this.tournaments.filter(t => t.id !== id);
+          this.saveTournamentsToStorage();
+          alert('Tournament deleted successfully.');
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Failed to delete tournament in Firebase:', err);
+          alert('Failed to delete tournament on server. Please try again.');
+        }
+      });
     }
   }
 

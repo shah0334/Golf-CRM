@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { FirebaseService } from '../../services/firebase.service';
 
 @Component({
   selector: 'app-create-event.component',
@@ -11,10 +12,16 @@ import { FormsModule } from '@angular/forms';
 })
 export class CreateEventComponent implements OnInit {
   router = inject(Router);
+  firebaseService = inject(FirebaseService);
 
   currentStep = 1;
   totalSteps = 7;
   selectedEventType = 'general';
+
+  eventId = '';
+  adminToken = '';
+  sponsors: any[] = [];
+  courses: any[] = [];
 
   steps = [
     { number: 1, label: 'Event Type' },
@@ -27,7 +34,7 @@ export class CreateEventComponent implements OnInit {
   ];
 
   // Form Fields for Step 2
-  eventName = 'Oak Valley Open';
+  eventName = '';
   eventCategory = 'Tournament';
   instructorName = '';
   maxParticipants: number | null = null;
@@ -40,12 +47,12 @@ export class CreateEventComponent implements OnInit {
   // Form Fields for Step 3
   scorecardAccessMode = 'Public Registration';
   playersJoinMode = 'Group / Team Sign-Up';
-  organizerName = 'John Anderson';
-  organizerEmail = 'john@oakvalley.com';
+  organizerName = '';
+  organizerEmail = '';
 
   // Form Fields for Step 4
-  selectedCourse = 'Oak Valley Championship Course';
-  eventDate = '2026-06-20';
+  selectedCourse = '— Choose a course —';
+  eventDate = '';
   eventStatus = 'Draft';
 
   // Form Fields for Step 5
@@ -86,7 +93,40 @@ export class CreateEventComponent implements OnInit {
     }
   ];
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.eventId = 'EVT-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+    this.adminToken = 'ADM-' + Math.random().toString(36).substring(2, 8).toUpperCase() + '-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+
+    const orgDocId = this.firebaseService.getOrgDocId();
+    this.firebaseService.getCourses(orgDocId).subscribe({
+      next: (list) => {
+        if (list && list.length > 0) {
+          this.courses = list;
+        } else {
+          try {
+            const activeOrgRaw = localStorage.getItem('activeOrganization');
+            if (activeOrgRaw) {
+              const org = JSON.parse(activeOrgRaw);
+              if (org.courseName) {
+                this.courses = [{ id: 'CRS-001', name: org.courseName }];
+                if (org.courses && Array.isArray(org.courses)) {
+                  this.courses.push(...org.courses);
+                }
+              }
+            }
+          } catch (e) {
+            console.error('Error loading fallback courses:', e);
+          }
+        }
+      }
+    });
+  }
+
+  copyText(text: string) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Copied to clipboard!');
+    });
+  }
 
   areRequiredFieldsComplete(): boolean {
     if (!this.eventName || this.eventName.trim() === '') return false;
@@ -126,76 +166,76 @@ export class CreateEventComponent implements OnInit {
   }
 
   createTournament() {
-    try {
-      const activeOrgRaw = localStorage.getItem('activeOrganization');
-      if (activeOrgRaw) {
-        const org = JSON.parse(activeOrgRaw);
-        if (!org.tournaments) {
-          org.tournaments = [
-            {
-              id: 'TRN-1042',
-              name: 'Spring Member Open',
-              date: 'Apr 18, 2026',
-              players: 84,
-              tag: 'TOURNAMENT',
-              status: 'ACTIVE',
-            },
-            {
-              id: 'TRN-1043',
-              name: 'Junior Skills Clinic',
-              date: 'May 04, 2026',
-              players: 24,
-              tag: 'CLINIC',
-              status: 'UPCOMING',
-            },
-            {
-              id: 'TRN-1044',
-              name: 'Summer Pro Camp',
-              date: 'Jun 10, 2026',
-              players: 32,
-              tag: 'CAMP',
-              status: 'UPCOMING',
-            },
-            {
-              id: 'TRN-1038',
-              name: 'Winter Classic',
-              date: 'Jan 22, 2026',
-              players: 96,
-              tag: 'TOURNAMENT',
-              status: 'COMPLETED',
-            }
-          ];
-        }
+    let tagVal: 'TOURNAMENT' | 'CLINIC' | 'CAMP' = 'TOURNAMENT';
+    if (this.selectedEventType === 'clinic') tagVal = 'CLINIC';
+    if (this.selectedEventType === 'camp') tagVal = 'CAMP';
 
-        let tagVal: 'TOURNAMENT' | 'CLINIC' | 'CAMP' = 'TOURNAMENT';
-        if (this.selectedEventType === 'clinic') tagVal = 'CLINIC';
-        if (this.selectedEventType === 'camp') tagVal = 'CAMP';
-
-        const parsedDate = new Date(this.eventDate + 'T00:00:00');
-        let dateStr = 'Jun 20, 2026';
-        if (!isNaN(parsedDate.getTime())) {
-          dateStr = parsedDate.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
-        }
-
-        const id = 'TRN-' + Math.floor(1000 + Math.random() * 9000);
-        const newTournament = {
-          id: id,
-          name: this.eventName || 'New Event',
-          date: dateStr,
-          players: this.maxParticipants || 0,
-          tag: tagVal,
-          status: (this.eventStatus ? this.eventStatus.toUpperCase() : 'ACTIVE')
-        };
-
-        org.tournaments.push(newTournament);
-        localStorage.setItem('activeOrganization', JSON.stringify(org));
-      }
-    } catch (e) {
-      console.error('Error saving new tournament to local storage:', e);
+    const parsedDate = new Date(this.eventDate + 'T00:00:00');
+    let dateStr = 'Jun 20, 2026';
+    if (!isNaN(parsedDate.getTime())) {
+      dateStr = parsedDate.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
     }
 
-    alert('Tournament created successfully!');
-    this.router.navigate(['/admin-dashboard']);
+    const tournamentPayload = {
+      id: this.eventId,
+      name: this.eventName || 'New Event',
+      date: dateStr,
+      players: this.maxParticipants || 0,
+      tag: tagVal,
+      status: (this.eventStatus ? (this.eventStatus.toLowerCase() === 'live' ? 'ACTIVE' : this.eventStatus.toUpperCase()) : 'ACTIVE'),
+      category: this.eventCategory,
+      instructorName: this.instructorName,
+      sessionSchedule: this.sessionSchedule,
+      campDuration: this.campDuration,
+      dailySchedule: this.dailySchedule,
+      venueInformation: this.venueInformation,
+      eventDescription: this.eventDescription,
+      scorecardAccessMode: this.scorecardAccessMode,
+      playersJoinMode: this.playersJoinMode,
+      organizerName: this.organizerName,
+      organizerEmail: this.organizerEmail,
+      selectedCourse: this.selectedCourse,
+      scoringFormat: this.scoringFormat,
+      handicapCalculation: this.handicapCalculation,
+      holesToPlay: this.holesToPlay,
+      sponsors: this.sponsors,
+      adminToken: this.adminToken,
+      createdAt: new Date().toISOString()
+    };
+
+    const orgDocId = this.firebaseService.getOrgDocId();
+    this.firebaseService.createTournament(orgDocId, tournamentPayload).subscribe({
+      next: (response) => {
+        // Also update local activeOrganization tournaments cache so dashboard/events list doesn't show old data
+        try {
+          const activeOrgRaw = localStorage.getItem('activeOrganization');
+          if (activeOrgRaw) {
+            const org = JSON.parse(activeOrgRaw);
+            if (!org.tournaments) org.tournaments = [];
+            // Remove matching default placeholders if they have default status
+            org.tournaments = org.tournaments.filter((t: any) => t.id !== this.eventId);
+            org.tournaments.push({
+              id: this.eventId,
+              name: tournamentPayload.name,
+              date: tournamentPayload.date,
+              players: tournamentPayload.players,
+              tag: tournamentPayload.tag,
+              status: tournamentPayload.status
+            });
+            localStorage.setItem('activeOrganization', JSON.stringify(org));
+          }
+        } catch (e) {
+          console.error('Error updating local active organization cache:', e);
+        }
+
+        alert('Tournament created successfully!');
+        this.router.navigate(['/admin-dashboard']);
+      },
+      error: (err) => {
+        console.error('Failed to create tournament in Firebase:', err);
+        alert('Failed to save tournament to Firebase. Please try again.');
+      }
+    });
   }
 
   loadExisting() {
@@ -228,6 +268,12 @@ export class CreateEventComponent implements OnInit {
       alert('Please enter a sponsor display name.');
       return;
     }
+    this.sponsors.push({
+      tier: this.sponsorTier,
+      displayName: this.sponsorDisplayName,
+      website: this.sponsorWebsite,
+      logoUrl: this.sponsorLogoUrl
+    });
     alert(`Sponsor "${this.sponsorDisplayName}" added successfully!`);
     this.clearSponsorForm();
   }

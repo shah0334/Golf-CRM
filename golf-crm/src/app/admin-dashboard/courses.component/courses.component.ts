@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { RegistrationService } from '../../services/registration.service';
 import { AdminLayoutComponent } from '../admin-layout.component';
+import { FirebaseService } from '../../services/firebase.service';
 
 interface Course {
   id: string;
@@ -33,6 +34,7 @@ export class CoursesComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   private registrationService = inject(RegistrationService);
   public layout = inject(AdminLayoutComponent);
+  private firebaseService = inject(FirebaseService);
 
   copiedCourseId: string | null = null;
   selectedScorecardUrl: string | null = null;
@@ -102,6 +104,17 @@ export class CoursesComponent implements OnInit {
     } catch (e) {
       console.error('Error loading active organization details on courses view:', e);
     }
+
+    const orgDocId = this.firebaseService.getOrgDocId();
+    this.firebaseService.getCourses(orgDocId).subscribe({
+      next: (list) => {
+        if (list && list.length > 0) {
+          this.courses = list;
+          this.saveCoursesToStorage();
+          this.cdr.detectChanges();
+        }
+      }
+    });
   }
 
   getFilteredCourses(): Course[] {
@@ -252,22 +265,43 @@ export class CoursesComponent implements OnInit {
   archiveCourse(id: string) {
     const course = this.courses.find(c => c.id === id);
     if (course) {
-      if (course.status === 'ARCHIVED') {
-        course.status = 'ACTIVE';
-        alert(`Course "${course.name}" restored successfully.`);
-      } else {
-        course.status = 'ARCHIVED';
-        alert(`Course "${course.name}" archived successfully.`);
-      }
-      this.saveCoursesToStorage();
+      const nextStatus = course.status === 'ARCHIVED' ? 'ACTIVE' : 'ARCHIVED';
+      const orgDocId = this.firebaseService.getOrgDocId();
+      this.firebaseService.updateCourse(orgDocId, id, { status: nextStatus }).subscribe({
+        next: () => {
+          course.status = nextStatus;
+          if (nextStatus === 'ACTIVE') {
+            alert(`Course "${course.name}" restored successfully.`);
+          } else {
+            alert(`Course "${course.name}" archived successfully.`);
+          }
+          this.saveCoursesToStorage();
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Failed to archive course in Firebase:', err);
+          alert('Failed to archive course on server. Please try again.');
+        }
+      });
     }
   }
 
   deleteCourse(id: string) {
-    if (confirm(`Are you sure you want to permanently delete "${this.courses.find(c => c.id === id)?.name}"?`)) {
-      this.courses = this.courses.filter(c => c.id !== id);
-      this.saveCoursesToStorage();
-      alert('Course deleted successfully.');
+    const course = this.courses.find(c => c.id === id);
+    if (course && confirm(`Are you sure you want to permanently delete "${course.name}"?`)) {
+      const orgDocId = this.firebaseService.getOrgDocId();
+      this.firebaseService.deleteCourse(orgDocId, id).subscribe({
+        next: () => {
+          this.courses = this.courses.filter(c => c.id !== id);
+          this.saveCoursesToStorage();
+          alert('Course deleted successfully.');
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Failed to delete course in Firebase:', err);
+          alert('Failed to delete course on server. Please try again.');
+        }
+      });
     }
   }
 

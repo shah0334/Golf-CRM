@@ -400,120 +400,121 @@ export class FinishComponent implements OnInit {
       const isEditMode = localStorage.getItem('isEditCourseMode') === 'true';
       const editCourseId = localStorage.getItem('editCourseId');
 
+      let courseId = '';
+      let courseStatus = 'ACTIVE';
       if (isEditMode && editCourseId) {
-        if (editCourseId === 'CRS-001') {
-          activeOrg.courseName = registrationData.courseName || '';
-          activeOrg.logoPreview = logoPrev;
-          activeOrg.logoFileName = logoFile;
-          activeOrg.websiteUrl = webUrl;
-          activeOrg.bookingUrl = bookUrl;
-          activeOrg.selectedColor = registrationData.selectedColor || activeOrg.selectedColor || '#0F3D2E';
-          activeOrg.course = {
-            teeBoxes: this.teeBoxes,
-            holesList: this.holesList,
-            courseUrl: this.courseUrl
-          };
-          if (registrationData.scorecardPreview) {
-            activeOrg.scorecardPreview = registrationData.scorecardPreview;
-          }
-        } else {
-          if (activeOrg.courses) {
-            const index = activeOrg.courses.findIndex((c: any) => c.id === editCourseId);
-            if (index !== -1) {
-              activeOrg.courses[index] = {
-                id: editCourseId,
-                name: registrationData.courseName || '',
-                holes: holesCount,
-                par: parValue,
-                status: activeOrg.courses[index].status || 'ACTIVE',
-                url: displayWebUrl,
-                courseUrl: this.courseUrl,
-                holesList: this.holesList,
-                teeBoxes: this.teeBoxes,
-                branding: {
-                  logoFileName: logoFile,
-                  logoPreview: logoPrev,
-                  bannerFileName: registrationData.bannerFileName || null,
-                  bannerPreview: registrationData.bannerPreview || null,
-                  scorecardFileName: registrationData.scorecardFileName || null,
-                  scorecardPreview: registrationData.scorecardPreview || null,
-                  websiteUrl: webUrl,
-                  bookingUrl: bookUrl,
-                  selectedColor: registrationData.selectedColor || '#0F3D2E'
-                }
-              };
-            }
-          }
+        courseId = editCourseId;
+        if (editCourseId !== 'CRS-001' && activeOrg.courses) {
+          const existing = activeOrg.courses.find((c: any) => c.id === editCourseId);
+          if (existing) courseStatus = existing.status || 'ACTIVE';
         }
       } else {
-        const newCourse: any = {
-          id: 'CRS-' + String((activeOrg.courses || []).length + 2).padStart(3, '0'),
-          name: registrationData.courseName || '',
-          holes: holesCount,
-          par: parValue,
-          status: 'ACTIVE' as const,
-          url: displayWebUrl,
-          courseUrl: this.courseUrl,
-          holesList: this.holesList,
-          teeBoxes: this.teeBoxes,
-          branding: {
-            logoFileName: logoFile,
-            logoPreview: logoPrev,
-            bannerFileName: registrationData.bannerFileName || null,
-            bannerPreview: registrationData.bannerPreview || null,
-            scorecardFileName: registrationData.scorecardFileName || null,
-            scorecardPreview: registrationData.scorecardPreview || null,
-            websiteUrl: webUrl,
-            bookingUrl: bookUrl,
-            selectedColor: registrationData.selectedColor || '#0F3D2E'
-          }
-        };
-
-        if (!activeOrg.courses) {
-          activeOrg.courses = [];
-        }
-        activeOrg.courses.push(newCourse);
+        const nextIdNum = (activeOrg.courses || []).length + 2;
+        courseId = 'CRS-' + String(nextIdNum).padStart(3, '0');
       }
 
-      const updatePayload = {
-        orgName: activeOrg.orgName,
-        clubName: activeOrg.clubName,
-        orgEmail: activeOrg.orgEmail,
-        email: activeOrg.email,
-        phone: activeOrg.phone,
-        inviteCode: activeOrg.inviteCode,
-        urlSlug: activeOrg.urlSlug,
-        courses: activeOrg.courses || [],
-        logoPreview: activeOrg.logoPreview || null,
-        logoFileName: activeOrg.logoFileName || null,
-        websiteUrl: activeOrg.websiteUrl || '',
-        bookingUrl: activeOrg.bookingUrl || '',
-        selectedColor: activeOrg.selectedColor || '#0F3D2E',
-        course: activeOrg.course || null,
-        scorecardPreview: activeOrg.scorecardPreview || null
+      const coursePayload = {
+        id: courseId,
+        name: registrationData.courseName || '',
+        holes: holesCount,
+        par: parValue,
+        status: courseStatus as any,
+        url: displayWebUrl,
+        courseUrl: this.courseUrl,
+        holesList: this.holesList,
+        teeBoxes: this.teeBoxes,
+        branding: {
+          logoFileName: logoFile,
+          logoPreview: logoPrev,
+          bannerFileName: registrationData.bannerFileName || null,
+          bannerPreview: registrationData.bannerPreview || null,
+          scorecardFileName: registrationData.scorecardFileName || null,
+          scorecardPreview: registrationData.scorecardPreview || null,
+          websiteUrl: webUrl,
+          bookingUrl: bookUrl,
+          selectedColor: registrationData.selectedColor || '#0F3D2E'
+        }
       };
 
-      this.firebaseService.updateOrganization(originalEmail, originalUid, updatePayload).subscribe({
-        next: (response: any) => {
-          this.isSubmitting = false;
-          console.log('Successfully saved course details to organization:', response);
-          
-          localStorage.setItem('activeOrganization', JSON.stringify(activeOrg));
-          if (activeOrg.orgName || activeOrg.clubName) {
-            localStorage.setItem('orgName', activeOrg.orgName || activeOrg.clubName);
-          }
-          localStorage.removeItem('isAddCourseMode');
-          localStorage.removeItem('isEditCourseMode');
-          localStorage.removeItem('editCourseId');
-          this.registrationService.clear();
+      const orgDocId = this.firebaseService.getOrgDocId();
+      const saveCourseObs = (isEditMode && editCourseId)
+        ? this.firebaseService.updateCourse(orgDocId, editCourseId, coursePayload)
+        : this.firebaseService.createCourse(orgDocId, coursePayload);
 
-          this.router.navigate(['/admin-dashboard']);
-          this.cdr.detectChanges();
+      saveCourseObs.subscribe({
+        next: () => {
+          if (courseId === 'CRS-001') {
+            activeOrg.courseName = coursePayload.name;
+            activeOrg.logoPreview = coursePayload.branding.logoPreview;
+            activeOrg.logoFileName = coursePayload.branding.logoFileName;
+            activeOrg.websiteUrl = coursePayload.branding.websiteUrl;
+            activeOrg.bookingUrl = coursePayload.branding.bookingUrl;
+            activeOrg.selectedColor = coursePayload.branding.selectedColor;
+            activeOrg.course = {
+              teeBoxes: coursePayload.teeBoxes,
+              holesList: coursePayload.holesList,
+              courseUrl: coursePayload.courseUrl
+            };
+            if (registrationData.scorecardPreview) {
+              activeOrg.scorecardPreview = registrationData.scorecardPreview;
+            }
+          } else {
+            if (!activeOrg.courses) activeOrg.courses = [];
+            const index = activeOrg.courses.findIndex((c: any) => c.id === courseId);
+            if (index !== -1) {
+              activeOrg.courses[index] = coursePayload;
+            } else {
+              activeOrg.courses.push(coursePayload);
+            }
+          }
+
+          const updatePayload = {
+            orgName: activeOrg.orgName,
+            clubName: activeOrg.clubName,
+            orgEmail: activeOrg.orgEmail,
+            email: activeOrg.email,
+            phone: activeOrg.phone,
+            inviteCode: activeOrg.inviteCode,
+            urlSlug: activeOrg.urlSlug,
+            courses: activeOrg.courses || [],
+            logoPreview: activeOrg.logoPreview || null,
+            logoFileName: activeOrg.logoFileName || null,
+            websiteUrl: activeOrg.websiteUrl || '',
+            bookingUrl: activeOrg.bookingUrl || '',
+            selectedColor: activeOrg.selectedColor || '#0F3D2E',
+            course: activeOrg.course || null,
+            scorecardPreview: activeOrg.scorecardPreview || null
+          };
+
+          this.firebaseService.updateOrganization(originalEmail, originalUid, updatePayload).subscribe({
+            next: (response: any) => {
+              this.isSubmitting = false;
+              console.log('Successfully saved course details to organization:', response);
+              
+              localStorage.setItem('activeOrganization', JSON.stringify(activeOrg));
+              if (activeOrg.orgName || activeOrg.clubName) {
+                localStorage.setItem('orgName', activeOrg.orgName || activeOrg.clubName);
+              }
+              localStorage.removeItem('isAddCourseMode');
+              localStorage.removeItem('isEditCourseMode');
+              localStorage.removeItem('editCourseId');
+              this.registrationService.clear();
+
+              this.router.navigate(['/admin-dashboard']);
+              this.cdr.detectChanges();
+            },
+            error: (err: any) => {
+              this.isSubmitting = false;
+              console.error('Failed to update organization details:', err);
+              this.errorMessage = 'Failed to save course organization info to Firebase.';
+              this.cdr.detectChanges();
+            }
+          });
         },
-        error: (err: any) => {
+        error: (courseErr) => {
           this.isSubmitting = false;
-          console.error('Failed to update organization details:', err);
-          this.errorMessage = 'Failed to save course to Firebase. Please verify database connection or log details.';
+          console.error('Failed to save course to subcollection:', courseErr);
+          this.errorMessage = 'Failed to save course to Firebase subcollection. Please verify database connection.';
           this.cdr.detectChanges();
         }
       });
@@ -532,16 +533,56 @@ export class FinishComponent implements OnInit {
       next: (response: any) => {
         this.isSubmitting = false;
         console.log('Firebase onboarding completion successful:', response);
-        // Persist organization name in localStorage for the AdminDashboard component
-        localStorage.setItem('orgName', fullPayload.orgName || fullPayload.clubName || 'Oak Valley Golf Club');
-        localStorage.setItem('activeOrganization', JSON.stringify(fullPayload));
-        
-        // Clear multi-step wizard state
-        this.registrationService.clear();
+        const docId = response.firestoreDoc ? response.firestoreDoc.split('/').pop() : (response.uid || 'default_org');
+        const savedOrg = {
+          ...fullPayload,
+          uid: response.uid || (fullPayload as any).uid || '',
+          docId: docId,
+          id: docId
+        };
 
-        // Redirect to admin dashboard
-        this.router.navigate(['/admin-dashboard']);
-        this.cdr.detectChanges();
+        // Also save primary course to courses subcollection!
+        const holesCount = this.holesList.length;
+        const parValue = this.holesList.reduce((acc, h) => acc + (Number(h.par) || 4), 0);
+        const displayWebUrl = webUrl || `golfscorepro.com${this.courseUrl}`;
+        const primaryCoursePayload = {
+          id: 'CRS-001',
+          name: fullPayload.courseName || '',
+          holes: holesCount,
+          par: parValue,
+          status: 'ACTIVE',
+          url: displayWebUrl,
+          courseUrl: this.courseUrl,
+          holesList: this.holesList,
+          teeBoxes: this.teeBoxes,
+          branding: {
+            logoFileName: logoFile,
+            logoPreview: logoPrev,
+            bannerFileName: registrationData.bannerFileName || null,
+            bannerPreview: registrationData.bannerPreview || null,
+            scorecardFileName: registrationData.scorecardFileName || null,
+            scorecardPreview: registrationData.scorecardPreview || null,
+            websiteUrl: webUrl,
+            bookingUrl: bookUrl,
+            selectedColor: registrationData.selectedColor || '#0F3D2E'
+          }
+        };
+
+        this.firebaseService.createCourse(docId, primaryCoursePayload).subscribe({
+          next: () => {
+            localStorage.setItem('activeOrganization', JSON.stringify(savedOrg));
+            this.registrationService.clear();
+            this.router.navigate(['/admin-dashboard']);
+            this.cdr.detectChanges();
+          },
+          error: (courseErr) => {
+            console.error('Failed to create primary course in subcollection:', courseErr);
+            localStorage.setItem('activeOrganization', JSON.stringify(savedOrg));
+            this.registrationService.clear();
+            this.router.navigate(['/admin-dashboard']);
+            this.cdr.detectChanges();
+          }
+        });
       },
       error: (err: any) => {
         this.isSubmitting = false;

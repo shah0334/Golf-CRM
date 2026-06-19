@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AdminLayoutComponent } from '../admin-layout.component';
+import { FirebaseService } from '../../services/firebase.service';
 
 interface Tournament {
   id: string;
@@ -24,6 +25,7 @@ export class EventsComponent implements OnInit {
   public layout = inject(AdminLayoutComponent);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private firebaseService = inject(FirebaseService);
 
   selectedTag: 'ALL' | 'TOURNAMENT' | 'CLINIC' | 'CAMP' = 'ALL';
 
@@ -77,6 +79,17 @@ export class EventsComponent implements OnInit {
     } catch (e) {
       console.error('Error loading tournaments list on events view:', e);
     }
+
+    const orgDocId = this.firebaseService.getOrgDocId();
+    this.firebaseService.getTournaments(orgDocId).subscribe({
+      next: (list) => {
+        if (list && list.length > 0) {
+          this.tournaments = list;
+          this.saveTournamentsToStorage();
+          this.cdr.detectChanges();
+        }
+      }
+    });
   }
 
   saveTournamentsToStorage() {
@@ -141,25 +154,43 @@ export class EventsComponent implements OnInit {
   archiveTournament(id: string) {
     const trn = this.tournaments.find(t => t.id === id);
     if (trn) {
-      if (trn.status === 'ARCHIVED') {
-        trn.status = 'ACTIVE';
-        alert(`Tournament "${trn.name}" restored successfully.`);
-      } else {
-        trn.status = 'ARCHIVED';
-        alert(`Tournament "${trn.name}" archived successfully.`);
-      }
-      this.saveTournamentsToStorage();
-      this.cdr.detectChanges();
+      const nextStatus = trn.status === 'ARCHIVED' ? 'ACTIVE' : 'ARCHIVED';
+      const orgDocId = this.firebaseService.getOrgDocId();
+      this.firebaseService.updateTournament(orgDocId, id, { status: nextStatus }).subscribe({
+        next: () => {
+          trn.status = nextStatus;
+          if (nextStatus === 'ACTIVE') {
+            alert(`Tournament "${trn.name}" restored successfully.`);
+          } else {
+            alert(`Tournament "${trn.name}" archived successfully.`);
+          }
+          this.saveTournamentsToStorage();
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Failed to archive tournament in Firebase:', err);
+          alert('Failed to archive tournament on server. Please try again.');
+        }
+      });
     }
   }
 
   deleteTournament(id: string) {
     const trn = this.tournaments.find(t => t.id === id);
     if (trn && confirm(`Are you sure you want to permanently delete "${trn.name}"?`)) {
-      this.tournaments = this.tournaments.filter(t => t.id !== id);
-      this.saveTournamentsToStorage();
-      alert('Tournament deleted successfully.');
-      this.cdr.detectChanges();
+      const orgDocId = this.firebaseService.getOrgDocId();
+      this.firebaseService.deleteTournament(orgDocId, id).subscribe({
+        next: () => {
+          this.tournaments = this.tournaments.filter(t => t.id !== id);
+          this.saveTournamentsToStorage();
+          alert('Tournament deleted successfully.');
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Failed to delete tournament in Firebase:', err);
+          alert('Failed to delete tournament on server. Please try again.');
+        }
+      });
     }
   }
 }
