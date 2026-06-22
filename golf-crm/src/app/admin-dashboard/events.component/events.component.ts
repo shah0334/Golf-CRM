@@ -83,7 +83,7 @@ export class EventsComponent implements OnInit {
     const orgDocId = this.firebaseService.getOrgDocId();
     this.firebaseService.getTournaments(orgDocId).subscribe({
       next: (list) => {
-        if (list && list.length > 0) {
+        if (list) {
           this.tournaments = list;
           this.saveTournamentsToStorage();
           this.cdr.detectChanges();
@@ -108,19 +108,24 @@ export class EventsComponent implements OnInit {
   getFilteredTournaments(): Tournament[] {
     return this.tournaments.filter(trn => {
       // 1. Filter by Search Query
-      const matchesSearch = trn.name.toLowerCase().includes(this.layout.searchQuery.toLowerCase()) ||
-                            trn.id.toLowerCase().includes(this.layout.searchQuery.toLowerCase()) ||
-                            trn.tag.toLowerCase().includes(this.layout.searchQuery.toLowerCase()) ||
-                            trn.status.toLowerCase().includes(this.layout.searchQuery.toLowerCase());
+      const name = trn.name || '';
+      const id = trn.id || '';
+      const tag = trn.tag || '';
+      const status = trn.status || '';
+      
+      const matchesSearch = name.toLowerCase().includes((this.layout.searchQuery || '').toLowerCase()) ||
+                            id.toLowerCase().includes((this.layout.searchQuery || '').toLowerCase()) ||
+                            tag.toLowerCase().includes((this.layout.searchQuery || '').toLowerCase()) ||
+                            status.toLowerCase().includes((this.layout.searchQuery || '').toLowerCase());
       
       // 2. Filter by Category tab selection
-      const matchesTag = this.selectedTag === 'ALL' || trn.tag === this.selectedTag;
+      const matchesTag = this.selectedTag === 'ALL' || tag === this.selectedTag;
 
       // 3. Filter by Show Archived toggle in Layout
       if (this.layout.showArchived) {
         return matchesSearch && matchesTag;
       } else {
-        return matchesSearch && matchesTag && trn.status !== 'ARCHIVED';
+        return matchesSearch && matchesTag && status !== 'ARCHIVED';
       }
     });
   }

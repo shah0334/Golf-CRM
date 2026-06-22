@@ -125,24 +125,24 @@ export class AdminDashboard implements OnInit {
         const orgDocId = this.firebaseService.getOrgDocId();
         this.firebaseService.getTournaments(orgDocId).subscribe({
           next: (list) => {
-            if (list && list.length > 0) {
+            if (list) {
               this.tournaments = list;
               this.saveTournamentsToStorage();
               this.cdr.detectChanges();
             }
           }
         });
-
+ 
         // Fetch courses from Firebase subcollection to be fresh
         this.firebaseService.getCourses(orgDocId).subscribe({
           next: (list) => {
-            if (list && list.length > 0) {
+            if (list) {
               this.courses = list;
               this.cdr.detectChanges();
             }
           }
         });
-
+ 
         // Prefill courses list with the actual course configured during signup
         if (org.courseName) {
           const holesCount = org.course?.holesList?.length || 18;
@@ -150,7 +150,7 @@ export class AdminDashboard implements OnInit {
             ? org.course.holesList.reduce((acc: number, h: any) => acc + (Number(h.par) || 4), 0) 
             : 72;
           const webUrl = org.websiteUrl || `golfscorepro.com/course/${org.urlSlug || 'oak-valley'}`;
-
+ 
           const primaryCourse: Course = {
             id: 'CRS-001',
             name: org.courseName,
@@ -161,7 +161,7 @@ export class AdminDashboard implements OnInit {
             logoPreview: org.logoPreview || org.branding?.logoPreview || null,
             scorecardPreview: org.scorecardPreview || org.branding?.scorecardPreview || null
           };
-
+ 
           const additionalCourses: Course[] = (org.courses || []).map((c: any) => ({
             id: c.id,
             name: c.name,
@@ -180,31 +180,40 @@ export class AdminDashboard implements OnInit {
       console.error('Error loading active organization details on dashboard:', e);
     }
   }
-
+ 
   getFilteredCourses(): Course[] {
     return this.courses.filter(course => {
-      const matchesSearch = course.name.toLowerCase().includes(this.layout.searchQuery.toLowerCase()) ||
-                            course.id.toLowerCase().includes(this.layout.searchQuery.toLowerCase());
+      const name = course.name || '';
+      const id = course.id || '';
+      const status = course.status || '';
+      
+      const matchesSearch = name.toLowerCase().includes((this.layout.searchQuery || '').toLowerCase()) ||
+                            id.toLowerCase().includes((this.layout.searchQuery || '').toLowerCase());
       
       if (this.layout.showArchived) {
-        return matchesSearch && course.status === 'ARCHIVED';
+        return matchesSearch && status === 'ARCHIVED';
       } else {
-        return matchesSearch && course.status !== 'ARCHIVED';
+        return matchesSearch && status !== 'ARCHIVED';
       }
     });
   }
-
+ 
   getFilteredTournaments(): Tournament[] {
     return this.tournaments.filter(trn => {
-      const matchesSearch = trn.name.toLowerCase().includes(this.layout.searchQuery.toLowerCase()) ||
-                            trn.id.toLowerCase().includes(this.layout.searchQuery.toLowerCase()) ||
-                            trn.tag.toLowerCase().includes(this.layout.searchQuery.toLowerCase()) ||
-                            trn.status.toLowerCase().includes(this.layout.searchQuery.toLowerCase());
+      const name = trn.name || '';
+      const id = trn.id || '';
+      const tag = trn.tag || '';
+      const status = trn.status || '';
+      
+      const matchesSearch = name.toLowerCase().includes((this.layout.searchQuery || '').toLowerCase()) ||
+                            id.toLowerCase().includes((this.layout.searchQuery || '').toLowerCase()) ||
+                            tag.toLowerCase().includes((this.layout.searchQuery || '').toLowerCase()) ||
+                            status.toLowerCase().includes((this.layout.searchQuery || '').toLowerCase());
       
       if (this.layout.showArchived) {
         return matchesSearch;
       } else {
-        return matchesSearch && trn.status !== 'ARCHIVED';
+        return matchesSearch && status !== 'ARCHIVED';
       }
     });
   }
