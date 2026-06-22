@@ -109,9 +109,6 @@ export class PlayerComponent implements OnInit {
   assignedHole: string = '';
   teeBoxOverride: string = '';
   teamPlayers: TeamMember[] = [
-    { name: '', handicap: null },
-    { name: '', handicap: null },
-    { name: '', handicap: null },
     { name: '', handicap: null }
   ];
   editingTeam: Team | null = null;
@@ -458,11 +455,6 @@ export class PlayerComponent implements OnInit {
     this.teeBoxOverride = t.teeBox || '';
     this.teamPlayers = t.players.map(p => ({ ...p }));
     
-    // Ensure we have at least 4 rows for clean UI representation if needed
-    while (this.teamPlayers.length < 4) {
-      this.teamPlayers.push({ name: '', handicap: null });
-    }
-    
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -493,9 +485,6 @@ export class PlayerComponent implements OnInit {
     this.assignedHole = '';
     this.teeBoxOverride = '';
     this.teamPlayers = [
-      { name: '', handicap: null },
-      { name: '', handicap: null },
-      { name: '', handicap: null },
       { name: '', handicap: null }
     ];
   }

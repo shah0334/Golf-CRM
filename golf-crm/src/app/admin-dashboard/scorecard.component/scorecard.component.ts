@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import html2canvas from 'html2canvas-pro';
+import { FirebaseService } from '../../services/firebase.service';
 
 interface Player {
   name: string;
@@ -13,6 +14,7 @@ interface Player {
 
 interface TeamData {
   teamName: string;
+  captainName?: string;
   players: Player[];
 }
 
@@ -26,16 +28,18 @@ export class ScorecardComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private firebaseService = inject(FirebaseService);
 
   tournamentId = '';
-  tournamentName = 'Classic Club Championship';
-  courseName = 'Classic Club';
+  isTeamBased = false;
+  tournamentName = 'Loading...';
+  courseName = 'Loading...';
   totalHoles = 18;
   totalPar = 72;
 
   // Search and selector state
   searchQuery = '';
-  selectedTeamName = 'BRAVO';
+  selectedTeamName = '';
   isDropdownOpen = false;
 
   // Core scorecard static data
@@ -49,99 +53,7 @@ export class ScorecardComponent implements OnInit {
   hcpsIn = [8, 18, 2, 12, 6, 16, 4, 14, 10];
 
   // Teams mock data
-  teams: TeamData[] = [
-    {
-      teamName: 'ALPHA',
-      players: [
-        {
-          name: 'John',
-          avatar: 'J',
-          outScores: [4, 4, 3, 4, 4, 4, 3, 4, 4], // 34
-          inScores: [null, null, null, null, null, null, null, null, null]
-        },
-        {
-          name: 'Dave',
-          avatar: 'D',
-          outScores: [5, 4, 4, 5, 4, 5, 3, 4, 5], // 39
-          inScores: [null, null, null, null, null, null, null, null, null]
-        }
-      ]
-    },
-    {
-      teamName: 'BRAVO',
-      players: [
-        {
-          name: 'Alpha',
-          avatar: 'A',
-          outScores: [4, 5, 3, 4, 5, 5, 3, 4, 4], // 37
-          inScores: [null, null, null, null, null, null, null, null, null]
-        },
-        {
-          name: 'Mike',
-          avatar: 'M',
-          outScores: [5, 5, 4, 4, 4, 6, 3, 5, 4], // 41
-          inScores: [null, null, null, null, null, null, null, null, null]
-        },
-        {
-          name: 'Smite',
-          avatar: 'S',
-          outScores: [4, 5, 3, 5, 4, 5, 4, 4, 5], // 39
-          inScores: [null, null, null, null, null, null, null, null, null]
-        }
-      ]
-    },
-    {
-      teamName: 'CHARLIE',
-      players: [
-        {
-          name: 'Kevin',
-          avatar: 'K',
-          outScores: [3, 5, 3, 4, 4, 5, 3, 5, 4], // 36
-          inScores: [null, null, null, null, null, null, null, null, null]
-        },
-        {
-          name: 'Robert',
-          avatar: 'R',
-          outScores: [4, 6, 4, 4, 5, 5, 3, 4, 4], // 39
-          inScores: [null, null, null, null, null, null, null, null, null]
-        }
-      ]
-    },
-    {
-      teamName: 'DELTA',
-      players: [
-        {
-          name: 'Liam',
-          avatar: 'L',
-          outScores: [4, 4, 3, 5, 4, 5, 3, 4, 4], // 36
-          inScores: [null, null, null, null, null, null, null, null, null]
-        },
-        {
-          name: 'Noah',
-          avatar: 'N',
-          outScores: [5, 5, 3, 4, 4, 6, 3, 5, 4], // 39
-          inScores: [null, null, null, null, null, null, null, null, null]
-        }
-      ]
-    },
-    {
-      teamName: 'ECHO',
-      players: [
-        {
-          name: 'Ethan',
-          avatar: 'E',
-          outScores: [5, 5, 3, 4, 5, 5, 3, 5, 4], // 39
-          inScores: [null, null, null, null, null, null, null, null, null]
-        },
-        {
-          name: 'Mason',
-          avatar: 'M',
-          outScores: [4, 5, 4, 4, 4, 5, 4, 4, 5], // 39
-          inScores: [null, null, null, null, null, null, null, null, null]
-        }
-      ]
-    }
-  ];
+  teams: TeamData[] = [];
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
@@ -181,38 +93,134 @@ export class ScorecardComponent implements OnInit {
           return;
         }
 
-        const orgTournaments = org.tournaments || [];
-        const found = orgTournaments.find((t: any) => t.id === this.tournamentId);
-        if (found) {
-          this.tournamentName = found.name;
-          this.courseName = org.courseName || 'Oak Valley Championship Course';
-          this.totalPar = org.course?.holesList
-            ? org.course.holesList.reduce((acc: number, h: any) => acc + (Number(h.par) || 4), 0)
-            : 72;
-        } else {
-          const fallbackTournaments = [
-            { id: 'TRN-1042', name: 'Spring Member Open', course: 'Oak Valley Championship Course' },
-            { id: 'TRN-1043', name: 'Junior Skills Clinic', course: 'Pine Ridge Executive Course' },
-            { id: 'TRN-1044', name: 'Summer Pro Camp', course: 'Pine Ridge Executive Course' },
-            { id: 'TRN-1038', name: 'Winter Classic', course: 'Oak Valley Championship Course' }
-          ];
-          const f = fallbackTournaments.find(t => t.id === this.tournamentId);
-          if (f) {
-            this.tournamentName = f.name;
-            this.courseName = f.course;
+        const orgDocId = this.firebaseService.getOrgDocId();
+        this.firebaseService.getTournaments(orgDocId).subscribe({
+          next: (list) => {
+            const found = (list || []).find((t: any) => t.id === this.tournamentId);
+            if (found) {
+              this.tournamentName = found.name;
+              this.courseName = org.courseName || 'Oak Valley Championship Course';
+              this.totalPar = org.course?.holesList
+                ? org.course.holesList.reduce((acc: number, h: any) => acc + (Number(h.par) || 4), 0)
+                : 72;
+              
+              const mode = (found.playersJoinMode || found.tag || '').toLowerCase();
+              const tag = (found.tag || '').toUpperCase();
+              this.isTeamBased = mode.includes('team') || mode.includes('group') || tag === 'CLINIC' || tag === 'CAMP' || this.tournamentId === 'TRN-1043' || this.tournamentId === 'TRN-1044';
+              
+              if (this.isTeamBased) {
+                this.loadTeamsFromFirebase(orgDocId);
+              } else {
+                this.loadPlayersFromFirebase(orgDocId);
+              }
+            } else {
+              // Fallback
+              const fallbackTournaments = [
+                { id: 'TRN-1042', name: 'Spring Member Open', course: 'Oak Valley Championship Course', joinMode: 'Individual Sign-Up' },
+                { id: 'TRN-1043', name: 'Junior Skills Clinic', course: 'Pine Ridge Executive Course', joinMode: 'Group / Team Sign-Up' },
+                { id: 'TRN-1044', name: 'Summer Pro Camp', course: 'Pine Ridge Executive Course', joinMode: 'Group / Team Sign-Up' },
+                { id: 'TRN-1038', name: 'Winter Classic', course: 'Oak Valley Championship Course', joinMode: 'Individual Sign-Up' }
+              ];
+              const f = fallbackTournaments.find(t => t.id === this.tournamentId);
+              if (f) {
+                this.tournamentName = f.name;
+                this.courseName = f.course;
+                this.isTeamBased = f.joinMode.toLowerCase().includes('team') || f.joinMode.toLowerCase().includes('group');
+              } else {
+                this.isTeamBased = this.tournamentId === 'TRN-1043' || this.tournamentId === 'TRN-1044';
+              }
+
+              if (this.isTeamBased) {
+                this.loadTeamsFromFirebase(orgDocId);
+              } else {
+                this.loadPlayersFromFirebase(orgDocId);
+              }
+            }
+          },
+          error: () => {
+            this.isTeamBased = this.tournamentId === 'TRN-1043' || this.tournamentId === 'TRN-1044';
+            if (this.isTeamBased) {
+              this.loadTeamsFromFirebase(orgDocId);
+            } else {
+              this.loadPlayersFromFirebase(orgDocId);
+            }
           }
-        }
+        });
       }
     } catch (e) {
       console.error('Error loading tournament/course details:', e);
     }
   }
 
+  loadTeamsFromFirebase(orgDocId: string) {
+    this.firebaseService.getTeams(orgDocId, this.tournamentId).subscribe({
+      next: (teamsList) => {
+        if (teamsList && teamsList.length > 0) {
+          this.teams = teamsList.map(t => {
+            return {
+              teamName: t.name || 'Unnamed Team',
+              captainName: t.captain || 'No Captain',
+              players: (t.players || []).map((p: any) => ({
+                name: p.name || 'Unnamed Player',
+                avatar: (p.name || 'P')[0].toUpperCase(),
+                outScores: [null, null, null, null, null, null, null, null, null],
+                inScores: [null, null, null, null, null, null, null, null, null]
+              }))
+            };
+          });
+          
+          if (this.teams.length > 0) {
+            this.selectedTeamName = this.teams[0].teamName;
+          }
+          this.loadScoresFromStorage();
+          this.cdr.detectChanges();
+        }
+      }
+    });
+  }
+
+  loadPlayersFromFirebase(orgDocId: string) {
+    this.firebaseService.getPlayers(orgDocId, this.tournamentId).subscribe({
+      next: (playersList) => {
+        if (playersList && playersList.length > 0) {
+          this.teams = playersList.map(p => {
+            return {
+              teamName: p.name || 'Unnamed Player',
+              captainName: p.name || 'Unnamed Player',
+              players: [{
+                name: p.name || 'Unnamed Player',
+                avatar: (p.name || 'P')[0].toUpperCase(),
+                outScores: [null, null, null, null, null, null, null, null, null],
+                inScores: [null, null, null, null, null, null, null, null, null]
+              }]
+            };
+          });
+          
+          if (this.teams.length > 0) {
+            this.selectedTeamName = this.teams[0].teamName;
+          }
+          this.loadScoresFromStorage();
+          this.cdr.detectChanges();
+        }
+      }
+    });
+  }
+
   getFilteredTeams() {
-    if (!this.searchQuery) {
+    const query = (this.searchQuery || '').toLowerCase();
+    if (!query) {
       return this.teams;
     }
-    return this.teams.filter(t => t.teamName.toLowerCase().includes(this.searchQuery.toLowerCase()));
+    return this.teams.filter(t => {
+      const teamNameMatch = (t.teamName || '').toLowerCase().includes(query);
+      const captainMatch = (t.captainName || '').toLowerCase().includes(query);
+      return teamNameMatch || captainMatch;
+    });
+  }
+
+  getSelectedTeamCaptain(): string {
+    const team = this.getSelectedTeam();
+    return team ? (team.captainName || '') : '';
   }
 
   selectTeam(teamName: string) {
@@ -226,7 +234,7 @@ export class ScorecardComponent implements OnInit {
   }
 
   getSelectedTeam(): TeamData {
-    return this.teams.find(t => t.teamName === this.selectedTeamName) || this.teams[1];
+    return this.teams.find(t => t.teamName === this.selectedTeamName) || this.teams[0] || { teamName: '', players: [] };
   }
 
   getOutTotal(player: Player): number {
@@ -304,6 +312,7 @@ export class ScorecardComponent implements OnInit {
 
   getCurrentHole(): number {
     const team = this.getSelectedTeam();
+    if (!team || !team.players || team.players.length === 0) return 1;
     for (let i = 0; i < 9; i++) {
       const allFilled = team.players.every(p => p.outScores[i] !== null && p.outScores[i]! > 0);
       if (!allFilled) {
@@ -321,6 +330,7 @@ export class ScorecardComponent implements OnInit {
 
   getCompletedHoles(): number {
     const team = this.getSelectedTeam();
+    if (!team || !team.players || team.players.length === 0) return 0;
     let completed = 0;
     for (let i = 0; i < 9; i++) {
       const allFilled = team.players.every(p => p.outScores[i] !== null && p.outScores[i]! > 0);
