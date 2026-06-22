@@ -540,7 +540,7 @@ export class FirebaseService {
 
   private async runRealGetTournaments(orgDocId: string): Promise<any[]> {
     const projectId = environment.firebase.projectId;
-    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/Organizations/${orgDocId}/tournaments`;
+    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/Organizations/${orgDocId}/events`;
 
     try {
       const response = await fetch(url, {
@@ -572,7 +572,7 @@ export class FirebaseService {
 
   private async runRealCreateTournament(orgDocId: string, tournament: any): Promise<any> {
     const projectId = environment.firebase.projectId;
-    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/Organizations/${orgDocId}/tournaments?documentId=${tournament.id}`;
+    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/Organizations/${orgDocId}/events?documentId=${tournament.id}`;
 
     const firestoreBody = {
       fields: this.mapToFirestore(tournament).mapValue.fields
@@ -599,7 +599,7 @@ export class FirebaseService {
 
   private async runRealUpdateTournament(orgDocId: string, tournamentId: string, updatedFields: any): Promise<any> {
     const projectId = environment.firebase.projectId;
-    const docUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/Organizations/${orgDocId}/tournaments/${tournamentId}`;
+    const docUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/Organizations/${orgDocId}/events/${tournamentId}`;
     
     let existingFields = {};
     try {
@@ -638,7 +638,7 @@ export class FirebaseService {
 
   private async runRealDeleteTournament(orgDocId: string, tournamentId: string): Promise<any> {
     const projectId = environment.firebase.projectId;
-    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/Organizations/${orgDocId}/tournaments/${tournamentId}`;
+    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/Organizations/${orgDocId}/events/${tournamentId}`;
 
     const response = await fetch(url, {
       method: 'DELETE',
@@ -815,6 +815,340 @@ export class FirebaseService {
     if (!response.ok) {
       const err = await response.json();
       const errMsg = err.error?.message || 'Failed to delete course document in Firestore';
+      throw new Error(errMsg);
+    }
+
+    return { success: true };
+  }
+
+  // Subcollection Players operations
+  getPlayers(orgDocId: string, tournamentId: string): Observable<any[]> {
+    if (!this.isFirebaseConfigured) {
+      const key = `mock_firebase_players_${orgDocId}_${tournamentId}`;
+      const dataRaw = localStorage.getItem(key);
+      const data = dataRaw ? JSON.parse(dataRaw) : [];
+      return of(data);
+    }
+    return from(this.runRealGetPlayers(orgDocId, tournamentId));
+  }
+
+  createPlayer(orgDocId: string, tournamentId: string, player: any): Observable<any> {
+    if (!this.isFirebaseConfigured) {
+      const key = `mock_firebase_players_${orgDocId}_${tournamentId}`;
+      const dataRaw = localStorage.getItem(key);
+      const data = dataRaw ? JSON.parse(dataRaw) : [];
+      data.push(player);
+      localStorage.setItem(key, JSON.stringify(data));
+      return of({ success: true, player });
+    }
+    return from(this.runRealCreatePlayer(orgDocId, tournamentId, player));
+  }
+
+  updatePlayer(orgDocId: string, tournamentId: string, playerId: string, updatedFields: any): Observable<any> {
+    if (!this.isFirebaseConfigured) {
+      const key = `mock_firebase_players_${orgDocId}_${tournamentId}`;
+      const dataRaw = localStorage.getItem(key);
+      const data = dataRaw ? JSON.parse(dataRaw) : [];
+      const index = data.findIndex((p: any) => p.id === playerId);
+      if (index !== -1) {
+        data[index] = { ...data[index], ...updatedFields };
+        localStorage.setItem(key, JSON.stringify(data));
+        return of({ success: true, player: data[index] });
+      }
+      return throwError(() => new Error('PLAYER_NOT_FOUND'));
+    }
+    return from(this.runRealUpdatePlayer(orgDocId, tournamentId, playerId, updatedFields));
+  }
+
+  deletePlayer(orgDocId: string, tournamentId: string, playerId: string): Observable<any> {
+    if (!this.isFirebaseConfigured) {
+      const key = `mock_firebase_players_${orgDocId}_${tournamentId}`;
+      const dataRaw = localStorage.getItem(key);
+      const data = dataRaw ? JSON.parse(dataRaw) : [];
+      const filtered = data.filter((p: any) => p.id !== playerId);
+      localStorage.setItem(key, JSON.stringify(filtered));
+      return of({ success: true });
+    }
+    return from(this.runRealDeletePlayer(orgDocId, tournamentId, playerId));
+  }
+
+  private async runRealGetPlayers(orgDocId: string, tournamentId: string): Promise<any[]> {
+    const projectId = environment.firebase.projectId;
+    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/Organizations/${orgDocId}/events/${tournamentId}/players`;
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          return [];
+        }
+        const err = await response.json();
+        console.error('Failed to get players:', err);
+        return [];
+      }
+
+      const result = await response.json();
+      const documents = result.documents || [];
+      return documents.map((doc: any) => {
+        const data = this.mapFromFirestore(doc.fields);
+        data.id = doc.name.split('/').pop();
+        return data;
+      });
+    } catch (e) {
+      console.error('Error fetching players from Firestore:', e);
+      return [];
+    }
+  }
+
+  private async runRealCreatePlayer(orgDocId: string, tournamentId: string, player: any): Promise<any> {
+    const projectId = environment.firebase.projectId;
+    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/Organizations/${orgDocId}/events/${tournamentId}/players?documentId=${player.id}`;
+
+    const firestoreBody = {
+      fields: this.mapToFirestore(player).mapValue.fields
+    };
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(firestoreBody)
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      const errMsg = err.error?.message || 'Failed to create player document in Firestore';
+      throw new Error(errMsg);
+    }
+
+    const result = await response.json();
+    return {
+      success: true,
+      name: result.name
+    };
+  }
+
+  private async runRealUpdatePlayer(orgDocId: string, tournamentId: string, playerId: string, updatedFields: any): Promise<any> {
+    const projectId = environment.firebase.projectId;
+    const docUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/Organizations/${orgDocId}/events/${tournamentId}/players/${playerId}`;
+    
+    let existingFields = {};
+    try {
+      const getResponse = await fetch(docUrl);
+      if (getResponse.ok) {
+        const doc = await getResponse.json();
+        existingFields = this.mapFromFirestore(doc.fields);
+      }
+    } catch (e) {
+      console.error('Error fetching existing player for merge:', e);
+    }
+
+    const merged = { ...existingFields, ...updatedFields };
+    const firestoreBody = {
+      fields: this.mapToFirestore(merged).mapValue.fields
+    };
+
+    const response = await fetch(docUrl, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(firestoreBody)
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      const errMsg = err.error?.message || 'Failed to update player document in Firestore';
+      throw new Error(errMsg);
+    }
+
+    const result = await response.json();
+    return {
+      success: true,
+      name: result.name
+    };
+  }
+
+  private async runRealDeletePlayer(orgDocId: string, tournamentId: string, playerId: string): Promise<any> {
+    const projectId = environment.firebase.projectId;
+    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/Organizations/${orgDocId}/events/${tournamentId}/players/${playerId}`;
+
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      const errMsg = err.error?.message || 'Failed to delete player document in Firestore';
+      throw new Error(errMsg);
+    }
+
+    return { success: true };
+  }
+
+  // Subcollection Teams operations
+  getTeams(orgDocId: string, tournamentId: string): Observable<any[]> {
+    if (!this.isFirebaseConfigured) {
+      const key = `mock_firebase_teams_${orgDocId}_${tournamentId}`;
+      const dataRaw = localStorage.getItem(key);
+      const data = dataRaw ? JSON.parse(dataRaw) : [];
+      return of(data);
+    }
+    return from(this.runRealGetTeams(orgDocId, tournamentId));
+  }
+
+  createTeam(orgDocId: string, tournamentId: string, team: any): Observable<any> {
+    if (!this.isFirebaseConfigured) {
+      const key = `mock_firebase_teams_${orgDocId}_${tournamentId}`;
+      const dataRaw = localStorage.getItem(key);
+      const data = dataRaw ? JSON.parse(dataRaw) : [];
+      data.push(team);
+      localStorage.setItem(key, JSON.stringify(data));
+      return of({ success: true, team });
+    }
+    return from(this.runRealCreateTeam(orgDocId, tournamentId, team));
+  }
+
+  updateTeam(orgDocId: string, tournamentId: string, teamId: string, updatedFields: any): Observable<any> {
+    if (!this.isFirebaseConfigured) {
+      const key = `mock_firebase_teams_${orgDocId}_${tournamentId}`;
+      const dataRaw = localStorage.getItem(key);
+      const data = dataRaw ? JSON.parse(dataRaw) : [];
+      const index = data.findIndex((t: any) => t.id === teamId);
+      if (index !== -1) {
+        data[index] = { ...data[index], ...updatedFields };
+        localStorage.setItem(key, JSON.stringify(data));
+        return of({ success: true, team: data[index] });
+      }
+      return throwError(() => new Error('TEAM_NOT_FOUND'));
+    }
+    return from(this.runRealUpdateTeam(orgDocId, tournamentId, teamId, updatedFields));
+  }
+
+  deleteTeam(orgDocId: string, tournamentId: string, teamId: string): Observable<any> {
+    if (!this.isFirebaseConfigured) {
+      const key = `mock_firebase_teams_${orgDocId}_${tournamentId}`;
+      const dataRaw = localStorage.getItem(key);
+      const data = dataRaw ? JSON.parse(dataRaw) : [];
+      const filtered = data.filter((t: any) => t.id !== teamId);
+      localStorage.setItem(key, JSON.stringify(filtered));
+      return of({ success: true });
+    }
+    return from(this.runRealDeleteTeam(orgDocId, tournamentId, teamId));
+  }
+
+  private async runRealGetTeams(orgDocId: string, tournamentId: string): Promise<any[]> {
+    const projectId = environment.firebase.projectId;
+    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/Organizations/${orgDocId}/events/${tournamentId}/teams`;
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          return [];
+        }
+        const err = await response.json();
+        console.error('Failed to get teams:', err);
+        return [];
+      }
+
+      const result = await response.json();
+      const documents = result.documents || [];
+      return documents.map((doc: any) => {
+        const data = this.mapFromFirestore(doc.fields);
+        data.id = doc.name.split('/').pop();
+        return data;
+      });
+    } catch (e) {
+      console.error('Error fetching teams from Firestore:', e);
+      return [];
+    }
+  }
+
+  private async runRealCreateTeam(orgDocId: string, tournamentId: string, team: any): Promise<any> {
+    const projectId = environment.firebase.projectId;
+    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/Organizations/${orgDocId}/events/${tournamentId}/teams?documentId=${team.id}`;
+
+    const firestoreBody = {
+      fields: this.mapToFirestore(team).mapValue.fields
+    };
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(firestoreBody)
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      const errMsg = err.error?.message || 'Failed to create team document in Firestore';
+      throw new Error(errMsg);
+    }
+
+    const result = await response.json();
+    return {
+      success: true,
+      name: result.name
+    };
+  }
+
+  private async runRealUpdateTeam(orgDocId: string, tournamentId: string, teamId: string, updatedFields: any): Promise<any> {
+    const projectId = environment.firebase.projectId;
+    const docUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/Organizations/${orgDocId}/events/${tournamentId}/teams/${teamId}`;
+    
+    let existingFields = {};
+    try {
+      const getResponse = await fetch(docUrl);
+      if (getResponse.ok) {
+        const doc = await getResponse.json();
+        existingFields = this.mapFromFirestore(doc.fields);
+      }
+    } catch (e) {
+      console.error('Error fetching existing team for merge:', e);
+    }
+
+    const merged = { ...existingFields, ...updatedFields };
+    const firestoreBody = {
+      fields: this.mapToFirestore(merged).mapValue.fields
+    };
+
+    const response = await fetch(docUrl, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(firestoreBody)
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      const errMsg = err.error?.message || 'Failed to update team document in Firestore';
+      throw new Error(errMsg);
+    }
+
+    const result = await response.json();
+    return {
+      success: true,
+      name: result.name
+    };
+  }
+
+  private async runRealDeleteTeam(orgDocId: string, tournamentId: string, teamId: string): Promise<any> {
+    const projectId = environment.firebase.projectId;
+    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/Organizations/${orgDocId}/events/${tournamentId}/teams/${teamId}`;
+
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      const errMsg = err.error?.message || 'Failed to delete team document in Firestore';
       throw new Error(errMsg);
     }
 
