@@ -163,7 +163,7 @@
         <!-- ================= TEAM REGISTRATION MODE ================= -->
         <div *ngIf="registrationType === 'Team'" class="w-full flex flex-col items-center">
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full mb-8">
+            <div class="grid gap-8 w-full mb-8">
                 <!-- Team Form Card -->
                 <div class="lg:col-span-2 bg-white rounded-2xl shadow-lg p-8">
                     <form (ngSubmit)="saveTeam()" class="space-y-6">
@@ -182,6 +182,25 @@
                                 <label class="block text-sm font-semibold text-[#1F2937] mb-1">Captain Name <span
                                         class="text-[#DCAE5A]">*</span></label>
                                 <input type="text" name="captainName" [(ngModel)]="captainName" required
+                                    class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]" />
+                            </div>
+                            <!-- Captain Email -->
+                            <div>
+                                <label class="block text-sm font-semibold text-[#1F2937] mb-1">Captain Email <span
+                                        class="text-[#DCAE5A]" *ngIf="!editingTeam">*</span></label>
+                                <span *ngIf="editingTeam" class="block w-full px-4 py-2 border border-gray-200 bg-gray-50 text-gray-600 rounded-md text-sm font-medium">
+                                    {{ captainEmail }}
+                                </span>
+                                <input *ngIf="!editingTeam" type="email" name="captainEmail" [(ngModel)]="captainEmail" required
+                                    class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]" />
+                            </div>
+                            <!-- Captain Password -->
+                            <div>
+                                <label class="block text-sm font-semibold text-[#1F2937] mb-1">
+                                    Captain Password <span *ngIf="!editingTeam" class="text-[#DCAE5A]">*</span>
+                                    <span *ngIf="editingTeam" class="text-xs text-gray-400 font-normal"> (leave blank to keep unchanged)</span>
+                                </label>
+                                <input type="password" name="captainPassword" [(ngModel)]="captainPassword" [required]="!editingTeam"
                                     class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]" />
                             </div>
                             <!-- Status Dropdown -->
@@ -278,56 +297,6 @@
                             </button>
                         </div>
                     </form>
-                </div>
-
-                <!-- Team Summary Preview Card -->
-                <div
-                    class="bg-gradient-to-br from-[#0F3D2E] to-[#133824] rounded-2xl shadow-xl p-6 text-white h-fit sticky top-6">
-                    <h3
-                        class="text-lg font-bold text-[#DCAE5A] border-b border-[#2d473b] pb-2 mb-4 uppercase tracking-wider">
-                        Team Live Preview</h3>
-
-                    <div class="space-y-4">
-                        <div>
-                            <span class="text-xs text-[#7A9A8A] font-bold uppercase tracking-wider block">Team /
-                                Company</span>
-                            <span class="text-xl font-bold truncate block">{{ teamName || '---' }}</span>
-                        </div>
-                        <div>
-                            <span class="text-xs text-[#7A9A8A] font-bold uppercase tracking-wider block">Captain</span>
-                            <span class="text-base font-semibold block">{{ captainName || '---' }}</span>
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <span class="text-xs text-[#7A9A8A] font-bold uppercase tracking-wider block">Total
-                                    Players</span>
-                                <span class="text-2xl font-extrabold block text-[#DCAE5A]">
-                                    {{ teamPlayers.filter(p => p.name.trim() !== '').length }}
-                                </span>
-                            </div>
-                            <div>
-                                <span class="text-xs text-[#7A9A8A] font-bold uppercase tracking-wider block">Assigned
-                                    Hole</span>
-                                <span class="text-base font-bold block">{{ assignedHole || 'Auto' }}</span>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="text-xs text-[#7A9A8A] font-bold uppercase tracking-wider block">Tee Box
-                                Override</span>
-                            <span class="text-base font-bold block">{{ teeBoxOverride || 'Default' }}</span>
-                        </div>
-                    </div>
-
-                    <div class="mt-6 bg-[#03140C] border border-[#2d473b] p-4 rounded-xl">
-                        <span class="text-xs text-[#DCAE5A] font-bold uppercase tracking-wider block mb-2">Team List
-                            Summary</span>
-                        <ul class="text-xs space-y-1.5 text-[#FAF7F2]/80">
-                            <li *ngFor="let p of teamPlayers; let i = index">
-                                <span *ngIf="p.name.trim()">🏌️ {{ p.name }} (Handicap: {{ p.handicap !== null ?
-                                    p.handicap : '-' }})</span>
-                            </li>
-                        </ul>
-                    </div>
                 </div>
             </div>
 

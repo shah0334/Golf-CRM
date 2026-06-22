@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -24,6 +24,8 @@ interface Team {
   id?: string;
   name: string;
   captain: string;
+  captainEmail?: string;
+  captainPassword?: string;
   status: 'Registered' | 'Checked In' | 'Active';
   hole?: string;
   teeBox?: string;
@@ -41,6 +43,7 @@ export class PlayerComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private firebaseService = inject(FirebaseService);
+  private cdr = inject(ChangeDetectorRef);
 
   // Tournament/Event Context
   tournaments: any[] = [
@@ -99,6 +102,8 @@ export class PlayerComponent implements OnInit {
   // --- TEAM FORM FIELDS ---
   teamName: string = '';
   captainName: string = '';
+  captainEmail: string = '';
+  captainPassword: string = '';
   teamStatus: 'Registered' | 'Checked In' | 'Active' = 'Registered';
   assignedHole: string = '';
   teeBoxOverride: string = '';
@@ -211,6 +216,7 @@ export class PlayerComponent implements OnInit {
     this.firebaseService.getPlayers(this.activeOrgDocId, this.selectedTournamentId).subscribe({
       next: (players) => {
         this.addedPlayers = players || [];
+        this.cdr.detectChanges();
       }
     });
   }
@@ -237,12 +243,10 @@ export class PlayerComponent implements OnInit {
         updatedFields
       ).subscribe({
         next: () => {
-          const idx = this.addedPlayers.findIndex(p => p.id === this.editingPlayer!.id);
-          if (idx !== -1) {
-            this.addedPlayers[idx] = { ...this.editingPlayer!, ...updatedFields };
-          }
+          this.loadPlayers();
           this.editingPlayer = null;
           this.resetIndividualForm();
+          this.cdr.detectChanges();
         }
       });
     } else {
@@ -268,8 +272,9 @@ export class PlayerComponent implements OnInit {
         newPlayer
       ).subscribe({
         next: () => {
-          this.addedPlayers.push(newPlayer);
+          this.loadPlayers();
           this.resetIndividualForm();
+          this.cdr.detectChanges();
         }
       });
     }
@@ -290,7 +295,8 @@ export class PlayerComponent implements OnInit {
     if (confirm(`Are you sure you want to remove "${p.name}"?`)) {
       this.firebaseService.deletePlayer(this.activeOrgDocId, this.selectedTournamentId, p.id!).subscribe({
         next: () => {
-          this.addedPlayers = this.addedPlayers.filter(item => item.id !== p.id);
+          this.loadPlayers();
+          this.cdr.detectChanges();
         }
       });
     }
@@ -310,6 +316,7 @@ export class PlayerComponent implements OnInit {
     this.firebaseService.getTeams(this.activeOrgDocId, this.selectedTournamentId).subscribe({
       next: (teams) => {
         this.addedTeams = teams || [];
+        this.cdr.detectChanges();
       }
     });
   }
@@ -342,6 +349,8 @@ export class PlayerComponent implements OnInit {
       const updatedFields: Partial<Team> = {
         name: this.teamName,
         captain: this.captainName,
+        captainEmail: this.captainEmail,
+        captainPassword: this.captainPassword || undefined,
         status: this.teamStatus,
         hole: this.assignedHole || undefined,
         teeBox: this.teeBoxOverride || undefined,
@@ -355,12 +364,10 @@ export class PlayerComponent implements OnInit {
         updatedFields
       ).subscribe({
         next: () => {
-          const idx = this.addedTeams.findIndex(t => t.id === this.editingTeam!.id);
-          if (idx !== -1) {
-            this.addedTeams[idx] = { ...this.editingTeam!, ...updatedFields };
-          }
+          this.loadTeams();
           this.editingTeam = null;
           this.resetTeamForm();
+          this.cdr.detectChanges();
         }
       });
     } else {
@@ -369,6 +376,8 @@ export class PlayerComponent implements OnInit {
         id: newId,
         name: this.teamName,
         captain: this.captainName,
+        captainEmail: this.captainEmail,
+        captainPassword: this.captainPassword,
         status: this.teamStatus,
         hole: this.assignedHole || undefined,
         teeBox: this.teeBoxOverride || undefined,
@@ -381,8 +390,9 @@ export class PlayerComponent implements OnInit {
         newTeam
       ).subscribe({
         next: () => {
-          this.addedTeams.push(newTeam);
+          this.loadTeams();
           this.resetTeamForm();
+          this.cdr.detectChanges();
         }
       });
     }
@@ -392,6 +402,8 @@ export class PlayerComponent implements OnInit {
     this.editingTeam = t;
     this.teamName = t.name;
     this.captainName = t.captain;
+    this.captainEmail = t.captainEmail || '';
+    this.captainPassword = t.captainPassword || '';
     this.teamStatus = t.status;
     this.assignedHole = t.hole || '';
     this.teeBoxOverride = t.teeBox || '';
@@ -409,7 +421,8 @@ export class PlayerComponent implements OnInit {
     if (confirm(`Are you sure you want to remove team "${t.name}"?`)) {
       this.firebaseService.deleteTeam(this.activeOrgDocId, this.selectedTournamentId, t.id!).subscribe({
         next: () => {
-          this.addedTeams = this.addedTeams.filter(item => item.id !== t.id);
+          this.loadTeams();
+          this.cdr.detectChanges();
         }
       });
     }
@@ -418,6 +431,8 @@ export class PlayerComponent implements OnInit {
   resetTeamForm(): void {
     this.teamName = '';
     this.captainName = '';
+    this.captainEmail = '';
+    this.captainPassword = '';
     this.teamStatus = 'Registered';
     this.assignedHole = '';
     this.teeBoxOverride = '';
