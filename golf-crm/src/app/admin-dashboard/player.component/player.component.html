@@ -36,6 +36,7 @@
                                     class="text-[#DCAE5A]">*</span></label>
                             <input type="text" name="playerName" [(ngModel)]="playerName" required
                                 class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]" />
+                            <p *ngIf="playerNameError" class="text-xs text-red-600 mt-1 font-semibold">{{ playerNameError }}</p>
                         </div>
                         <!-- Email Address -->
                         <div>
@@ -43,6 +44,7 @@
                                     class="text-[#DCAE5A]">*</span></label>
                             <input type="email" name="email" [(ngModel)]="email" required
                                 class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]" />
+                            <p *ngIf="emailError" class="text-xs text-red-600 mt-1 font-semibold">{{ emailError }}</p>
                         </div>
                         <!-- Password -->
                         <div>
@@ -106,6 +108,7 @@
                             Cancel
                         </button>
                     </div>
+                    <p *ngIf="generalFormError" class="text-sm text-red-600 mt-3 font-semibold text-center">{{ generalFormError }}</p>
                 </form>
             </div>
 
@@ -185,6 +188,7 @@
                                         class="text-[#DCAE5A]">*</span></label>
                                 <input type="text" name="captainName" [(ngModel)]="captainName" required
                                     class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]" />
+                                <p *ngIf="captainNameError" class="text-xs text-red-600 mt-1 font-semibold">{{ captainNameError }}</p>
                             </div>
                             <!-- Captain Email -->
                             <div>
@@ -195,6 +199,7 @@
                                 </span>
                                 <input *ngIf="!editingTeam" type="email" name="captainEmail" [(ngModel)]="captainEmail" required
                                     class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]" />
+                                <p *ngIf="captainEmailError" class="text-xs text-red-600 mt-1 font-semibold">{{ captainEmailError }}</p>
                             </div>
                             <!-- Captain Password -->
                             <div>
@@ -263,6 +268,7 @@
                                         <input type="text" [(ngModel)]="player.name" name="playerName_{{idx}}"
                                             placeholder="Player Name"
                                             class="w-full px-3 py-1.5 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20] bg-white text-sm" />
+                                        <p *ngIf="teamPlayersErrors[idx]" class="text-[11px] text-red-600 mt-0.5 font-semibold">{{ teamPlayersErrors[idx] }}</p>
                                     </div>
                                     <!-- Handicap -->
                                     <div class="w-24">
@@ -298,6 +304,7 @@
                                 Cancel
                             </button>
                         </div>
+                        <p *ngIf="generalFormError" class="text-sm text-red-600 mt-3 font-semibold text-center">{{ generalFormError }}</p>
                     </form>
                 </div>
             </div>

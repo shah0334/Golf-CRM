@@ -114,6 +114,14 @@ export class PlayerComponent implements OnInit {
   editingTeam: Team | null = null;
   addedTeams: Team[] = [];
 
+  // Validation errors
+  playerNameError: string = '';
+  emailError: string = '';
+  captainNameError: string = '';
+  captainEmailError: string = '';
+  teamPlayersErrors: string[] = [];
+  generalFormError: string = '';
+
   ngOnInit(): void {
     this.activeOrgDocId = this.firebaseService.getOrgDocId();
 
@@ -186,7 +194,6 @@ export class PlayerComponent implements OnInit {
 
     if (mode.includes('individual') || mode.includes('single')) {
       this.registrationType = 'Individual';
-      this.loadPlayers();
     } else if (
       mode.includes('team') || 
       mode.includes('group') || 
@@ -196,27 +203,35 @@ export class PlayerComponent implements OnInit {
       this.selectedTournamentId === 'TRN-1044'
     ) {
       this.registrationType = 'Team';
-      this.loadTeams();
     } else {
       // Fallback based on typical defaults
       if (tag === 'CLINIC' || tag === 'CAMP') {
         this.registrationType = 'Team';
-        this.loadTeams();
       } else {
         this.registrationType = 'Individual';
-        this.loadPlayers();
       }
     }
+    this.loadAllData();
   }
 
-  // --- INDIVIDUAL METHODS ---
-  loadPlayers(): void {
+  loadAllData(): void {
     this.isLoading = true;
+    this.cdr.detectChanges();
     this.firebaseService.getPlayers(this.activeOrgDocId, this.selectedTournamentId).subscribe({
       next: (players) => {
         this.addedPlayers = players || [];
-        this.isLoading = false;
-        this.cdr.detectChanges();
+        this.firebaseService.getTeams(this.activeOrgDocId, this.selectedTournamentId).subscribe({
+          next: (teams) => {
+            this.addedTeams = teams || [];
+            this.isLoading = false;
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            console.error(err);
+            this.isLoading = false;
+            this.cdr.detectChanges();
+          }
+        });
       },
       error: (err) => {
         console.error(err);
@@ -226,8 +241,101 @@ export class PlayerComponent implements OnInit {
     });
   }
 
+  isNameDuplicate(name: string, excludeId?: string, isPlayer: boolean = true): boolean {
+    const searchName = name.trim().toLowerCase();
+    if (!searchName) return false;
+
+    // Check individual players
+    for (const p of this.addedPlayers) {
+      if (isPlayer && excludeId && p.id === excludeId) continue;
+      if (p.name.trim().toLowerCase() === searchName) return true;
+    }
+
+    // Check teams (captains and players)
+    for (const t of this.addedTeams) {
+      if (!isPlayer && excludeId && t.id === excludeId) continue;
+      
+      // Check captain name
+      if (t.captain.trim().toLowerCase() === searchName) return true;
+
+      // Check team players
+      if (t.players) {
+        if (!isPlayer && excludeId && t.id === excludeId) {
+          continue;
+        }
+        for (const tp of t.players) {
+          if (tp.name.trim().toLowerCase() === searchName) return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  isEmailDuplicate(email: string, excludeId?: string, isPlayer: boolean = true): boolean {
+    const searchEmail = email.trim().toLowerCase();
+    if (!searchEmail) return false;
+
+    // Check individual players
+    for (const p of this.addedPlayers) {
+      if (isPlayer && excludeId && p.id === excludeId) continue;
+      if (p.email.trim().toLowerCase() === searchEmail) return true;
+    }
+
+    // Check team captains
+    for (const t of this.addedTeams) {
+      if (!isPlayer && excludeId && t.id === excludeId) continue;
+      if (t.captainEmail && t.captainEmail.trim().toLowerCase() === searchEmail) return true;
+    }
+
+    return false;
+  }
+
+  validatePlayer(): boolean {
+    this.playerNameError = '';
+    this.emailError = '';
+    this.generalFormError = '';
+
+    const normName = this.playerName.trim();
+    const normEmail = this.email.trim();
+    const excludeId = this.editingPlayer?.id;
+
+    let isValid = true;
+
+    if (!normName) {
+      this.playerNameError = 'Player Name is required.';
+      isValid = false;
+    } else if (this.isNameDuplicate(normName, excludeId, true)) {
+      this.playerNameError = `The name "${normName}" is already registered as a player or captain.`;
+      isValid = false;
+    }
+
+    if (!normEmail) {
+      this.emailError = 'Email Address is required.';
+      isValid = false;
+    } else if (this.isEmailDuplicate(normEmail, excludeId, true)) {
+      this.emailError = `The email "${normEmail}" is already in use by another player or team captain.`;
+      isValid = false;
+    }
+
+    if (!isValid) {
+      this.generalFormError = 'Please fix the duplicate or missing fields highlighted above.';
+    }
+
+    return isValid;
+  }
+
+  // --- INDIVIDUAL METHODS ---
+  loadPlayers(): void {
+    this.loadAllData();
+  }
+
   savePlayer(): void {
     if (!this.playerName || !this.email) return;
+
+    if (!this.validatePlayer()) {
+      return;
+    }
 
     this.isLoading = true;
     this.cdr.detectChanges();
@@ -335,23 +443,14 @@ export class PlayerComponent implements OnInit {
     this.phone = '';
     this.handicap = null;
     this.notes = '';
+    this.playerNameError = '';
+    this.emailError = '';
+    this.generalFormError = '';
   }
 
   // --- TEAM METHODS ---
   loadTeams(): void {
-    this.isLoading = true;
-    this.firebaseService.getTeams(this.activeOrgDocId, this.selectedTournamentId).subscribe({
-      next: (teams) => {
-        this.addedTeams = teams || [];
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error(err);
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      }
-    });
+    this.loadAllData();
   }
 
   addTeamPlayerRow(): void {
@@ -366,6 +465,62 @@ export class PlayerComponent implements OnInit {
     }
   }
 
+  validateTeam(validPlayers: TeamMember[]): boolean {
+    this.captainNameError = '';
+    this.captainEmailError = '';
+    this.teamPlayersErrors = [];
+    this.generalFormError = '';
+
+    const normCaptainName = this.captainName.trim();
+    const normCaptainEmail = this.captainEmail.trim();
+    const excludeId = this.editingTeam?.id;
+
+    let isValid = true;
+
+    if (!normCaptainName) {
+      this.captainNameError = 'Captain Name is required.';
+      isValid = false;
+    } else if (this.isNameDuplicate(normCaptainName, excludeId, false)) {
+      this.captainNameError = `The captain name "${normCaptainName}" is already registered as a player or captain.`;
+      isValid = false;
+    }
+
+    if (!this.editingTeam && !normCaptainEmail) {
+      this.captainEmailError = 'Captain Email is required.';
+      isValid = false;
+    } else if (!this.editingTeam && this.isEmailDuplicate(normCaptainEmail, excludeId, false)) {
+      this.captainEmailError = `The captain email "${normCaptainEmail}" is already in use by another player or team captain.`;
+      isValid = false;
+    }
+
+    // Also check each valid player name in the team for duplicates
+    const seenInTeam = new Set<string>();
+    this.teamPlayers.forEach((p, idx) => {
+      const pName = p.name.trim();
+      if (!pName) {
+        // At least one is checked outside, let's keep errors blank for extra rows if not needed
+        return;
+      }
+      if (seenInTeam.has(pName.toLowerCase())) {
+        this.teamPlayersErrors[idx] = `Duplicate player name "${pName}" inside this team.`;
+        isValid = false;
+        return;
+      }
+      seenInTeam.add(pName.toLowerCase());
+
+      if (this.isNameDuplicate(pName, excludeId, false)) {
+        this.teamPlayersErrors[idx] = `The player name "${pName}" is already registered.`;
+        isValid = false;
+      }
+    });
+
+    if (!isValid) {
+      this.generalFormError = 'Please fix the duplicate or missing fields highlighted above.';
+    }
+
+    return isValid;
+  }
+
   saveTeam(): void {
     if (!this.teamName || !this.captainName) {
       alert('Team Name and Captain Name are required.');
@@ -375,6 +530,10 @@ export class PlayerComponent implements OnInit {
     const validPlayers = this.teamPlayers.filter(p => p.name.trim() !== '');
     if (validPlayers.length === 0) {
       alert('Please add at least one player name.');
+      return;
+    }
+
+    if (!this.validateTeam(validPlayers)) {
       return;
     }
 
@@ -487,6 +646,10 @@ export class PlayerComponent implements OnInit {
     this.teamPlayers = [
       { name: '', handicap: null }
     ];
+    this.captainNameError = '';
+    this.captainEmailError = '';
+    this.teamPlayersErrors = [];
+    this.generalFormError = '';
   }
 
   cancel(): void {
