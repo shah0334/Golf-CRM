@@ -88,6 +88,7 @@ export class PlayerComponent implements OnInit {
   activeOrgDocId: string = '';
   registrationType: 'Individual' | 'Team' = 'Individual';
   queryParams: any = {};
+  isLoading: boolean = false;
 
   // --- INDIVIDUAL FORM FIELDS ---
   playerName: string = '';
@@ -213,9 +214,16 @@ export class PlayerComponent implements OnInit {
 
   // --- INDIVIDUAL METHODS ---
   loadPlayers(): void {
+    this.isLoading = true;
     this.firebaseService.getPlayers(this.activeOrgDocId, this.selectedTournamentId).subscribe({
       next: (players) => {
         this.addedPlayers = players || [];
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error(err);
+        this.isLoading = false;
         this.cdr.detectChanges();
       }
     });
@@ -223,6 +231,9 @@ export class PlayerComponent implements OnInit {
 
   savePlayer(): void {
     if (!this.playerName || !this.email) return;
+
+    this.isLoading = true;
+    this.cdr.detectChanges();
 
     if (this.editingPlayer) {
       const updatedFields: Partial<Player> = {
@@ -247,11 +258,17 @@ export class PlayerComponent implements OnInit {
           this.editingPlayer = null;
           this.resetIndividualForm();
           this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error(err);
+          this.isLoading = false;
+          this.cdr.detectChanges();
         }
       });
     } else {
       if (!this.password) {
         alert('Password is required for app access.');
+        this.isLoading = false;
         return;
       }
       const newId = 'PLY-' + Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -275,6 +292,11 @@ export class PlayerComponent implements OnInit {
           this.loadPlayers();
           this.resetIndividualForm();
           this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error(err);
+          this.isLoading = false;
+          this.cdr.detectChanges();
         }
       });
     }
@@ -293,9 +315,16 @@ export class PlayerComponent implements OnInit {
 
   removePlayer(p: Player): void {
     if (confirm(`Are you sure you want to remove "${p.name}"?`)) {
+      this.isLoading = true;
+      this.cdr.detectChanges();
       this.firebaseService.deletePlayer(this.activeOrgDocId, this.selectedTournamentId, p.id!).subscribe({
         next: () => {
           this.loadPlayers();
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error(err);
+          this.isLoading = false;
           this.cdr.detectChanges();
         }
       });
@@ -313,9 +342,16 @@ export class PlayerComponent implements OnInit {
 
   // --- TEAM METHODS ---
   loadTeams(): void {
+    this.isLoading = true;
     this.firebaseService.getTeams(this.activeOrgDocId, this.selectedTournamentId).subscribe({
       next: (teams) => {
         this.addedTeams = teams || [];
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error(err);
+        this.isLoading = false;
         this.cdr.detectChanges();
       }
     });
@@ -345,6 +381,9 @@ export class PlayerComponent implements OnInit {
       return;
     }
 
+    this.isLoading = true;
+    this.cdr.detectChanges();
+
     if (this.editingTeam) {
       const updatedFields: Partial<Team> = {
         name: this.teamName,
@@ -367,6 +406,11 @@ export class PlayerComponent implements OnInit {
           this.loadTeams();
           this.editingTeam = null;
           this.resetTeamForm();
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error(err);
+          this.isLoading = false;
           this.cdr.detectChanges();
         }
       });
@@ -392,6 +436,11 @@ export class PlayerComponent implements OnInit {
         next: () => {
           this.loadTeams();
           this.resetTeamForm();
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error(err);
+          this.isLoading = false;
           this.cdr.detectChanges();
         }
       });
@@ -419,9 +468,16 @@ export class PlayerComponent implements OnInit {
 
   removeTeam(t: Team): void {
     if (confirm(`Are you sure you want to remove team "${t.name}"?`)) {
+      this.isLoading = true;
+      this.cdr.detectChanges();
       this.firebaseService.deleteTeam(this.activeOrgDocId, this.selectedTournamentId, t.id!).subscribe({
         next: () => {
           this.loadTeams();
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error(err);
+          this.isLoading = false;
           this.cdr.detectChanges();
         }
       });
