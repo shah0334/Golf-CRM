@@ -221,7 +221,7 @@
           </div>
           <span class="text-[8px] text-[#5E806D] truncate leading-none">View tournament...</span>
         </a>
-        <a routerLink="/admin-dashboard/leaderboard"
+        <a [routerLink]="['/admin-dashboard/leaderboard']" [queryParams]="{eventId: trn.id}"
           class="flex flex-col items-start gap-1 p-2 bg-[#FAF7F2]/40 border border-[#E1D9CD]/55 hover:border-[#DCAE5A]/40 rounded-xl transition-all focus:outline-none text-left cursor-pointer">
           <div class="flex items-center gap-1">
             <svg class="w-3.5 h-3.5 text-[#5E806D]" fill="none" stroke="currentColor" stroke-width="2"
@@ -233,7 +233,7 @@
           </div>
           <span class="text-[8px] text-[#5E806D] truncate leading-none">Live leaderboard...</span>
         </a>
-        <a routerLink="/admin-dashboard/roster"
+        <a [routerLink]="['/admin-dashboard/roster']" [queryParams]="{eventId: trn.id}"
           class="flex flex-col items-start gap-1 p-2 bg-[#FAF7F2]/40 border border-[#E1D9CD]/55 hover:border-[#DCAE5A]/40 rounded-xl transition-all focus:outline-none text-left cursor-pointer">
           <div class="flex items-center gap-1">
             <svg class="w-3.5 h-3.5 text-[#5E806D]" fill="none" stroke="currentColor" stroke-width="2"

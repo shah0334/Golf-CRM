@@ -92,13 +92,13 @@ export const routes: Routes = [
       { path: '', component: AdminDashboard },
       { path: 'courses', component: CoursesComponent },
       { path: 'events', component: EventsComponent },
-      { path: 'roster', component: RosterComponent },
       { path: 'create-event', component: CreateEventComponent },
-      { path: 'leaderboard', component: LeaderboardComponent },
 
       { path: 'player', component: PlayerComponent }
     ]
   },
+  { path: 'admin-dashboard/roster', component: RosterComponent, canActivate: [authGuard] },
+  { path: 'admin-dashboard/leaderboard', component: LeaderboardComponent, canActivate: [authGuard] },
   { path: 'admin-dashboard/scorecard/:id', component: ScorecardComponent },
 
 ];

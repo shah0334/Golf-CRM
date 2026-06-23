@@ -232,7 +232,7 @@
                     </a>
 
                     <!-- Leaderboard Button -->
-                    <a routerLink="/admin-dashboard/leaderboard"
+                    <a [routerLink]="['/admin-dashboard/leaderboard']" [queryParams]="{eventId: trn.id}"
                         class="flex flex-col items-start gap-1 p-2 bg-[#FAF7F2]/40 border border-[#E1D9CD]/55 hover:border-[#DCAE5A]/40 rounded-xl transition-all focus:outline-none text-left cursor-pointer group/btn">
                         <div class="flex items-center gap-1">
                             <svg class="w-3.5 h-3.5 text-[#5E806D] group-hover/btn:text-[#051B11]" fill="none"
@@ -246,7 +246,7 @@
                     </a>
 
                     <!-- Roster Button -->
-                    <a routerLink="/admin-dashboard/roster"
+                    <a [routerLink]="['/admin-dashboard/roster']" [queryParams]="{eventId: trn.id}"
                         class="flex flex-col items-start gap-1 p-2 bg-[#FAF7F2]/40 border border-[#E1D9CD]/55 hover:border-[#DCAE5A]/40 rounded-xl transition-all focus:outline-none text-left cursor-pointer group/btn">
                         <div class="flex items-center gap-1">
                             <svg class="w-3.5 h-3.5 text-[#5E806D] group-hover/btn:text-[#051B11]" fill="none"

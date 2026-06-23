@@ -224,6 +224,22 @@ export class PlayerComponent implements OnInit {
           next: (teams) => {
             this.addedTeams = teams || [];
             this.isLoading = false;
+
+            // Handle direct edit routing from query parameters
+            const editTeamId = this.queryParams['editTeamId'];
+            const editPlayerId = this.queryParams['editPlayerId'];
+            if (editTeamId) {
+              const teamToEdit = this.addedTeams.find(t => t.id === editTeamId);
+              if (teamToEdit) {
+                this.editTeam(teamToEdit);
+              }
+            } else if (editPlayerId) {
+              const playerToEdit = this.addedPlayers.find(p => p.id === editPlayerId);
+              if (playerToEdit) {
+                this.editPlayer(playerToEdit);
+              }
+            }
+
             this.cdr.detectChanges();
           },
           error: (err) => {
