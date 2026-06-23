@@ -306,7 +306,42 @@ export class RosterComponent implements OnInit {
 
   pairingMode = 'One Row Per Sign-Up (Default)';
 
+  // Add Team / Player Modal state variables
+  showAddTeamModal = false;
+  modalRegistrationType: 'Team' | 'Individual' = 'Team';
+  modalTeamName = '';
+  modalCaptainName = '';
+  modalCaptainEmail = '';
+  modalCaptainPassword = '';
+  modalTeamStatus: 'Registered' | 'Checked In' | 'Active' = 'Registered';
+  modalHole = 'Unassigned';
+  modalTeeBoxOverride = '';
+  modalTeamPlayers: any[] = [
+    { name: '', handicap: null }
+  ];
+  modalPlayersRaw = '';
+
+  // Add Player Modal state variables
+  modalPlayerName = '';
+  modalPlayerEmail = '';
+  modalPlayerPassword = '';
+  modalPlayerPhone = '';
+  modalPlayerHandicap: number | null = null;
+  modalPlayerNotes = '';
+
   // Interaction handlers
+  addModalTeamPlayerRow() {
+    this.modalTeamPlayers.push({ name: '', handicap: null });
+  }
+
+  removeModalTeamPlayerRow(index: number) {
+    if (this.modalTeamPlayers.length > 1) {
+      this.modalTeamPlayers.splice(index, 1);
+    } else {
+      alert('A team must have at least 1 player.');
+    }
+  }
+
   sendAlert() {
     if (this.organizerAlertText.trim()) {
       const orgDocId = this.firebaseService.getOrgDocId();
@@ -400,17 +435,264 @@ export class RosterComponent implements OnInit {
     alert('Creating pairings and tee times configurations...');
   }
 
+  openAddTeamModal() {
+    this.showAddTeamModal = true;
+    
+    // Automatically detect registration type based on tournamentInfo
+    const mode = (this.tournamentInfo?.playersJoinMode || '').toLowerCase();
+    const tag = (this.tournamentInfo?.tag || '').toUpperCase();
+    
+    if (mode.includes('individual') || mode.includes('single')) {
+      this.modalRegistrationType = 'Individual';
+    } else if (
+      mode.includes('team') || 
+      mode.includes('group') || 
+      tag === 'CLINIC' || 
+      tag === 'CAMP' || 
+      this.eventId === 'TRN-1043' || 
+      this.eventId === 'TRN-1044'
+    ) {
+      this.modalRegistrationType = 'Team';
+    } else {
+      this.modalRegistrationType = 'Team';
+    }
+
+    this.modalTeamName = '';
+    this.modalCaptainName = '';
+    this.modalCaptainEmail = '';
+    this.modalCaptainPassword = '';
+    this.modalTeamStatus = 'Registered';
+    this.modalHole = 'Unassigned';
+    this.modalTeeBoxOverride = '';
+    this.modalTeamPlayers = [
+      { name: '', handicap: null }
+    ];
+    this.modalPlayersRaw = '';
+    this.modalPlayerName = '';
+    this.modalPlayerEmail = '';
+    this.modalPlayerPassword = '';
+    this.modalPlayerPhone = '';
+    this.modalPlayerHandicap = null;
+    this.modalPlayerNotes = '';
+  }
+
+  closeAddTeamModal() {
+    this.showAddTeamModal = false;
+  }
+
+  submitAddTeamModal() {
+    const orgDocId = this.firebaseService.getOrgDocId();
+    const targetEventId = this.eventId || 'TRN-1042';
+
+    if (this.modalRegistrationType === 'Team') {
+      if (!this.modalTeamName || !this.modalCaptainName) {
+        alert('Team Name and Captain Name are required.');
+        return;
+      }
+
+      const newId = 'TEM-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+      const validPlayers = this.modalTeamPlayers.filter(p => p.name.trim() !== '');
+
+      const newTeam = {
+        id: newId,
+        name: this.modalTeamName,
+        captain: this.modalCaptainName,
+        captainEmail: this.modalCaptainEmail || `${this.modalCaptainName.toLowerCase().replace(/\s+/g, '')}@example.com`,
+        captainPassword: this.modalCaptainPassword || 'password123',
+        status: this.modalTeamStatus || 'Registered',
+        hole: this.modalHole || 'Unassigned',
+        teeBox: this.modalTeeBoxOverride || undefined,
+        players: validPlayers.map(p => ({ name: p.name, handicap: p.handicap }))
+      };
+
+      this.firebaseService.createTeam(orgDocId, targetEventId, newTeam).subscribe({
+        next: () => {
+          this.closeAddTeamModal();
+          this.loadRosterData();
+          alert('Team added successfully!');
+        },
+        error: (err) => {
+          console.error('Error creating team:', err);
+          alert('Failed to save team.');
+        }
+      });
+    } else {
+      if (!this.modalPlayerName || !this.modalPlayerEmail) {
+        alert('Player Name and Email are required.');
+        return;
+      }
+
+      const newId = 'PLY-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+      const newPlayer = {
+        id: newId,
+        name: this.modalPlayerName,
+        email: this.modalPlayerEmail,
+        password: this.modalPlayerPassword || 'password123',
+        phone: this.modalPlayerPhone,
+        handicap: this.modalPlayerHandicap,
+        notes: this.modalPlayerNotes,
+        hole: this.modalHole || 'Unassigned',
+        status: 'Registered'
+      };
+
+      this.firebaseService.createPlayer(orgDocId, targetEventId, newPlayer).subscribe({
+        next: () => {
+          this.closeAddTeamModal();
+          this.loadRosterData();
+          alert('Individual Player added successfully!');
+        },
+        error: (err) => {
+          console.error('Error creating player:', err);
+          alert('Failed to save player.');
+        }
+      });
+    }
+  }
+
   addTeam() {
-    this.router.navigate(['/admin-dashboard/player'], {
-      queryParams: {
-        eventId: this.eventId || 'TRN-1042',
-        playersJoinMode: 'Group / Team Sign-Up'
+    this.openAddTeamModal();
+  }
+
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      const text = e.target.result;
+      this.parseAndImportCSV(text);
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  }
+
+  parseAndImportCSV(text: string) {
+    const lines = text.split('\n').map(line => line.replace(/\r$/, '').trim());
+    if (lines.length <= 1) {
+      alert('The CSV file is empty or invalid.');
+      return;
+    }
+
+    let delimiter = ',';
+    const firstLine = lines[0];
+    const commaCount = (firstLine.match(/,/g) || []).length;
+    const semicolonCount = (firstLine.match(/;/g) || []).length;
+    const tabCount = (firstLine.match(/\t/g) || []).length;
+
+    if (semicolonCount > commaCount && semicolonCount > tabCount) {
+      delimiter = ';';
+    } else if (tabCount > commaCount && tabCount > semicolonCount) {
+      delimiter = '\t';
+    }
+
+    const orgDocId = this.firebaseService.getOrgDocId();
+    const targetEventId = this.eventId || 'TRN-1042';
+    
+    const header = firstLine.split(delimiter).map(h => h.replace(/^"|"$/g, '').trim().toLowerCase().replace(/[^a-z0-9]/g, ''));
+    
+    const teamNameIdx = header.findIndex(h => h === 'teamname' || h === 'team' || h === 'group' || h === 'groupname');
+    const holeIdx = header.findIndex(h => h === 'hole' || h === 'startinghole' || h === 'starting' || h === 'tee');
+    const captainIdx = header.findIndex(h => h === 'captain' || h === 'captainname' || h === 'contact');
+    const playersIdx = header.findIndex(h => h === 'players' || h === 'playernames' || h === 'roster' || h === 'teammembers' || h === 'members');
+
+    const hasTeamName = teamNameIdx !== -1;
+    const nameIdx = hasTeamName ? captainIdx : (captainIdx !== -1 ? captainIdx : header.findIndex(h => h === 'name' || h === 'player' || h === 'playername' || h === 'fullname'));
+
+    if (!hasTeamName && nameIdx === -1) {
+      alert('Invalid CSV format. Must contain a "Name"/"Player" column or a "Team" and "Captain" column.');
+      return;
+    }
+
+    let importCount = 0;
+    let completedCount = 0;
+    const rowsToProcess = lines.slice(1).filter(line => line !== '');
+
+    if (rowsToProcess.length === 0) {
+      alert('No data rows found in CSV.');
+      return;
+    }
+
+    rowsToProcess.forEach(line => {
+      let cols: string[] = [];
+      if (delimiter === ',') {
+        cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(col => col.replace(/^"|"$/g, '').trim());
+      } else if (delimiter === ';') {
+        cols = line.split(/;(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(col => col.replace(/^"|"$/g, '').trim());
+      } else {
+        cols = line.split('\t').map(col => col.replace(/^"|"$/g, '').trim());
+      }
+      
+      const hole = holeIdx !== -1 ? (cols[holeIdx] || 'Unassigned') : 'Unassigned';
+      const name = cols[nameIdx] || '';
+      const playersRaw = playersIdx !== -1 ? (cols[playersIdx] || '') : '';
+      const playersList = playersRaw ? playersRaw.split(',').map(p => p.trim()).filter(p => p !== '') : [];
+      
+      if (!name) return;
+
+      if (hasTeamName) {
+        const teamName = cols[teamNameIdx] || '';
+        if (!teamName) return;
+
+        const newId = 'TEM-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+        const newTeam = {
+          id: newId,
+          name: teamName,
+          captain: name,
+          captainEmail: `${name.toLowerCase().replace(/\s+/g, '')}@example.com`,
+          status: 'Registered',
+          hole: hole,
+          players: playersList.map(p => ({ name: p, handicap: null }))
+        };
+
+        importCount++;
+        this.firebaseService.createTeam(orgDocId, targetEventId, newTeam).subscribe({
+          next: () => {
+            completedCount++;
+            if (completedCount === importCount) {
+              this.loadRosterData();
+              alert(`Successfully imported ${completedCount} team(s) from CSV!`);
+            }
+          },
+          error: (err) => {
+            console.error('Error importing team:', err);
+            completedCount++;
+            if (completedCount === importCount) {
+              this.loadRosterData();
+            }
+          }
+        });
+      } else {
+        const newId = 'PLY-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+        const newPlayer = {
+          id: newId,
+          name: name,
+          email: `${name.toLowerCase().replace(/\s+/g, '')}@example.com`,
+          status: 'Registered'
+        };
+
+        importCount++;
+        this.firebaseService.createPlayer(orgDocId, targetEventId, newPlayer).subscribe({
+          next: () => {
+            completedCount++;
+            if (completedCount === importCount) {
+              this.loadRosterData();
+              alert(`Successfully imported ${completedCount} player(s) from CSV!`);
+            }
+          },
+          error: (err) => {
+            console.error('Error importing player:', err);
+            completedCount++;
+            if (completedCount === importCount) {
+              this.loadRosterData();
+            }
+          }
+        });
       }
     });
   }
 
   importSpreadsheet() {
-    alert('Open spreadsheet import dialog...');
+    // Hidden file input click event takes care of this
   }
 
   exportCSV() {
@@ -553,6 +835,11 @@ export class RosterComponent implements OnInit {
         return matchesSearch && hole === 'Unassigned';
       }
     });
+  }
+
+  get isIndividualMode(): boolean {
+    const mode = (this.tournamentInfo?.playersJoinMode || '').toLowerCase();
+    return mode.includes('individual') || mode.includes('single');
   }
 }
 
