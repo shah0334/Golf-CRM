@@ -218,6 +218,10 @@ export class AdminDashboard implements OnInit {
     });
   }
 
+  getLiveTournament(): Tournament | undefined {
+    return this.tournaments.find((t: any) => t.isLive);
+  }
+
   copyLink(course: Course) {
     const scorecardUrl = window.location.origin + '/admin-dashboard/scorecard/' + course.id;
     navigator.clipboard.writeText(scorecardUrl).then(() => {

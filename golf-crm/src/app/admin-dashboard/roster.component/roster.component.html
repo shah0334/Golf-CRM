@@ -57,6 +57,15 @@
             <path stroke-linecap="round" stroke-linejoin="round"
               d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.63 8.41a14.98 14.98 0 00-2.58 5.84m8.54-1.88a14.99 14.99 0 01-.16 6.16m1.88-8.54a14.99 14.99 0 00-6.16-.16m6.16.16l-8.54 8.54M3.75 20.25v-3.75m0 3.75h3.75m-3.75 0l3.75-3.75" />
           </svg>
+          Leaderboard
+        </a>
+        <a [routerLink]="['/admin-dashboard/leaderboard']" [queryParams]="{eventId: eventId, autoLive: true}" target="_blank"
+          class="px-4 py-2 bg-transparent hover:bg-[#DCAE5A]/10 border border-[#DCAE5A] text-[#DCAE5A] font-bold rounded-full text-xs transition-colors flex items-center gap-1.5 cursor-pointer">
+          <svg class="w-3.5 h-3.5 text-[#DCAE5A]" fill="none" stroke="currentColor" stroke-width="2.5"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.63 8.41a14.98 14.98 0 00-2.58 5.84m8.54-1.88a14.99 14.99 0 01-.16 6.16m1.88-8.54a14.99 14.99 0 00-6.16-.16m6.16.16l-8.54 8.54M3.75 20.25v-3.75m0 3.75h3.75m-3.75 0l3.75-3.75" />
+          </svg>
           Live Leaderboard
         </a>
         <a [routerLink]="['/admin-dashboard/scorecard', eventId || 'TRN-1042']" target="_blank"

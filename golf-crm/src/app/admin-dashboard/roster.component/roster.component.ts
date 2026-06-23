@@ -409,8 +409,62 @@ export class RosterComponent implements OnInit {
     alert('Displaying Rules Sheet builder...');
   }
 
-  viewLiveLeaderboard() {
-    alert('Opening Live Leaderboard...');
+  goLive() {
+    const orgDocId = this.firebaseService.getOrgDocId();
+    const targetEventId = this.eventId || 'TRN-1042';
+
+    this.firebaseService.getTournaments(orgDocId).subscribe({
+      next: (tournamentsList) => {
+        const updates: any[] = [];
+        tournamentsList.forEach((t: any) => {
+          if (t.id === targetEventId) {
+            if (!t.isLive) {
+              updates.push(this.firebaseService.updateTournament(orgDocId, t.id, { isLive: true }));
+            }
+          } else {
+            if (t.isLive) {
+              updates.push(this.firebaseService.updateTournament(orgDocId, t.id, { isLive: false }));
+            }
+          }
+        });
+
+        if (updates.length > 0) {
+          let completed = 0;
+          updates.forEach(obs => {
+            obs.subscribe({
+              next: () => {
+                completed++;
+                if (completed === updates.length) {
+                  this.loadRosterData();
+                  alert('This leaderboard is now live! Previous live leaderboards have been deactivated.');
+                }
+              },
+              error: () => {
+                completed++;
+                if (completed === updates.length) {
+                  this.loadRosterData();
+                }
+              }
+            });
+          });
+        } else {
+          this.firebaseService.updateTournament(orgDocId, targetEventId, { isLive: true }).subscribe({
+            next: () => {
+              this.loadRosterData();
+              alert('This leaderboard is now live!');
+            }
+          });
+        }
+      },
+      error: () => {
+        this.firebaseService.updateTournament(orgDocId, targetEventId, { isLive: true }).subscribe({
+          next: () => {
+            this.loadRosterData();
+            alert('This leaderboard is now live!');
+          }
+        });
+      }
+    });
   }
 
   viewTournamentScorecard() {

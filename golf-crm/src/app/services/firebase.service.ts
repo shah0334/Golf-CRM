@@ -492,7 +492,19 @@ export class FirebaseService {
     if (!this.isFirebaseConfigured) {
       const key = `mock_firebase_tournaments_${orgDocId}`;
       const dataRaw = localStorage.getItem(key);
-      const data = dataRaw ? JSON.parse(dataRaw) : [];
+      let data = dataRaw ? JSON.parse(dataRaw) : [];
+      if (data.length === 0) {
+        try {
+          const activeOrgRaw = localStorage.getItem('activeOrganization');
+          if (activeOrgRaw) {
+            const org = JSON.parse(activeOrgRaw);
+            if (org.tournaments && org.tournaments.length > 0) {
+              data = org.tournaments;
+              localStorage.setItem(key, JSON.stringify(data));
+            }
+          }
+        } catch (e) {}
+      }
       return of(data);
     }
     return from(this.runRealGetTournaments(orgDocId));
@@ -514,11 +526,45 @@ export class FirebaseService {
     if (!this.isFirebaseConfigured) {
       const key = `mock_firebase_tournaments_${orgDocId}`;
       const dataRaw = localStorage.getItem(key);
-      const data = dataRaw ? JSON.parse(dataRaw) : [];
-      const index = data.findIndex((t: any) => t.id === tournamentId);
+      let data = dataRaw ? JSON.parse(dataRaw) : [];
+      
+      let index = data.findIndex((t: any) => t.id === tournamentId);
+      if (index === -1) {
+        try {
+          const activeOrgRaw = localStorage.getItem('activeOrganization');
+          if (activeOrgRaw) {
+            const org = JSON.parse(activeOrgRaw);
+            if (org.tournaments && org.tournaments.length > 0) {
+              org.tournaments.forEach((ot: any) => {
+                if (!data.some((dt: any) => dt.id === ot.id)) {
+                  data.push(ot);
+                }
+              });
+              localStorage.setItem(key, JSON.stringify(data));
+              index = data.findIndex((t: any) => t.id === tournamentId);
+            }
+          }
+        } catch (e) {}
+      }
+
       if (index !== -1) {
         data[index] = { ...data[index], ...updatedFields };
         localStorage.setItem(key, JSON.stringify(data));
+        
+        try {
+          const activeOrgRaw = localStorage.getItem('activeOrganization');
+          if (activeOrgRaw) {
+            const org = JSON.parse(activeOrgRaw);
+            if (org.tournaments) {
+              const orgIdx = org.tournaments.findIndex((t: any) => t.id === tournamentId);
+              if (orgIdx !== -1) {
+                org.tournaments[orgIdx] = { ...org.tournaments[orgIdx], ...updatedFields };
+                localStorage.setItem('activeOrganization', JSON.stringify(org));
+              }
+            }
+          }
+        } catch (e) {}
+
         return of({ success: true, tournament: data[index] });
       }
       return throwError(() => new Error('TOURNAMENT_NOT_FOUND'));
