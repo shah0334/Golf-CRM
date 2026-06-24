@@ -1,0 +1,367 @@
+<div class="space-y-8 animate-fade-in font-sans">
+  
+  <!-- Floating Toast Message -->
+  @if (toastMessage) {
+    <div class="fixed top-6 right-6 z-50 bg-[#133824] border border-[#DCAE5A]/65 text-white rounded-2xl p-4 shadow-2xl flex items-center gap-3 animate-slide-in max-w-sm">
+      <div class="w-8 h-8 rounded-full bg-[#051B11] border border-emerald-500 text-emerald-400 flex items-center justify-center shrink-0">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <div class="flex flex-col text-left">
+        <span class="text-xs font-extrabold text-[#DCAE5A] uppercase tracking-wide">Invite Dispatched</span>
+        <span class="text-[11px] text-[#FAF7F2]/90 mt-0.5">{{ toastMessage }}</span>
+      </div>
+    </div>
+  }
+
+    <!-- Operations Center Banner Card -->
+    <section
+        class="bg-gradient-to-br from-[#051B11] to-[#0D301E] border border-[#DCAE5A]/25 rounded-[32px] p-6 sm:p-8 flex flex-col justify-between min-h-[220px] relative overflow-hidden shadow-xl">
+        <!-- Watermark behind content -->
+        <div class="absolute right-0 bottom-0 opacity-[0.03] pointer-events-none">
+            <svg class="w-64 h-64 text-white" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2a5 5 0 100 10 5 5 0 000-10zM5 20a7 7 0 0114 0H5z" />
+            </svg>
+        </div>
+
+        <!-- Top Row of Banner -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 z-10 w-full">
+            <div class="space-y-3">
+                <div>
+                    <span
+                        class="inline-flex items-center gap-1.5 px-3 py-1 bg-[#133824] border border-[#DCAE5A]/35 rounded-full text-[10px] sm:text-xs font-bold text-[#DCAE5A] uppercase tracking-wider">
+                        OPERATIONS CENTER
+                    </span>
+                </div>
+                <div class="space-y-1">
+                    <h2 class="text-2xl sm:text-3xl font-serif font-extrabold text-white leading-tight">
+                        Manage your tournament staff
+                    </h2>
+                    <p class="text-xs sm:text-sm text-[#7A9A8A] font-medium leading-relaxed max-w-2xl">
+                        Invite team members, assign them to courses, and control access — all in one premium dashboard.
+                    </p>
+                </div>
+            </div>
+
+            <button type="button" (click)="openAddModal()"
+                class="px-5 py-3 bg-[#DCAE5A] hover:bg-[#cdaf6d] text-[#051B11] text-xs font-bold rounded-full transition-all flex items-center gap-1.5 shadow-md hover:scale-[1.02] cursor-pointer shrink-0">
+                <span class="text-base font-light leading-none">+</span> Add Staff
+            </button>
+        </div>
+
+        <!-- Stats Grid inside Banner (4 columns) -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8 pt-6 border-t border-[#FAF7F2]/10 z-10">
+            <div
+                class="bg-[#133824]/40 border border-[#FAF7F2]/10 rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+                <span class="text-[9px] font-bold text-[#7A9A8A] uppercase tracking-widest">TOTAL STAFF</span>
+                <span class="text-3xl font-serif font-black text-white mt-1">{{ totalStaff }}</span>
+            </div>
+            <div
+                class="bg-[#133824]/40 border border-[#FAF7F2]/10 rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+                <span class="text-[9px] font-bold text-[#7A9A8A] uppercase tracking-widest">ACTIVE</span>
+                <span class="text-3xl font-serif font-black text-emerald-400 mt-1">{{ activeCount }}</span>
+            </div>
+            <div
+                class="bg-[#133824]/40 border border-[#FAF7F2]/10 rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+                <span class="text-[9px] font-bold text-[#7A9A8A] uppercase tracking-widest">INACTIVE</span>
+                <span class="text-3xl font-serif font-black text-amber-400 mt-1">{{ inactiveCount }}</span>
+            </div>
+            <div
+                class="bg-[#133824]/40 border border-[#FAF7F2]/10 rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+                <span class="text-[9px] font-bold text-[#7A9A8A] uppercase tracking-widest">ASSIGNED</span>
+                <span class="text-3xl font-serif font-black text-[#DCAE5A] mt-1">{{ assignedCount }}</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filter & Search Controls Bar -->
+    <section
+        class="flex flex-col md:flex-row items-stretch md:items-center gap-4 bg-white border border-[#E1D9CD] p-4 rounded-2xl shadow-xs">
+        <!-- Search Input -->
+        <div class="relative flex-grow">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <svg class="w-4 h-4 text-[#5E806D]/60" fill="none" stroke="currentColor" stroke-width="2.5"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.604 10.604z" />
+                </svg>
+            </div>
+            <input type="text" [(ngModel)]="searchQuery" placeholder="Search by name, email, or course..."
+                class="block w-full rounded-full border border-[#E1D9CD] bg-[#FAF7F2]/50 py-2.5 pl-10 pr-4 text-[#051B11] placeholder-[#5E806D]/65 text-xs font-semibold focus:border-[#DCAE5A] focus:outline-none focus:ring-1 focus:ring-[#DCAE5A] transition-all">
+        </div>
+
+        <!-- Status Dropdown -->
+        <div class="w-full md:w-48">
+            <select [(ngModel)]="statusFilter"
+                class="block w-full rounded-full border border-[#E1D9CD] bg-white py-2.5 px-4 text-[#051B11] text-xs font-bold focus:border-[#DCAE5A] focus:outline-none focus:ring-1 focus:ring-[#DCAE5A] transition-all cursor-pointer">
+                <option value="All">All statuses</option>
+                <option value="Active">Active Only</option>
+                <option value="Inactive">Inactive Only</option>
+            </select>
+        </div>
+
+        <!-- Course Dropdown -->
+        <div class="w-full md:w-56">
+            <select [(ngModel)]="courseFilter"
+                class="block w-full rounded-full border border-[#E1D9CD] bg-white py-2.5 px-4 text-[#051B11] text-xs font-bold focus:border-[#DCAE5A] focus:outline-none focus:ring-1 focus:ring-[#DCAE5A] transition-all cursor-pointer">
+                <option value="All">All courses</option>
+                @for (course of courses; track course) {
+                <option [value]="course">{{ course }}</option>
+                }
+            </select>
+        </div>
+    </section>
+
+    <!-- Staff Members Grid / Table -->
+    <section class="bg-white border border-[#E1D9CD] rounded-3xl shadow-xs overflow-hidden">
+        <!-- Desktop Table View -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse min-w-[900px]">
+                <thead>
+                    <tr
+                        class="bg-[#FAF7F2] border-b border-[#E1D9CD]/70 text-[9px] font-extrabold text-[#5E806D] uppercase tracking-wider">
+                        <th class="py-4 px-6">STAFF</th>
+                        <th class="py-4 px-6">EMAIL</th>
+                        <th class="py-4 px-6">ASSIGNED COURSE</th>
+                        <th class="py-4 px-6">STATUS</th>
+                        <th class="py-4 px-6">JOIN DATE</th>
+                        <th class="py-4 px-6 text-right">ACTIONS</th>
+                    </tr>
+                <tbody class="divide-y divide-[#E1D9CD]/40 text-xs font-semibold text-[#051B11]">
+                    @for (staff of getFilteredStaff(); track staff.id) {
+                    <tr class="hover:bg-[#FAF7F2]/30 transition-colors">
+
+                        <!-- Staff Name / ID -->
+                        <td class="py-4 px-6">
+                            <div class="flex items-center gap-3">
+                                <!-- Initials avatar badge -->
+                                <div
+                                    class="w-10 h-10 rounded-full bg-[#051B11] text-white flex items-center justify-center font-bold text-xs shadow-inner shrink-0">
+                                    {{ staff.initials }}
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="font-extrabold text-sm text-[#051B11]">{{ staff.name }}</span>
+                                    <span class="text-[10px] text-[#5E806D] font-bold mt-0.5">{{ staff.id }}</span>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Email -->
+                        <td class="py-4 px-6 text-[#5E806D] font-bold">
+                            {{ staff.email }}
+                        </td>
+
+                        <!-- Assigned Course Tag -->
+                        <td class="py-4 px-6">
+                            <span
+                                class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold bg-[#FAF7F2] border border-[#E1D9CD] text-[#051B11]">
+                                {{ staff.assignedCourse }}
+                            </span>
+                        </td>
+
+                        <!-- Status Dot Pill -->
+                        <td class="py-4 px-6">
+                            <button type="button" (click)="toggleStatus(staff)"
+                                class="relative h-5 w-9 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none"
+                                [ngClass]="staff.status === 'Active' ? 'bg-emerald-500' : 'bg-gray-200'">
+                                <span class="absolute top-[3px] pointer-events-none block h-3.5 w-3.5 rounded-full bg-white shadow-xs transition-all duration-200 ease-in-out"
+                                    [ngClass]="staff.status === 'Active' ? 'left-[19px]' : 'left-[3px]'"></span>
+                            </button>
+                        </td>
+
+                        <!-- Join Date -->
+                        <td class="py-4 px-6 text-[#5E806D]">
+                            {{ staff.joinDate }}
+                        </td>
+
+                        <!-- Action Grid buttons -->
+                        <td class="py-4 px-6 text-right">
+                            <div class="inline-grid grid-cols-2 gap-1.5">
+                                <!-- View Button -->
+                                <button type="button" (click)="viewStaff(staff)"
+                                    class="py-1.5 px-2.5 bg-white border border-[#E1D9CD] hover:bg-[#FAF7F2] text-[#051B11] text-[10px] font-bold rounded-lg transition-colors flex items-center justify-center gap-1 focus:outline-none cursor-pointer">
+                                    <svg class="w-3 h-3 text-[#5E806D]" fill="none" stroke="currentColor"
+                                        stroke-width="2.5" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                    </svg>
+                                    View
+                                </button>
+                                <!-- Assign Button -->
+                                <button type="button" (click)="openAssignModal(staff)"
+                                    class="py-1.5 px-2.5 bg-white border border-[#E1D9CD] hover:bg-[#FAF7F2] text-[#051B11] text-[10px] font-bold rounded-lg transition-colors flex items-center justify-center gap-1 focus:outline-none cursor-pointer">
+                                    <svg class="w-3 h-3 text-[#5E806D]" fill="none" stroke="currentColor"
+                                        stroke-width="2.5" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                                    </svg>
+                                    Assign
+                                </button>
+                                <!-- Toggle Status Button -->
+                                <button type="button" (click)="toggleStatus(staff)"
+                                    class="py-1.5 px-2.5 bg-white border border-[#E1D9CD] hover:bg-[#FAF7F2] text-[#051B11] text-[10px] font-bold rounded-lg transition-colors flex items-center justify-center gap-1 focus:outline-none cursor-pointer">
+                                    <svg class="w-3 h-3 text-[#5E806D]" fill="none" stroke="currentColor"
+                                        stroke-width="2.5" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M5.636 5.636a9 9 0 1012.728 0M12 3v9" />
+                                    </svg>
+                                    {{ staff.status === 'Active' ? 'Deactivate' : 'Activate' }}
+                                </button>
+                                <!-- Delete Button -->
+                                <button type="button" (click)="deleteStaff(staff)"
+                                    class="py-1.5 px-2.5 bg-red-50 border border-red-200 hover:bg-red-100 text-red-600 text-[10px] font-bold rounded-lg transition-colors flex items-center justify-center gap-1 focus:outline-none cursor-pointer">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                    Delete
+                                </button>
+                            </div>
+                        </td>
+
+                    </tr>
+                    }
+                    <tr *ngIf="getFilteredStaff().length === 0">
+                        <td colspan="6" class="py-12 text-center">
+                            <div class="flex flex-col items-center justify-center text-center gap-3">
+                                <svg class="w-12 h-12 text-[#5E806D]/45" fill="none" stroke="currentColor"
+                                    stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                                <h4 class="text-sm font-bold text-[#051B11]">No Staff Found</h4>
+                                <p class="text-xs text-[#5E806D] max-w-sm font-medium">Try updating your filters or
+                                    search keywords above.</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Add Staff Modal -->
+    <div *ngIf="showAddModal"
+        class="fixed inset-0 bg-[#051B11]/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+        <div
+            class="bg-white border border-[#E1D9CD] rounded-3xl w-full max-w-md shadow-2xl flex flex-col overflow-hidden animate-fade-in text-[#051B11]">
+
+            <!-- Header -->
+            <div class="px-6 py-4 border-b border-[#E1D9CD]/50 flex items-center justify-between bg-[#FAF7F2]">
+                <h3 class="text-base font-extrabold text-[#051B11]">Add Staff Member</h3>
+                <button type="button" (click)="closeAddModal()"
+                    class="text-[#5E806D] hover:text-[#051B11] transition-colors focus:outline-none cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Form Body -->
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-[#5E806D] uppercase tracking-wider mb-1.5">Full
+                        Name</label>
+                    <input type="text" [(ngModel)]="newStaff.name" placeholder="e.g. John Doe"
+                        class="block w-full rounded-xl border border-[#E1D9CD] bg-[#FAF7F2]/40 py-2.5 px-4 text-xs font-semibold focus:border-[#DCAE5A] focus:outline-none focus:ring-1 focus:ring-[#DCAE5A] transition-all">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-[#5E806D] uppercase tracking-wider mb-1.5">Email
+                        Address</label>
+                    <input type="email" [(ngModel)]="newStaff.email" placeholder="e.g. john@oakvalleygolf.com"
+                        class="block w-full rounded-xl border border-[#E1D9CD] bg-[#FAF7F2]/40 py-2.5 px-4 text-xs font-semibold focus:border-[#DCAE5A] focus:outline-none focus:ring-1 focus:ring-[#DCAE5A] transition-all">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-[#5E806D] uppercase tracking-wider mb-1.5">Assigned
+                        Course</label>
+                    <select [(ngModel)]="newStaff.assignedCourse"
+                        class="block w-full rounded-xl border border-[#E1D9CD] bg-white py-2.5 px-4 text-xs font-semibold focus:border-[#DCAE5A] focus:outline-none focus:ring-1 focus:ring-[#DCAE5A] transition-all cursor-pointer">
+                        <option value="Unassigned">Unassigned</option>
+                        @for (course of courses; track course) {
+                        <option [value]="course">{{ course }}</option>
+                        }
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-[#5E806D] uppercase tracking-wider mb-1.5">Initial
+                        Status</label>
+                    <select [(ngModel)]="newStaff.status"
+                        class="block w-full rounded-xl border border-[#E1D9CD] bg-white py-2.5 px-4 text-xs font-semibold focus:border-[#DCAE5A] focus:outline-none focus:ring-1 focus:ring-[#DCAE5A] transition-all cursor-pointer">
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Footer Buttons -->
+            <div class="px-6 py-4 border-t border-[#E1D9CD]/50 bg-[#FAF7F2] flex justify-end gap-3">
+                <button type="button" (click)="closeAddModal()"
+                    class="px-4 py-2.5 border border-[#E1D9CD] text-[#051B11] text-xs font-bold rounded-xl hover:bg-white transition-all cursor-pointer focus:outline-none">
+                    Cancel
+                </button>
+                <button type="button" (click)="submitAddStaff()" [disabled]="isSendingEmail"
+                    class="px-5 py-2.5 bg-[#051B11] hover:bg-[#082b1c] text-white text-xs font-bold rounded-xl transition-all cursor-pointer focus:outline-none flex items-center justify-center gap-2 min-w-[100px]">
+                    <span *ngIf="isSendingEmail" class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    {{ isSendingEmail ? 'Sending Email...' : 'Save Staff' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assign Course Modal -->
+    <div *ngIf="showAssignModal"
+        class="fixed inset-0 bg-[#051B11]/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+        <div
+            class="bg-white border border-[#E1D9CD] rounded-3xl w-full max-w-sm shadow-2xl flex flex-col overflow-hidden animate-fade-in text-[#051B11]">
+
+            <!-- Header -->
+            <div class="px-6 py-4 border-b border-[#E1D9CD]/50 flex items-center justify-between bg-[#FAF7F2]">
+                <h3 class="text-base font-extrabold text-[#051B11]">Assign Course</h3>
+                <button type="button" (click)="closeAssignModal()"
+                    class="text-[#5E806D] hover:text-[#051B11] transition-colors focus:outline-none cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="p-6 space-y-4">
+                <p class="text-xs text-[#5E806D] leading-relaxed">
+                    Change the active course assignment for <span class="font-extrabold text-[#051B11]">{{
+                        selectedStaffForAssign?.name }}</span>.
+                </p>
+
+                <div>
+                    <label class="block text-xs font-bold text-[#5E806D] uppercase tracking-wider mb-1.5">Select
+                        Course</label>
+                    <select [(ngModel)]="newAssignedCourse"
+                        class="block w-full rounded-xl border border-[#E1D9CD] bg-white py-2.5 px-4 text-xs font-semibold focus:border-[#DCAE5A] focus:outline-none focus:ring-1 focus:ring-[#DCAE5A] transition-all cursor-pointer">
+                        <option value="Unassigned">Unassigned</option>
+                        @for (course of courses; track course) {
+                        <option [value]="course">{{ course }}</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <!-- Footer Buttons -->
+            <div class="px-6 py-4 border-t border-[#E1D9CD]/50 bg-[#FAF7F2] flex justify-end gap-3">
+                <button type="button" (click)="closeAssignModal()"
+                    class="px-4 py-2.5 border border-[#E1D9CD] text-[#051B11] text-xs font-bold rounded-xl hover:bg-white transition-all cursor-pointer focus:outline-none">
+                    Cancel
+                </button>
+                <button type="button" (click)="submitAssignCourse()"
+                    class="px-5 py-2.5 bg-[#051B11] hover:bg-[#082b1c] text-white text-xs font-bold rounded-xl transition-all cursor-pointer focus:outline-none">
+                    Update Assignment
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>

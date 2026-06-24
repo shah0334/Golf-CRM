@@ -39,6 +39,24 @@
           Events
         </a>
 
+        <a routerLink="/admin-dashboard/staff" routerLinkActive="bg-[#DCAE5A] text-[#051B11] font-bold"
+          class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-[#7A9A8A] hover:bg-[#133824]/50 hover:text-white transition-all">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A11.386 11.386 0 018.625 21c-2.28 0-4.4-.67-6.18-1.825a3.984 3.984 0 012.7-3.175 4.045 4.045 0 013.905.748 4.087 4.087 0 011.5 3.175V19.13zM15 9.75a3 3 0 11-6 0 3 3 0 016 0zm6.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+          </svg>
+          Staff
+        </a>
+
+        <a routerLink="/admin-dashboard/leaderboard" routerLinkActive="bg-[#DCAE5A] text-[#051B11] font-bold"
+          class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-[#7A9A8A] hover:bg-[#133824]/50 hover:text-white transition-all cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v5.25c0 .621-.504 1.125-1.125 1.125h-2.25A1.125 1.125 0 013 18.375v-5.25zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125v-9.75zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v14.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+          </svg>
+          Leaderboards
+        </a>
+
         <a href="javascript:void(0)"
           class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-[#7A9A8A] hover:bg-[#133824]/50 hover:text-white transition-all">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -50,9 +68,9 @@
       </nav>
     </div>
     <div class="p-4 bg-[#133824] rounded-2xl border border-[#DCAE5A]/20 space-y-1.5 shadow-2xs">
-      <h4 class="text-xs font-bold text-[#DCAE5A] tracking-wider uppercase leading-none">Pro Tip</h4>
-      <p class="text-[10px] text-[#7A9A8A] font-medium leading-relaxed">
-        Manage players inside each tournament — rosters, registration, and scoring all live event-by-event.
+      <h4 class="text-xs font-bold text-[#DCAE5A] tracking-wider uppercase leading-none font-sans">Pro Tip</h4>
+      <p class="text-[10px] text-[#7A9A8A] font-medium leading-relaxed font-sans">
+        Manage staff access and course assignments from a single place.
       </p>
     </div>
   </aside>
@@ -91,6 +109,10 @@
         <a routerLink="/admin-dashboard/events" (click)="isMobileMenuOpen = false" routerLinkActive="bg-[#DCAE5A] text-[#051B11] font-bold"
           class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/80 hover:bg-[#133824]/50">
           Events
+        </a>
+        <a routerLink="/admin-dashboard/staff" (click)="isMobileMenuOpen = false" routerLinkActive="bg-[#DCAE5A] text-[#051B11] font-bold"
+          class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/80 hover:bg-[#133824]/50">
+          Staff
         </a>
 
         <a routerLink="/admin-dashboard/leaderboard" (click)="isMobileMenuOpen = false"
@@ -157,7 +179,7 @@
       <div class="flex items-center justify-between w-full xl:w-auto gap-2">
         <div class="flex flex-col">
           <span class="text-[20px] 2xl:text-[24px] font-serif font-extrabold text-[#051B11] mt-0.5 leading-tight">
-            Dashboard
+            {{ getPageTitle() }}
           </span>
         </div>
         <button type="button" (click)="isMobileMenuOpen = true"

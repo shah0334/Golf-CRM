@@ -75,4 +75,18 @@ export class AdminLayoutComponent implements OnInit {
       this.router.navigate(['/']);
     }, 800);
   }
+
+  getPageTitle(): string {
+    const url = this.router.url;
+    if (url.includes('/admin-dashboard/courses')) {
+      return 'Courses';
+    } else if (url.includes('/admin-dashboard/events')) {
+      return 'Events';
+    } else if (url.includes('/admin-dashboard/staff')) {
+      return 'Staff Management';
+    } else if (url.includes('/admin-dashboard/leaderboard')) {
+      return 'Leaderboards';
+    }
+    return 'Dashboard';
+  }
 }

@@ -17,6 +17,8 @@ import { AdminLayoutComponent } from './admin-dashboard/admin-layout.component';
 import { RegistrationService } from './services/registration.service';
 
 import { PlayerComponent } from './admin-dashboard/player.component/player.component';
+import { StaffComponent } from './staff.component/staff.component';
+import { SetPasswordComponent } from './set-password/set-password.component';
 
 const authGuard = () => {
   const router = inject(Router);
@@ -94,13 +96,14 @@ export const routes: Routes = [
       { path: 'events', component: EventsComponent },
       { path: 'create-event', component: CreateEventComponent },
 
-      { path: 'player', component: PlayerComponent }
+      { path: 'player', component: PlayerComponent },
+      { path: 'staff', component: StaffComponent }
     ]
   },
   { path: 'admin-dashboard/roster', component: RosterComponent, canActivate: [authGuard] },
   { path: 'admin-dashboard/leaderboard', component: LeaderboardComponent, canActivate: [authGuard] },
   { path: 'admin-dashboard/scorecard/:id', component: ScorecardComponent },
-
+  { path: 'set-password', component: SetPasswordComponent }
 ];
 
 

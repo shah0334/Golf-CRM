@@ -6,7 +6,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root',
 })
 export class FirebaseService {
-  private isFirebaseConfigured = false;
+  public isFirebaseConfigured = false;
 
   constructor() {
     this.checkFirebaseConfig();
@@ -36,6 +36,21 @@ export class FirebaseService {
 
     // Real Firebase REST API operations
     return from(this.runRealRegistration(data));
+  }
+
+  createStaffUser(data: any): Observable<any> {
+    if (!this.isFirebaseConfigured) {
+      return of({ success: true, mode: 'simulated' });
+    }
+    return from(this.runRealStaffCreation(data));
+  }
+
+  sendPasswordResetEmail(email: string): Observable<any> {
+    if (!this.isFirebaseConfigured) {
+      console.log('Simulating sending password reset email to:', email);
+      return of({ success: true });
+    }
+    return from(this.runSendPasswordResetEmail(email));
   }
 
   updateOrganization(email: string, uid: string, updatedData: any): Observable<any> {
@@ -239,9 +254,104 @@ export class FirebaseService {
   }
 
   private async runRealLogin(email: string, password: string): Promise<any> {
+    const apiKey = environment.firebase.apiKey;
+    const projectId = environment.firebase.projectId;
+    
+    // 1. Authenticate with Firebase Auth REST API
+    const authUrl = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${apiKey}`;
+    try {
+      const authResponse = await fetch(authUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+          returnSecureToken: true
+        })
+      });
+
+      if (!authResponse.ok) {
+        // If auth fails, try legacy plaintext fallback query (in case user registered prior to authentication check integration)
+        console.warn('Firebase Auth login failed, trying legacy plaintext Firestore fallback...');
+        return await this.runLegacyFirestoreLogin(email, password);
+      }
+
+      const authResult = await authResponse.json();
+      const uid = authResult.localId;
+
+      // 2. Fetch organization/staff details from Firestore by email
+      const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents:runQuery`;
+      const queryBody = {
+        structuredQuery: {
+          from: [{ collectionId: 'Organizations' }],
+          where: {
+            fieldFilter: {
+              field: { fieldPath: 'email' },
+              op: 'EQUAL',
+              value: { stringValue: email }
+            }
+          }
+        }
+      };
+
+      const response = await fetch(firestoreUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(queryBody)
+      });
+
+      if (!response.ok) {
+        const errorJson = await response.json();
+        throw new Error(errorJson.error?.message || 'Firestore user query failed');
+      }
+
+      const results = await response.json();
+      const validResults = results ? results.filter((r: any) => r.document) : [];
+
+      let orgData: any;
+      if (validResults.length === 0) {
+        // If user exists in Auth but not in Firestore, create a default Firestore document for them
+        orgData = {
+          uid: uid,
+          email: email,
+          password: password,
+          role: 'Staff',
+          orgName: email.split('@')[0],
+          clubName: 'Staff Member',
+          createdAt: new Date().toISOString()
+        };
+        await this.saveToFirestoreCollection('Organizations', orgData);
+      } else {
+        const doc = validResults[0].document;
+        const fields = doc.fields;
+        orgData = this.mapFromFirestore(fields);
+        orgData.docId = doc.name.split('/').pop();
+        orgData.id = orgData.docId;
+
+        // Update password in Firestore in background if it doesn't match or is empty
+        if (orgData.password !== password) {
+          orgData.password = password;
+          this.runRealUpdate(email, uid, { password: password }).catch(e => {
+            console.warn('Failed to update Firestore password in background:', e);
+          });
+        }
+      }
+
+      return {
+        success: true,
+        user: orgData
+      };
+
+    } catch (err: any) {
+      console.warn('Error in runRealLogin: ', err);
+      // Fallback to legacy login in case of network errors or other anomalies
+      return await this.runLegacyFirestoreLogin(email, password);
+    }
+  }
+
+  private async runLegacyFirestoreLogin(email: string, password: string): Promise<any> {
     const projectId = environment.firebase.projectId;
     const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents:runQuery`;
-
     const queryBody = {
       structuredQuery: {
         from: [{ collectionId: 'Organizations' }],
@@ -281,7 +391,7 @@ export class FirebaseService {
     }
 
     const results = await response.json();
-    const validResults = results.filter((r: any) => r.document);
+    const validResults = results ? results.filter((r: any) => r.document) : [];
 
     if (validResults.length === 0) {
       throw new Error('INVALID_LOGIN_CREDENTIALS');
@@ -297,6 +407,107 @@ export class FirebaseService {
       success: true,
       user: orgData
     };
+  }
+
+  private async runRealStaffCreation(data: any): Promise<any> {
+    const apiKey = environment.firebase.apiKey;
+    const projectId = environment.firebase.projectId;
+
+    // 1. Create user in Firebase Auth with a random temporary password
+    const tempPassword = 'StaffTempPass_' + Math.random().toString(36).substring(2, 10);
+    const authUrl = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`;
+    let uid = 'staff_' + Math.random().toString(36).substring(2, 11);
+    
+    try {
+      const authResponse = await fetch(authUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: data.email,
+          password: tempPassword,
+          returnSecureToken: true
+        })
+      });
+      if (authResponse.ok) {
+        const authResult = await authResponse.json();
+        uid = authResult.localId;
+      } else {
+        const errJson = await authResponse.json();
+        if (errJson.error?.message === 'EMAIL_EXISTS') {
+          console.log('Staff email already exists in Firebase Auth, proceeding with sync/reset...');
+        }
+      }
+    } catch (e) {
+      console.warn('Firebase Auth signup for staff failed or bypassed, using fallback:', e);
+    }
+
+    // 2. Create/update document in Firestore Organizations collection
+    const orgPayload = {
+      uid: uid,
+      email: data.email || '',
+      password: '', // Blank initially, will be updated when they log in or set password
+      role: 'Staff',
+      orgName: data.name || '',
+      clubName: 'Staff Member',
+      createdAt: new Date().toISOString()
+    };
+
+    try {
+      // Check if document already exists in Firestore
+      const emailExists = await this.runCheckEmailExists(data.email);
+      if (!emailExists) {
+        await this.saveToFirestoreCollection('Organizations', orgPayload);
+      }
+    } catch (e) {
+      console.error('Failed to sync staff document in Firestore Organizations:', e);
+    }
+
+    // 3. Send password reset email
+    await this.runSendPasswordResetEmail(data.email);
+
+    return {
+      success: true,
+      uid: uid,
+      email: data.email
+    };
+  }
+
+  private async runSendPasswordResetEmail(email: string): Promise<any> {
+    const apiKey = environment.firebase.apiKey;
+    const resetUrl = `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${apiKey}`;
+    const resetResponse = await fetch(resetUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        requestType: 'PASSWORD_RESET',
+        email: email
+      })
+    });
+
+    if (!resetResponse.ok) {
+      const err = await resetResponse.json();
+      throw new Error(err.error?.message || 'Failed to send password reset email');
+    }
+
+    return await resetResponse.json();
+  }
+
+  private async saveToFirestoreCollection(collection: string, data: any): Promise<any> {
+    const projectId = environment.firebase.projectId;
+    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/${collection}`;
+    const firestoreBody = {
+      fields: this.mapToFirestore(data).mapValue.fields
+    };
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(firestoreBody)
+    });
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error?.message || 'Failed to save Firestore document');
+    }
+    return await response.json();
   }
 
   private runSimulatedRegistration(data: any): Observable<any> {
@@ -1195,6 +1406,172 @@ export class FirebaseService {
     if (!response.ok) {
       const err = await response.json();
       const errMsg = err.error?.message || 'Failed to delete team document in Firestore';
+      throw new Error(errMsg);
+    }
+
+    return { success: true };
+  }
+
+  getStaff(orgDocId: string): Observable<any[]> {
+    if (!this.isFirebaseConfigured) {
+      const key = `mock_firebase_staff_${orgDocId}`;
+      const dataRaw = localStorage.getItem(key);
+      const data = dataRaw ? JSON.parse(dataRaw) : [];
+      return of(data);
+    }
+    return from(this.runRealGetStaff(orgDocId));
+  }
+
+  createStaff(orgDocId: string, staff: any): Observable<any> {
+    if (!this.isFirebaseConfigured) {
+      const key = `mock_firebase_staff_${orgDocId}`;
+      const dataRaw = localStorage.getItem(key);
+      const data = dataRaw ? JSON.parse(dataRaw) : [];
+      data.push(staff);
+      localStorage.setItem(key, JSON.stringify(data));
+      return of({ success: true, staff });
+    }
+    return from(this.runRealCreateStaff(orgDocId, staff));
+  }
+
+  updateStaff(orgDocId: string, staffId: string, updatedFields: any): Observable<any> {
+    if (!this.isFirebaseConfigured) {
+      const key = `mock_firebase_staff_${orgDocId}`;
+      const dataRaw = localStorage.getItem(key);
+      const data = dataRaw ? JSON.parse(dataRaw) : [];
+      const index = data.findIndex((s: any) => s.id === staffId);
+      if (index !== -1) {
+        data[index] = { ...data[index], ...updatedFields };
+        localStorage.setItem(key, JSON.stringify(data));
+        return of({ success: true, staff: data[index] });
+      }
+      return throwError(() => new Error('STAFF_NOT_FOUND'));
+    }
+    return from(this.runRealUpdateStaff(orgDocId, staffId, updatedFields));
+  }
+
+  deleteStaff(orgDocId: string, staffId: string): Observable<any> {
+    if (!this.isFirebaseConfigured) {
+      const key = `mock_firebase_staff_${orgDocId}`;
+      const dataRaw = localStorage.getItem(key);
+      const data = dataRaw ? JSON.parse(dataRaw) : [];
+      const filtered = data.filter((s: any) => s.id !== staffId);
+      localStorage.setItem(key, JSON.stringify(filtered));
+      return of({ success: true });
+    }
+    return from(this.runRealDeleteStaff(orgDocId, staffId));
+  }
+
+  private async runRealGetStaff(orgDocId: string): Promise<any[]> {
+    const projectId = environment.firebase.projectId;
+    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/Organizations/${orgDocId}/Staff`;
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          return [];
+        }
+        const err = await response.json();
+        console.error('Failed to get staff:', err);
+        return [];
+      }
+
+      const result = await response.json();
+      const documents = result.documents || [];
+      return documents.map((doc: any) => {
+        const data = this.mapFromFirestore(doc.fields);
+        data.id = doc.name.split('/').pop();
+        return data;
+      });
+    } catch (e) {
+      console.error('Error fetching staff from Firestore:', e);
+      return [];
+    }
+  }
+
+  private async runRealCreateStaff(orgDocId: string, staff: any): Promise<any> {
+    const projectId = environment.firebase.projectId;
+    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/Organizations/${orgDocId}/Staff?documentId=${staff.id}`;
+
+    const firestoreBody = {
+      fields: this.mapToFirestore(staff).mapValue.fields
+    };
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(firestoreBody)
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      const errMsg = err.error?.message || 'Failed to create staff document in Firestore';
+      throw new Error(errMsg);
+    }
+
+    const result = await response.json();
+    return {
+      success: true,
+      name: result.name
+    };
+  }
+
+  private async runRealUpdateStaff(orgDocId: string, staffId: string, updatedFields: any): Promise<any> {
+    const projectId = environment.firebase.projectId;
+    const docUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/Organizations/${orgDocId}/Staff/${staffId}`;
+    
+    let existingFields = {};
+    try {
+      const getResponse = await fetch(docUrl);
+      if (getResponse.ok) {
+        const doc = await getResponse.json();
+        existingFields = this.mapFromFirestore(doc.fields);
+      }
+    } catch (e) {
+      console.error('Error fetching existing staff for merge:', e);
+    }
+
+    const merged = { ...existingFields, ...updatedFields };
+    const firestoreBody = {
+      fields: this.mapToFirestore(merged).mapValue.fields
+    };
+
+    const response = await fetch(docUrl, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(firestoreBody)
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      const errMsg = err.error?.message || 'Failed to update staff document in Firestore';
+      throw new Error(errMsg);
+    }
+
+    const result = await response.json();
+    return {
+      success: true,
+      name: result.name
+    };
+  }
+
+  private async runRealDeleteStaff(orgDocId: string, staffId: string): Promise<any> {
+    const projectId = environment.firebase.projectId;
+    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/Organizations/${orgDocId}/Staff/${staffId}`;
+
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      const errMsg = err.error?.message || 'Failed to delete staff document in Firestore';
       throw new Error(errMsg);
     }
 

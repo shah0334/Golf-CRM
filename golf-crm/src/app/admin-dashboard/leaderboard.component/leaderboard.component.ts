@@ -169,7 +169,14 @@ export class LeaderboardComponent implements OnInit {
 
     this.firebaseService.getTournaments(orgDocId).subscribe({
       next: (tournamentsList) => {
-        const currentTrn = (tournamentsList || []).find(t => t.id === targetEventId);
+        const list = tournamentsList || [];
+        let resolvedEventId = this.eventId;
+        if (!resolvedEventId) {
+          const liveTrn = list.find(t => t && (t.isLive || t.status === 'Live' || t.status === 'live'));
+          resolvedEventId = liveTrn ? liveTrn.id : (list.length > 0 ? list[0].id : 'TRN-1042');
+        }
+
+        const currentTrn = list.find(t => t.id === resolvedEventId);
         if (currentTrn) {
           this.tournamentInfo.title = currentTrn.name || 'Tournament';
           this.tournamentInfo.subtitle = `${currentTrn.date || ''} • Round 1 of 1`;
@@ -180,14 +187,14 @@ export class LeaderboardComponent implements OnInit {
         }
 
         // Fetch Teams/Players
-        this.firebaseService.getTeams(orgDocId, targetEventId).subscribe({
+        this.firebaseService.getTeams(orgDocId, resolvedEventId).subscribe({
           next: (teamsList) => {
-            this.firebaseService.getPlayers(orgDocId, targetEventId).subscribe({
+            this.firebaseService.getPlayers(orgDocId, resolvedEventId).subscribe({
               next: (playersList) => {
                 // Read scores from localStorage
                 let savedScores: any[] = [];
                 try {
-                  const key = `scorecard_scores_${targetEventId}`;
+                  const key = `scorecard_scores_${resolvedEventId}`;
                   const savedRaw = localStorage.getItem(key);
                   if (savedRaw) {
                     savedScores = JSON.parse(savedRaw);
