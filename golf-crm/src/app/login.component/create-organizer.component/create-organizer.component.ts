@@ -49,7 +49,8 @@ export class CreateOrganizerComponent implements OnInit {
       this.isLoading = true;
       this.errorMessage = null;
 
-      const email = this.form.value.email;
+      const email = this.form.value.email ? this.form.value.email.trim().toLowerCase() : '';
+      this.form.patchValue({ email: email });
       this.firebaseService.checkEmailExists(email).subscribe({
         next: (exists: boolean) => {
           this.isLoading = false;

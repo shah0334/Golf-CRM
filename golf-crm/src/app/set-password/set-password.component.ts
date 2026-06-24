@@ -63,17 +63,22 @@ export class SetPasswordComponent implements OnInit {
   private firebaseService = inject(FirebaseService);
 
   email = '';
+  orgId = '';
+  staffId = '';
   password = '';
   confirmPassword = '';
   errorMessage = '';
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
-      this.email = params['email'] || '';
+      this.email = (params['email'] || '').trim().toLowerCase();
+      this.orgId = params['orgId'] || '';
+      this.staffId = params['staffId'] || '';
     });
   }
 
   submitPassword() {
+    this.email = this.email.trim().toLowerCase();
     if (!this.email) {
       this.errorMessage = 'Invalid setup link. Missing email parameter.';
       return;
@@ -97,6 +102,8 @@ export class SetPasswordComponent implements OnInit {
         if (index !== -1) {
           existing[index].password = this.password;
           existing[index].role = 'Staff';
+          existing[index].orgId = this.orgId;
+          existing[index].staffId = this.staffId;
           localStorage.setItem(key, JSON.stringify(existing));
         } else {
           existing.push({
@@ -104,7 +111,9 @@ export class SetPasswordComponent implements OnInit {
             createdAt: new Date().toISOString(),
             email: this.email,
             password: this.password,
-            role: 'Staff'
+            role: 'Staff',
+            orgId: this.orgId,
+            staffId: this.staffId
           });
           localStorage.setItem(key, JSON.stringify(existing));
         }
@@ -119,7 +128,9 @@ export class SetPasswordComponent implements OnInit {
     if (this.firebaseService.isFirebaseConfigured) {
       this.firebaseService.updateOrganization(this.email, '', {
         password: this.password,
-        role: 'Staff'
+        role: 'Staff',
+        orgId: this.orgId,
+        staffId: this.staffId
       }).subscribe({
         next: () => {
           saveLocallyAndRedirect();

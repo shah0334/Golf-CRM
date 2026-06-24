@@ -49,7 +49,10 @@ export class LoginComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = null;
 
-    const { email, password, rememberMe } = this.form.value;
+    let { email, password, rememberMe } = this.form.value;
+    if (email) {
+      email = email.trim().toLowerCase();
+    }
 
     this.firebaseService.login(email, password).subscribe({
       next: (response: any) => {

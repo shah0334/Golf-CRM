@@ -30,6 +30,10 @@ export class FirebaseService {
   }
 
   createOrganizer(data: any): Observable<any> {
+    if (data) {
+      if (data.email) data.email = data.email.trim().toLowerCase();
+      if (data.orgEmail) data.orgEmail = data.orgEmail.trim().toLowerCase();
+    }
     if (!this.isFirebaseConfigured) {
       return this.runSimulatedRegistration(data);
     }
@@ -39,6 +43,9 @@ export class FirebaseService {
   }
 
   createStaffUser(data: any): Observable<any> {
+    if (data && data.email) {
+      data.email = data.email.trim().toLowerCase();
+    }
     if (!this.isFirebaseConfigured) {
       return of({ success: true, mode: 'simulated' });
     }
@@ -46,6 +53,7 @@ export class FirebaseService {
   }
 
   sendPasswordResetEmail(email: string): Observable<any> {
+    email = email.trim().toLowerCase();
     if (!this.isFirebaseConfigured) {
       console.log('Simulating sending password reset email to:', email);
       return of({ success: true });
@@ -54,6 +62,13 @@ export class FirebaseService {
   }
 
   updateOrganization(email: string, uid: string, updatedData: any): Observable<any> {
+    if (email) {
+      email = email.trim().toLowerCase();
+    }
+    if (updatedData) {
+      if (updatedData.email) updatedData.email = updatedData.email.trim().toLowerCase();
+      if (updatedData.orgEmail) updatedData.orgEmail = updatedData.orgEmail.trim().toLowerCase();
+    }
     if (!this.isFirebaseConfigured) {
       try {
         const key = 'mock_firebase_organizers';
@@ -77,14 +92,52 @@ export class FirebaseService {
   }
 
   login(email: string, password: string): Observable<any> {
+    email = email.trim().toLowerCase();
     if (!this.isFirebaseConfigured) {
       console.log('Simulating login check for:', email);
       try {
+        // Try organizers first
         const existingRaw = localStorage.getItem('mock_firebase_organizers');
         const existing = existingRaw ? JSON.parse(existingRaw) : [];
         const found = existing.find((org: any) => org.email === email && org.password === password);
         if (found) {
           return of({ success: true, user: found });
+        }
+
+        // Try staff subcollections next
+        let foundStaff: any = null;
+        let staffOrgId = '';
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('mock_firebase_staff_')) {
+            const dataRaw = localStorage.getItem(key);
+            const data = dataRaw ? JSON.parse(dataRaw) : [];
+            const foundS = data.find((s: any) => s.email === email && s.password === password);
+            if (foundS) {
+              foundStaff = foundS;
+              staffOrgId = key.replace('mock_firebase_staff_', '');
+              break;
+            }
+          }
+        }
+        if (foundStaff) {
+          let orgName = 'Staff Member';
+          const organizersRaw = localStorage.getItem('mock_firebase_organizers');
+          const organizers = organizersRaw ? JSON.parse(organizersRaw) : [];
+          const orgDoc = organizers.find((org: any) => org.id === staffOrgId || org.docId === staffOrgId);
+          if (orgDoc) {
+            orgName = orgDoc.orgName || orgDoc.clubName || orgName;
+          }
+          return of({
+            success: true,
+            user: {
+              ...foundStaff,
+              role: 'Staff',
+              id: staffOrgId,
+              docId: staffOrgId,
+              orgName: orgName
+            }
+          });
         }
       } catch (e) {
         console.error('Error querying mock database:', e);
@@ -97,6 +150,7 @@ export class FirebaseService {
   }
 
   checkEmailExists(email: string): Observable<boolean> {
+    email = email.trim().toLowerCase();
     if (!this.isFirebaseConfigured) {
       try {
         const existingRaw = localStorage.getItem('mock_firebase_organizers');
@@ -111,9 +165,28 @@ export class FirebaseService {
   }
 
   private async runCheckEmailExists(email: string): Promise<boolean> {
+    email = email.trim().toLowerCase();
     const projectId = environment.firebase.projectId;
-    const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents:runQuery`;
+    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/Organizations`;
 
+    try {
+      const response = await fetch(url);
+      if (response.ok) {
+        const data = await response.json();
+        const documents = data.documents || [];
+        for (const doc of documents) {
+          const fields = this.mapFromFirestore(doc.fields);
+          if (fields.email && fields.email.trim().toLowerCase() === email) {
+            return true;
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Error fetching organizations for case-insensitive check:', e);
+    }
+
+    // Fallback using original EQUAL query
+    const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents:runQuery`;
     const queryBody = {
       structuredQuery: {
         from: [{ collectionId: 'Organizations' }],
@@ -134,17 +207,13 @@ export class FirebaseService {
         body: JSON.stringify(queryBody)
       });
 
-      if (!response.ok) {
-        const err = await response.json();
-        console.error('Email check query failed:', err);
-        return false;
-      }
+      if (!response.ok) return false;
 
       const results = await response.json();
       const validResults = results.filter((r: any) => r.document);
       return validResults.length > 0;
     } catch (e) {
-      console.error('Network error checking email existence:', e);
+      console.error('Network error checking email existence fallback:', e);
       return false;
     }
   }
@@ -253,6 +322,93 @@ export class FirebaseService {
     };
   }
 
+  private async findStaffByEmail(email: string, password?: string): Promise<any | null> {
+    email = email.trim().toLowerCase();
+    const projectId = environment.firebase.projectId;
+    const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents:runQuery`;
+
+    const filters: any[] = [
+      {
+        fieldFilter: {
+          field: { fieldPath: 'email' },
+          op: 'EQUAL',
+          value: { stringValue: email }
+        }
+      }
+    ];
+
+    if (password) {
+      filters.push({
+        fieldFilter: {
+          field: { fieldPath: 'password' },
+          op: 'EQUAL',
+          value: { stringValue: password }
+        }
+      });
+    }
+
+    const queryBody = {
+      structuredQuery: {
+        from: [{ collectionId: 'Staff', allDescendants: true }],
+        where: filters.length > 1 ? {
+          compositeFilter: {
+            op: 'AND',
+            filters: filters
+          }
+        } : filters[0]
+      }
+    };
+
+    try {
+      const response = await fetch(firestoreUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(queryBody)
+      });
+
+      if (!response.ok) return null;
+
+      const results = await response.json();
+      const validResults = results ? results.filter((r: any) => r.document) : [];
+      if (validResults.length === 0) return null;
+
+      const doc = validResults[0].document;
+      const fields = doc.fields;
+      const staffData = this.mapFromFirestore(fields);
+
+      const pathParts = doc.name.split('/');
+      const orgIndex = pathParts.indexOf('Organizations');
+      let orgDocId = 'default_org';
+      if (orgIndex !== -1 && orgIndex + 1 < pathParts.length) {
+        orgDocId = pathParts[orgIndex + 1];
+      }
+
+      staffData.id = orgDocId;
+      staffData.docId = orgDocId;
+      staffData.role = 'Staff';
+      staffData.staffDocId = doc.name.split('/').pop();
+
+      try {
+        const orgUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/Organizations/${orgDocId}`;
+        const orgRes = await fetch(orgUrl);
+        if (orgRes.ok) {
+          const orgDoc = await orgRes.json();
+          const orgFields = this.mapFromFirestore(orgDoc.fields);
+          staffData.orgName = orgFields.orgName || orgFields.clubName || orgDocId;
+        } else {
+          staffData.orgName = orgDocId;
+        }
+      } catch (e) {
+        staffData.orgName = orgDocId;
+      }
+
+      return staffData;
+    } catch (e) {
+      console.error('Error in findStaffByEmail:', e);
+      return null;
+    }
+  }
+
   private async runRealLogin(email: string, password: string): Promise<any> {
     const apiKey = environment.firebase.apiKey;
     const projectId = environment.firebase.projectId;
@@ -271,7 +427,6 @@ export class FirebaseService {
       });
 
       if (!authResponse.ok) {
-        // If auth fails, try legacy plaintext fallback query (in case user registered prior to authentication check integration)
         console.warn('Firebase Auth login failed, trying legacy plaintext Firestore fallback...');
         return await this.runLegacyFirestoreLogin(email, password);
       }
@@ -279,7 +434,7 @@ export class FirebaseService {
       const authResult = await authResponse.json();
       const uid = authResult.localId;
 
-      // 2. Fetch organization/staff details from Firestore by email
+      // 2. Fetch organization details from root Organizations collection (for organizers)
       const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents:runQuery`;
       const queryBody = {
         structuredQuery: {
@@ -300,17 +455,58 @@ export class FirebaseService {
         body: JSON.stringify(queryBody)
       });
 
-      if (!response.ok) {
-        const errorJson = await response.json();
-        throw new Error(errorJson.error?.message || 'Firestore user query failed');
+      let orgData: any = null;
+      if (response.ok) {
+        const results = await response.json();
+        const validResults = results ? results.filter((r: any) => r.document) : [];
+        if (validResults.length > 0) {
+          const doc = validResults[0].document;
+          const fields = doc.fields;
+          orgData = this.mapFromFirestore(fields);
+          orgData.docId = doc.name.split('/').pop();
+          orgData.id = orgData.docId;
+          
+          if (orgData.password !== password) {
+            orgData.password = password;
+            this.runRealUpdate(email, uid, { password: password }).catch(e => {
+              console.warn('Failed to update Firestore password in background:', e);
+            });
+          }
+        }
       }
 
-      const results = await response.json();
-      const validResults = results ? results.filter((r: any) => r.document) : [];
+      // 3. If found in root Organizations and it is a staff credentials pointer, resolve the subcollection profile
+      if (orgData && orgData.role === 'Staff') {
+        const orgId = orgData.orgId;
+        const staffId = orgData.staffId;
+        if (orgId && staffId) {
+          try {
+            const staffUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/Organizations/${orgId}/Staff/${staffId}`;
+            const staffRes = await fetch(staffUrl);
+            if (staffRes.ok) {
+              const staffDoc = await staffRes.json();
+              const staffFields = this.mapFromFirestore(staffDoc.fields);
+              orgData = {
+                ...orgData,
+                ...staffFields,
+                id: orgId,
+                docId: orgId,
+                role: 'Staff',
+                staffDocId: staffId
+              };
+            }
+          } catch (e) {
+            console.error('Error fetching staff profile during login:', e);
+          }
+        }
+      }
 
-      let orgData: any;
-      if (validResults.length === 0) {
-        // If user exists in Auth but not in Firestore, create a default Firestore document for them
+      // 4. If not found in root Organizations, look in Staff subcollection
+      if (!orgData) {
+        orgData = await this.findStaffByEmail(email);
+      }
+
+      if (!orgData) {
         orgData = {
           uid: uid,
           email: email,
@@ -321,20 +517,6 @@ export class FirebaseService {
           createdAt: new Date().toISOString()
         };
         await this.saveToFirestoreCollection('Organizations', orgData);
-      } else {
-        const doc = validResults[0].document;
-        const fields = doc.fields;
-        orgData = this.mapFromFirestore(fields);
-        orgData.docId = doc.name.split('/').pop();
-        orgData.id = orgData.docId;
-
-        // Update password in Firestore in background if it doesn't match or is empty
-        if (orgData.password !== password) {
-          orgData.password = password;
-          this.runRealUpdate(email, uid, { password: password }).catch(e => {
-            console.warn('Failed to update Firestore password in background:', e);
-          });
-        }
       }
 
       return {
@@ -344,7 +526,6 @@ export class FirebaseService {
 
     } catch (err: any) {
       console.warn('Error in runRealLogin: ', err);
-      // Fallback to legacy login in case of network errors or other anomalies
       return await this.runLegacyFirestoreLogin(email, password);
     }
   }
@@ -379,29 +560,59 @@ export class FirebaseService {
       }
     };
 
-    const response = await fetch(firestoreUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(queryBody)
-    });
+    let orgData: any = null;
+    try {
+      const response = await fetch(firestoreUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(queryBody)
+      });
 
-    if (!response.ok) {
-      const errorJson = await response.json();
-      throw new Error(errorJson.error?.message || 'Login query failed');
+      if (response.ok) {
+        const results = await response.json();
+        const validResults = results ? results.filter((r: any) => r.document) : [];
+        if (validResults.length > 0) {
+          const doc = validResults[0].document;
+          const fields = doc.fields;
+          orgData = this.mapFromFirestore(fields);
+          orgData.docId = doc.name.split('/').pop();
+          orgData.id = orgData.docId;
+        }
+      }
+    } catch (e) {}
+
+    if (orgData && orgData.role === 'Staff') {
+      const orgId = orgData.orgId;
+      const staffId = orgData.staffId;
+      if (orgId && staffId) {
+        try {
+          const staffUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/Organizations/${orgId}/Staff/${staffId}`;
+          const staffRes = await fetch(staffUrl);
+          if (staffRes.ok) {
+            const staffDoc = await staffRes.json();
+            const staffFields = this.mapFromFirestore(staffDoc.fields);
+            orgData = {
+              ...orgData,
+              ...staffFields,
+              id: orgId,
+              docId: orgId,
+              role: 'Staff',
+              staffDocId: staffId
+            };
+          }
+        } catch (e) {
+          console.error('Error fetching staff profile during login:', e);
+        }
+      }
     }
 
-    const results = await response.json();
-    const validResults = results ? results.filter((r: any) => r.document) : [];
+    if (!orgData) {
+      orgData = await this.findStaffByEmail(email, password);
+    }
 
-    if (validResults.length === 0) {
+    if (!orgData) {
       throw new Error('INVALID_LOGIN_CREDENTIALS');
     }
-
-    const doc = validResults[0].document;
-    const fields = doc.fields;
-    const orgData = this.mapFromFirestore(fields);
-    orgData.docId = doc.name.split('/').pop();
-    orgData.id = orgData.docId;
 
     return {
       success: true,
@@ -447,6 +658,8 @@ export class FirebaseService {
       email: data.email || '',
       password: '', // Blank initially, will be updated when they log in or set password
       role: 'Staff',
+      orgId: data.orgId || '',
+      staffId: data.staffId || '',
       orgName: data.name || '',
       clubName: 'Staff Member',
       createdAt: new Date().toISOString()
@@ -540,6 +753,19 @@ export class FirebaseService {
   }
 
   private async runRealUpdate(email: string, uid: string, updatedData: any): Promise<any> {
+    try {
+      const result = await this.runRealUpdateRootOrg(email, uid, updatedData);
+      return result;
+    } catch (e) {
+      if (e instanceof Error && e.message === 'ORGANIZATION_NOT_FOUND') {
+        const staffUpdate = await this.runRealUpdateStaffCollection(email, updatedData);
+        if (staffUpdate) return staffUpdate;
+      }
+      throw e;
+    }
+  }
+
+  private async runRealUpdateRootOrg(email: string, uid: string, updatedData: any): Promise<any> {
     const projectId = environment.firebase.projectId;
     const firestoreUrlQuery = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents:runQuery`;
 
@@ -578,7 +804,7 @@ export class FirebaseService {
     }
 
     const results = await queryResponse.json();
-    const validResults = results.filter((r: any) => r.document);
+    const validResults = results ? results.filter((r: any) => r.document) : [];
 
     if (validResults.length === 0) {
       throw new Error('ORGANIZATION_NOT_FOUND');
@@ -609,7 +835,63 @@ export class FirebaseService {
       throw new Error(errorJson.error?.message || 'Failed to update organization document in Firestore');
     }
 
-    const updateResult = await updateResponse.json();
+    return {
+      success: true,
+      user: mergedPayload
+    };
+  }
+
+  private async runRealUpdateStaffCollection(email: string, updatedData: any): Promise<any> {
+    const projectId = environment.firebase.projectId;
+    const firestoreUrlQuery = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents:runQuery`;
+
+    const queryBody = {
+      structuredQuery: {
+        from: [{ collectionId: 'Staff', allDescendants: true }],
+        where: {
+          fieldFilter: {
+            field: { fieldPath: 'email' },
+            op: 'EQUAL',
+            value: { stringValue: email }
+          }
+        }
+      }
+    };
+
+    const queryResponse = await fetch(firestoreUrlQuery, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(queryBody)
+    });
+
+    if (!queryResponse.ok) return null;
+
+    const results = await queryResponse.json();
+    const validResults = results ? results.filter((r: any) => r.document) : [];
+    if (validResults.length === 0) return null;
+
+    const doc = validResults[0].document;
+    const docName = doc.name;
+
+    const existingFields = this.mapFromFirestore(doc.fields);
+    const mergedPayload = {
+      ...existingFields,
+      ...updatedData
+    };
+
+    const updateUrl = `https://firestore.googleapis.com/v1/${docName}`;
+    const firestoreBody = {
+      fields: this.mapToFirestore(mergedPayload).mapValue.fields
+    };
+
+    const updateResponse = await fetch(updateUrl, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(firestoreBody)
+    });
+
+    if (!updateResponse.ok) return null;
+
     return {
       success: true,
       user: mergedPayload
@@ -697,6 +979,21 @@ export class FirebaseService {
       console.error('Error reading docId from activeOrganization:', e);
     }
     return 'default_org';
+  }
+
+  getOrganizations(): Observable<any[]> {
+    if (!this.isFirebaseConfigured) {
+      try {
+        const key = 'mock_firebase_organizers';
+        const existingRaw = localStorage.getItem(key);
+        const existing = existingRaw ? JSON.parse(existingRaw) : [];
+        const orgs = existing.filter((org: any) => org.role !== 'Staff');
+        return of(orgs);
+      } catch (e) {
+        return of([]);
+      }
+    }
+    return from(this.runRealGetOrganizations());
   }
 
   getTournaments(orgDocId: string): Observable<any[]> {
@@ -823,6 +1120,34 @@ export class FirebaseService {
       });
     } catch (e) {
       console.error('Error fetching tournaments from Firestore:', e);
+      return [];
+    }
+  }
+
+  private async runRealGetOrganizations(): Promise<any[]> {
+    const projectId = environment.firebase.projectId;
+    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/Organizations`;
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (!response.ok) {
+        const err = await response.json();
+        console.error('Failed to get organizations:', err);
+        return [];
+      }
+      const result = await response.json();
+      const documents = result.documents || [];
+      return documents
+        .map((doc: any) => {
+          const data = this.mapFromFirestore(doc.fields);
+          data.id = doc.name.split('/').pop();
+          return data;
+        })
+        .filter((org: any) => org.role !== 'Staff');
+    } catch (e) {
+      console.error('Error fetching organizations from Firestore:', e);
       return [];
     }
   }

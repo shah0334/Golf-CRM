@@ -204,6 +204,8 @@ export class StaffComponent implements OnInit {
       alert('Please fill out all fields.');
       return;
     }
+    this.newStaff.email = this.newStaff.email.trim().toLowerCase();
+    this.newStaff.name = this.newStaff.name.trim();
 
     this.isSendingEmail = true;
     this.cdr.detectChanges();
@@ -218,8 +220,9 @@ export class StaffComponent implements OnInit {
       this.calculateStats();
       this.showAddModal = false;
 
-      // Copy setupUrl to clipboard if they want a direct copy
-      const setupUrl = window.location.origin + '/set-password?email=' + encodeURIComponent(newlyCreated.email);
+      const setupUrl = window.location.origin + '/set-password?email=' + encodeURIComponent(newlyCreated.email) +
+        '&orgId=' + encodeURIComponent(orgDocId) +
+        '&staffId=' + encodeURIComponent(newlyCreated.id);
       try {
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(setupUrl).catch(() => { });
@@ -263,7 +266,9 @@ export class StaffComponent implements OnInit {
       // 1. Create the user in Firebase Auth and send the real setup email
       this.firebaseService.createStaffUser({
         email: this.newStaff.email,
-        name: this.newStaff.name
+        name: this.newStaff.name,
+        orgId: orgDocId,
+        staffId: newlyCreated.id
       }).subscribe({
         next: () => {
           // 2. Save the staff member document in the organization's staff subcollection in Firestore
