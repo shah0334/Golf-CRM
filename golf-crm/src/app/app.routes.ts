@@ -11,7 +11,6 @@ import { RosterComponent } from './admin-dashboard/roster.component/roster.compo
 import { ScorecardComponent } from './admin-dashboard/scorecard.component/scorecard.component';
 import { CreateEventComponent } from './admin-dashboard/create-event.component/create-event.component';
 import { LeaderboardComponent } from './admin-dashboard/leaderboard.component/leaderboard.component';
-import { CoursesComponent } from './admin-dashboard/courses.component/courses.component';
 import { EventsComponent } from './admin-dashboard/events.component/events.component';
 import { AdminLayoutComponent } from './admin-dashboard/admin-layout.component';
 import { RegistrationService } from './services/registration.service';
@@ -93,7 +92,6 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: '', component: AdminDashboard },
-      { path: 'courses', component: CoursesComponent },
       { path: 'events', component: EventsComponent },
       { path: 'create-event', component: CreateEventComponent },
 

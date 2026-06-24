@@ -2,6 +2,7 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterOutlet, RouterLinkActive } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { FirebaseService } from '../services/firebase.service';
 
 @Component({
   selector: 'app-admin-layout',
@@ -12,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 export class AdminLayoutComponent implements OnInit {
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private firebaseService = inject(FirebaseService);
 
   isSigningOut = false;
 
@@ -54,7 +56,29 @@ export class AdminLayoutComponent implements OnInit {
           this.staffName = org.fullName || org.name || org.email || 'Staff Member';
           this.assignedCourse = org.assignedCourse || org.courseName || '';
           this.userName = this.staffName;
-          // Use staff name for initials
+          // Fetch real organization details to fix corrupted local storage orgName
+          this.firebaseService.getOrganizations().subscribe({
+            next: (orgs) => {
+              if (orgs && orgs.length > 0) {
+                const parentOrg = orgs.find(o => o.id === org.orgId || o.docId === this.firebaseService.getOrgDocId());
+                if (parentOrg && (parentOrg.orgName || parentOrg.clubName)) {
+                  this.orgName = parentOrg.orgName || parentOrg.clubName;
+                  
+                  // Recalculate initials
+                  const updatedWords = this.orgName.split(' ').filter(w => w.length > 0);
+                  if (updatedWords.length >= 2) {
+                    this.userInitials = (updatedWords[0][0] + updatedWords[1][0]).toUpperCase();
+                  } else if (updatedWords.length === 1) {
+                    this.userInitials = updatedWords[0].substring(0, 2).toUpperCase();
+                  }
+                  
+                  this.cdr.detectChanges();
+                }
+              }
+            }
+          });
+          
+          // Use staff name for initials by default (may be overridden by org initials above)
           const snWords = this.staffName.split(' ').filter((w: string) => w.length > 0);
           if (snWords.length >= 2) {
             this.userInitials = (snWords[0][0] + snWords[1][0]).toUpperCase();

@@ -126,8 +126,8 @@ export class StaffSignupComponent implements OnInit {
             role: 'Staff',
             orgId: orgId,
             staffId: targetStaffId,
-            orgName: (existingOrgDoc && existingOrgDoc.orgName) || this.name,
-            clubName: (existingOrgDoc && existingOrgDoc.clubName) || 'Staff Member'
+            orgName: (existingOrgDoc && existingOrgDoc.orgName) || selectedOrg?.orgName || selectedOrg?.clubName || this.name,
+            clubName: (existingOrgDoc && existingOrgDoc.clubName) || selectedOrg?.clubName || selectedOrg?.orgName || 'Staff Member'
           };
 
           if (this.firebaseService.isFirebaseConfigured) {
@@ -206,8 +206,8 @@ export class StaffSignupComponent implements OnInit {
             role: 'Staff',
             orgId: this.selectedOrgId,
             staffId: staffId,
-            orgName: this.name,
-            clubName: 'Staff Member'
+            orgName: selectedOrg?.orgName || selectedOrg?.clubName || this.name,
+            clubName: selectedOrg?.clubName || selectedOrg?.orgName || 'Staff Member'
           };
 
           if (this.firebaseService.isFirebaseConfigured) {
