@@ -52,6 +52,12 @@ export class AdminDashboard implements OnInit {
   qrCodeUrl = '';
   qrCourseName = '';
 
+  // Staff dashboard properties
+  isStaff = false;
+  staffName = '';
+  assignedCourse = '';
+  assignedOrgName = '';
+
   courses: Course[] = [
     {
       id: 'CRS-001',
@@ -112,6 +118,14 @@ export class AdminDashboard implements OnInit {
       const activeOrgRaw = localStorage.getItem('activeOrganization');
       if (activeOrgRaw) {
         const org = JSON.parse(activeOrgRaw);
+
+        // Detect staff role
+        if (org.role === 'Staff') {
+          this.isStaff = true;
+          this.staffName = org.fullName || org.name || org.email || 'Staff Member';
+          this.assignedCourse = org.assignedCourse || org.courseName || '';
+          this.assignedOrgName = org.orgName || org.clubName || '';
+        }
         
         // Load tournaments from organization if available
         if (org.tournaments && Array.isArray(org.tournaments) && org.tournaments.length > 0) {
@@ -179,6 +193,23 @@ export class AdminDashboard implements OnInit {
     } catch (e) {
       console.error('Error loading active organization details on dashboard:', e);
     }
+  }
+
+  getStaffAssignedCourse(): Course | undefined {
+    if (!this.isStaff || !this.assignedCourse) return undefined;
+    return this.courses.find(c => c.name?.toLowerCase() === this.assignedCourse?.toLowerCase());
+  }
+
+  getStaffActiveEvents(): Tournament[] {
+    return this.getFilteredTournaments().filter(t => t.status === 'ACTIVE');
+  }
+
+  getStaffUpcomingEvents(): Tournament[] {
+    return this.getFilteredTournaments().filter(t => t.status === 'UPCOMING');
+  }
+
+  getStaffTotalPlayers(): number {
+    return this.getFilteredTournaments().reduce((sum, t) => sum + (t.players || 0), 0);
   }
  
   getFilteredCourses(): Course[] {

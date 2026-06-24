@@ -19,6 +19,11 @@ export class AdminLayoutComponent implements OnInit {
   userName = 'Tournament Admin';
   userInitials = 'OV';
 
+  // Staff-specific
+  isStaff = false;
+  staffName = '';
+  assignedCourse = '';
+
   searchQuery = '';
   showArchived = false;
   isMobileMenuOpen = false;
@@ -42,13 +47,28 @@ export class AdminLayoutComponent implements OnInit {
       if (activeOrgRaw) {
         const org = JSON.parse(activeOrgRaw);
         this.orgName = org.orgName || org.clubName || this.orgName;
-        
-        // Recalculate initials for the loaded organization name
-        const updatedWords = this.orgName.split(' ').filter(w => w.length > 0);
-        if (updatedWords.length >= 2) {
-          this.userInitials = (updatedWords[0][0] + updatedWords[1][0]).toUpperCase();
-        } else if (updatedWords.length === 1) {
-          this.userInitials = updatedWords[0].substring(0, 2).toUpperCase();
+
+        // Detect staff role
+        if (org.role === 'Staff') {
+          this.isStaff = true;
+          this.staffName = org.fullName || org.name || org.email || 'Staff Member';
+          this.assignedCourse = org.assignedCourse || org.courseName || '';
+          this.userName = this.staffName;
+          // Use staff name for initials
+          const snWords = this.staffName.split(' ').filter((w: string) => w.length > 0);
+          if (snWords.length >= 2) {
+            this.userInitials = (snWords[0][0] + snWords[1][0]).toUpperCase();
+          } else if (snWords.length === 1) {
+            this.userInitials = snWords[0].substring(0, 2).toUpperCase();
+          }
+        } else {
+          // Recalculate initials for the loaded organization name
+          const updatedWords = this.orgName.split(' ').filter(w => w.length > 0);
+          if (updatedWords.length >= 2) {
+            this.userInitials = (updatedWords[0][0] + updatedWords[1][0]).toUpperCase();
+          } else if (updatedWords.length === 1) {
+            this.userInitials = updatedWords[0].substring(0, 2).toUpperCase();
+          }
         }
       }
     } catch (e) {
@@ -86,7 +106,13 @@ export class AdminLayoutComponent implements OnInit {
       return 'Staff Management';
     } else if (url.includes('/admin-dashboard/leaderboard')) {
       return 'Leaderboards';
+    } else if (url.includes('/admin-dashboard/player')) {
+      return 'Players';
+    } else if (url.includes('/admin-dashboard/scorecard')) {
+      return 'Scores';
+    } else if (url.includes('/admin-dashboard/roster')) {
+      return 'Roster';
     }
-    return 'Dashboard';
+    return this.isStaff ? 'Staff Dashboard' : 'Dashboard';
   }
 }
