@@ -476,6 +476,7 @@ export class FinishComponent implements OnInit {
             phone: activeOrg.phone,
             inviteCode: activeOrg.inviteCode,
             urlSlug: activeOrg.urlSlug,
+            courseName: activeOrg.courseName || '',
             courses: activeOrg.courses || [],
             logoPreview: activeOrg.logoPreview || null,
             logoFileName: activeOrg.logoFileName || null,
