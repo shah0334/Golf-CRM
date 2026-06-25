@@ -30,6 +30,10 @@ export class AdminLayoutComponent implements OnInit {
   showArchived = false;
   isMobileMenuOpen = false;
 
+  get dashboardPrefix(): string {
+    return this.isStaff ? '/staff-dashboard' : '/admin-dashboard';
+  }
+
   ngOnInit() {
     this.loadOrganizationDetails();
   }

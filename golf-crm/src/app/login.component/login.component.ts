@@ -76,8 +76,12 @@ export class LoginComponent implements OnInit {
 
         this.toastService.showSuccess(`Welcome back, ${orgData.orgName || orgData.clubName || 'User'}!`);
 
-        // Redirect to admin dashboard
-        this.router.navigate(['/admin-dashboard']);
+        // Redirect depending on role
+        if (orgData.role === 'Staff') {
+          this.router.navigate(['/staff-dashboard']);
+        } else {
+          this.router.navigate(['/admin-dashboard']);
+        }
         this.cdr.detectChanges();
       },
       error: (err: any) => {

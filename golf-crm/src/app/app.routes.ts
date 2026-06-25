@@ -102,9 +102,26 @@ export const routes: Routes = [
       { path: 'setting', component: SettingComponent }
     ]
   },
+  {
+    path: 'staff-dashboard',
+    component: AdminLayoutComponent,
+    canActivate: [authGuard],
+    children: [
+      { path: '', component: AdminDashboard },
+      { path: 'events', component: EventsComponent },
+      { path: 'create-event', component: CreateEventComponent },
+
+      { path: 'player', component: PlayerComponent },
+      { path: 'staff', component: StaffComponent },
+      { path: 'setting', component: SettingComponent }
+    ]
+  },
   { path: 'admin-dashboard/roster', component: RosterComponent, canActivate: [authGuard] },
   { path: 'admin-dashboard/leaderboard', component: LeaderboardComponent, canActivate: [authGuard] },
   { path: 'admin-dashboard/scorecard/:id', component: ScorecardComponent },
+  { path: 'staff-dashboard/roster', component: RosterComponent, canActivate: [authGuard] },
+  { path: 'staff-dashboard/leaderboard', component: LeaderboardComponent, canActivate: [authGuard] },
+  { path: 'staff-dashboard/scorecard/:id', component: ScorecardComponent },
   { path: 'set-password', component: SetPasswordComponent },
   { path: 'staff-signup', component: StaffSignupComponent },
   { path: 'forgot-password', component: ForgotPassword }

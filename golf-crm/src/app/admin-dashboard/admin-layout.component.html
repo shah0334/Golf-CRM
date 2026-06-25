@@ -14,7 +14,7 @@
         </span>
       </div>
       <nav class="space-y-1">
-        <a routerLink="/admin-dashboard" routerLinkActive="bg-[#DCAE5A] text-[#051B11] font-bold" [routerLinkActiveOptions]="{exact: true}"
+        <a [routerLink]="dashboardPrefix" routerLinkActive="bg-[#DCAE5A] text-[#051B11] font-bold" [routerLinkActiveOptions]="{exact: true}"
           class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-[#7A9A8A] hover:bg-[#133824]/50 hover:text-white transition-all">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round"
@@ -22,7 +22,7 @@
           </svg>
           Dashboard
         </a>
-        <a routerLink="/admin-dashboard/events" routerLinkActive="bg-[#DCAE5A] text-[#051B11] font-bold"
+        <a [routerLink]="dashboardPrefix + '/events'" routerLinkActive="bg-[#DCAE5A] text-[#051B11] font-bold"
           class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-[#7A9A8A] hover:bg-[#133824]/50 hover:text-white transition-all">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round"
@@ -32,7 +32,7 @@
         </a>
 
         <!-- Staff management: Admin only -->
-        <a *ngIf="!isStaff" routerLink="/admin-dashboard/staff" routerLinkActive="bg-[#DCAE5A] text-[#051B11] font-bold"
+        <a *ngIf="!isStaff" [routerLink]="dashboardPrefix + '/staff'" routerLinkActive="bg-[#DCAE5A] text-[#051B11] font-bold"
           class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-[#7A9A8A] hover:bg-[#133824]/50 hover:text-white transition-all">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round"
@@ -40,7 +40,7 @@
           </svg>
           Staff
         </a>
-        <a routerLink="/admin-dashboard/leaderboard" routerLinkActive="bg-[#DCAE5A] text-[#051B11] font-bold"
+        <a [routerLink]="dashboardPrefix + '/leaderboard'" routerLinkActive="bg-[#DCAE5A] text-[#051B11] font-bold"
           class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-[#7A9A8A] hover:bg-[#133824]/50 hover:text-white transition-all cursor-pointer">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round"
@@ -50,7 +50,7 @@
         </a>
 
         <!-- Settings -->
-        <a routerLink="/admin-dashboard/setting" routerLinkActive="bg-[#133824]/50 text-white"
+        <a [routerLink]="dashboardPrefix + '/setting'" routerLinkActive="bg-[#133824]/50 text-white"
           class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-[#7A9A8A] hover:bg-[#133824]/50 hover:text-white transition-all">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round"
@@ -93,35 +93,35 @@
         </button>
       </div>
       <nav class="space-y-2">
-        <a routerLink="/admin-dashboard" (click)="isMobileMenuOpen = false"
+        <a [routerLink]="dashboardPrefix" (click)="isMobileMenuOpen = false"
           class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/80 hover:bg-[#133824]/50">
           Dashboard
         </a>
-        <a *ngIf="!isStaff" routerLink="/admin-dashboard/courses" (click)="isMobileMenuOpen = false"
+        <a *ngIf="!isStaff" [routerLink]="dashboardPrefix + '/courses'" (click)="isMobileMenuOpen = false"
           class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/80 hover:bg-[#133824]/50">
           Courses
         </a>
-        <a routerLink="/admin-dashboard/events" (click)="isMobileMenuOpen = false" routerLinkActive="bg-[#DCAE5A] text-[#051B11] font-bold"
+        <a [routerLink]="dashboardPrefix + '/events'" (click)="isMobileMenuOpen = false" routerLinkActive="bg-[#DCAE5A] text-[#051B11] font-bold"
           class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/80 hover:bg-[#133824]/50">
           Events
         </a>
-        <a *ngIf="!isStaff" routerLink="/admin-dashboard/staff" (click)="isMobileMenuOpen = false" routerLinkActive="bg-[#DCAE5A] text-[#051B11] font-bold"
+        <a *ngIf="!isStaff" [routerLink]="dashboardPrefix + '/staff'" (click)="isMobileMenuOpen = false" routerLinkActive="bg-[#DCAE5A] text-[#051B11] font-bold"
           class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/80 hover:bg-[#133824]/50">
           Staff
         </a>
-        <a *ngIf="isStaff" routerLink="/admin-dashboard/player" (click)="isMobileMenuOpen = false" routerLinkActive="bg-[#DCAE5A] text-[#051B11] font-bold"
+        <a *ngIf="isStaff" [routerLink]="dashboardPrefix + '/player'" (click)="isMobileMenuOpen = false" routerLinkActive="bg-[#DCAE5A] text-[#051B11] font-bold"
           class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/80 hover:bg-[#133824]/50">
           Players
         </a>
-        <a *ngIf="isStaff" routerLink="/admin-dashboard/scorecard" (click)="isMobileMenuOpen = false" routerLinkActive="bg-[#DCAE5A] text-[#051B11] font-bold"
+        <a *ngIf="isStaff" [routerLink]="dashboardPrefix + '/scorecard'" (click)="isMobileMenuOpen = false" routerLinkActive="bg-[#DCAE5A] text-[#051B11] font-bold"
           class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/80 hover:bg-[#133824]/50">
           Scores
         </a>
-        <a routerLink="/admin-dashboard/leaderboard" (click)="isMobileMenuOpen = false"
+        <a [routerLink]="dashboardPrefix + '/leaderboard'" (click)="isMobileMenuOpen = false"
           class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/80 hover:bg-[#133824]/50 cursor-pointer">
           Leaderboards
         </a>
-        <a *ngIf="!isStaff" href="javascript:void(0)" (click)="isMobileMenuOpen = false"
+        <a [routerLink]="dashboardPrefix + '/setting'" (click)="isMobileMenuOpen = false"
           class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/80 hover:bg-[#133824]/50">
           Settings
         </a>
