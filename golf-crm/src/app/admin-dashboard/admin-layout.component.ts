@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterOutlet, RouterLinkActive } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -31,6 +31,11 @@ export class AdminLayoutComponent implements OnInit {
   isMobileMenuOpen = false;
 
   ngOnInit() {
+    this.loadOrganizationDetails();
+  }
+
+  @HostListener('window:local-storage-update')
+  loadOrganizationDetails() {
     this.orgName = localStorage.getItem('orgName') || 'Oak Valley Golf Club';
     
     // Default user initials calculation

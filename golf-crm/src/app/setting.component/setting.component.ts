@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -15,6 +15,7 @@ export class SettingComponent implements OnInit {
   private firebaseService = inject(FirebaseService);
   private router = inject(Router);
   private toastService = inject(ToastService);
+  private cdr = inject(ChangeDetectorRef);
 
   isStaff = false;
   isSaving = false;
@@ -25,6 +26,8 @@ export class SettingComponent implements OnInit {
   orgEmail = '';
   phone = '';
   inviteCode = '';
+  newPassword = '';
+  confirmPassword = '';
 
   // Staff info fields (read-only)
   staffName = '';
@@ -62,14 +65,27 @@ export class SettingComponent implements OnInit {
 
   saveSettings() {
     if (this.isSaving) return;
+
+    if (this.newPassword) {
+      if (this.newPassword.length < 6) {
+        this.toastService.showError('New password must be at least 6 characters long.');
+        return;
+      }
+      if (this.newPassword !== this.confirmPassword) {
+        this.toastService.showError('Passwords do not match.');
+        return;
+      }
+    }
+
     this.isSaving = true;
+    this.cdr.detectChanges();
 
     try {
       const activeOrgRaw = localStorage.getItem('activeOrganization');
       if (activeOrgRaw) {
         const org = JSON.parse(activeOrgRaw);
         
-        const updatedData = {
+        const updatedData: any = {
           orgName: this.orgName,
           clubName: this.orgName,
           phone: this.phone,
@@ -78,8 +94,12 @@ export class SettingComponent implements OnInit {
           inviteCode: this.inviteCode
         };
 
+        if (this.newPassword) {
+          updatedData.password = this.newPassword;
+        }
+
         const email = org.email;
-        const uid = org.id || org.uid;
+        const uid = org.uid || org.id;
 
         this.firebaseService.updateOrganization(email, uid, updatedData).subscribe({
           next: (res) => {
@@ -88,21 +108,28 @@ export class SettingComponent implements OnInit {
             localStorage.setItem('activeOrganization', JSON.stringify(merged));
             localStorage.setItem('orgName', this.orgName);
             localStorage.setItem('orgEmail', this.orgEmail);
+            window.dispatchEvent(new Event('local-storage-update'));
+            this.newPassword = '';
+            this.confirmPassword = '';
             this.toastService.showSuccess('Settings updated successfully!');
+            this.cdr.detectChanges();
           },
           error: (err) => {
             this.isSaving = false;
             console.error(err);
             this.toastService.showError('Failed to update settings. Please try again.');
+            this.cdr.detectChanges();
           }
         });
       } else {
         this.isSaving = false;
+        this.cdr.detectChanges();
       }
     } catch (e) {
       this.isSaving = false;
       console.error(e);
       this.toastService.showError('An error occurred while saving.');
+      this.cdr.detectChanges();
     }
   }
 }

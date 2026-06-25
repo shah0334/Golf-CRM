@@ -126,6 +126,32 @@
               </div>
             </div>
           </div>
+          <!-- Security / Change Password -->
+          <div class="pt-6 border-t border-[#FAF7F2]/10">
+            <div class="bg-[#133824]/30 border border-[#FAF7F2]/10 rounded-2xl p-5">
+              <div class="flex items-center gap-2 text-xs font-extrabold text-[#DCAE5A] uppercase tracking-wider mb-3">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                </svg>
+                Change Password
+              </div>
+              <p class="text-xs text-[#7A9A8A] font-medium leading-relaxed mb-4">
+                Leave these fields blank if you do not wish to change your current password.
+              </p>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-[10px] font-bold text-[#7A9A8A] uppercase tracking-widest mb-1.5">New Password</label>
+                  <input type="password" [(ngModel)]="newPassword" name="newPassword" placeholder="••••••••"
+                    class="w-full bg-[#051B11]/50 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder-white/20 focus:outline-none focus:border-[#DCAE5A] transition-all">
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold text-[#7A9A8A] uppercase tracking-widest mb-1.5">Confirm New Password</label>
+                  <input type="password" [(ngModel)]="confirmPassword" name="confirmPassword" placeholder="••••••••"
+                    class="w-full bg-[#051B11]/50 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder-white/20 focus:outline-none focus:border-[#DCAE5A] transition-all">
+                </div>
+              </div>
+            </div>
+          </div>
 
       <!-- Submit Button -->
           <div class="pt-4 flex justify-end">

@@ -519,6 +519,10 @@ export class FirebaseService {
         await this.saveToFirestoreCollection('Organizations', orgData);
       }
 
+      if (orgData && authResult.idToken) {
+        orgData.idToken = authResult.idToken;
+      }
+
       return {
         success: true,
         user: orgData
@@ -754,6 +758,39 @@ export class FirebaseService {
 
   private async runRealUpdate(email: string, uid: string, updatedData: any): Promise<any> {
     try {
+      if (updatedData.password) {
+        try {
+          const activeOrgRaw = localStorage.getItem('activeOrganization');
+          if (activeOrgRaw) {
+            const org = JSON.parse(activeOrgRaw);
+            if (org.idToken) {
+              const apiKey = environment.firebase.apiKey;
+              const updateUrl = `https://identitytoolkit.googleapis.com/v1/accounts:update?key=${apiKey}`;
+              const res = await fetch(updateUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  idToken: org.idToken,
+                  password: updatedData.password,
+                  returnSecureToken: true
+                })
+              });
+              if (res.ok) {
+                const resJson = await res.json();
+                if (resJson.idToken) {
+                  org.idToken = resJson.idToken;
+                  localStorage.setItem('activeOrganization', JSON.stringify(org));
+                }
+              } else {
+                console.warn('Firebase Auth password update failed, status:', res.status);
+              }
+            }
+          }
+        } catch (err) {
+          console.warn('Failed to update password in Firebase Auth:', err);
+        }
+      }
+
       const result = await this.runRealUpdateRootOrg(email, uid, updatedData);
       return result;
     } catch (e) {
