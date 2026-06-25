@@ -60,8 +60,8 @@
           Leaderboards
         </a>
 
-        <!-- Settings: Admin only -->
-        <a *ngIf="!isStaff" href="javascript:void(0)"
+        <!-- Settings -->
+        <a routerLink="/admin-dashboard/setting" routerLinkActive="bg-[#133824]/50 text-white"
           class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-[#7A9A8A] hover:bg-[#133824]/50 hover:text-white transition-all">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round"

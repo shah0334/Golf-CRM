@@ -19,6 +19,7 @@ import { PlayerComponent } from './admin-dashboard/player.component/player.compo
 import { StaffComponent } from './staff.component/staff.component';
 import { SetPasswordComponent } from './set-password/set-password.component';
 import { StaffSignupComponent } from './staff-signup/staff-signup.component';
+import { SettingComponent } from './setting.component/setting.component';
 
 const authGuard = () => {
   const router = inject(Router);
@@ -96,7 +97,8 @@ export const routes: Routes = [
       { path: 'create-event', component: CreateEventComponent },
 
       { path: 'player', component: PlayerComponent },
-      { path: 'staff', component: StaffComponent }
+      { path: 'staff', component: StaffComponent },
+      { path: 'setting', component: SettingComponent }
     ]
   },
   { path: 'admin-dashboard/roster', component: RosterComponent, canActivate: [authGuard] },
