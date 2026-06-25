@@ -1,7 +1,9 @@
-<div class="min-h-screen bg-cover bg-center bg-no-repeat text-[#FAF7F2] py-8 px-4 flex items-center justify-center font-sans"
+<div
+  class="min-h-screen bg-cover bg-center bg-no-repeat text-[#FAF7F2] py-8 px-4 flex items-center justify-center font-sans"
   style="background-image: linear-gradient(rgba(5, 27, 17, 0.8), rgba(5, 27, 17, 0.85)), url('/golf_course_bg.png');">
-  
-  <div class="w-full max-w-md bg-[#133824]/45 border border-[#FAF7F2]/10 backdrop-blur-md rounded-[32px] p-8 shadow-2xl relative overflow-hidden text-[#FAF7F2]">
+
+  <div
+    class="w-full max-w-md bg-[#133824]/45 border border-[#FAF7F2]/10 backdrop-blur-md rounded-[32px] p-8 shadow-2xl relative overflow-hidden text-[#FAF7F2]">
     <!-- Watermark Behind -->
     <div class="absolute -right-4 -bottom-10 opacity-5 pointer-events-none text-white select-none">
       <svg class="w-64 h-64" fill="currentColor" viewBox="0 0 24 24">
@@ -10,13 +12,16 @@
     </div>
 
     <div class="text-center space-y-3 mb-6 relative z-10">
-      <div class="w-16 h-16 mx-auto rounded-2xl bg-[#051B11] border border-[#DCAE5A]/45 text-[#DCAE5A] flex items-center justify-center shadow-lg">
+      <div
+        class="w-16 h-16 mx-auto rounded-2xl bg-[#051B11] border border-[#DCAE5A]/45 text-[#DCAE5A] flex items-center justify-center shadow-lg">
         <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a6 6 0 0 0-3.443-1.667.75.75 0 0 0-.257 0A6 6 0 0 0 10.5 18.72m9-11.22a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-9 0a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-3 11.22a6 6 0 0 0-3.443-1.667.75.75 0 0 0-.257 0A6 6 0 0 0 4.5 18.72m11-1.22a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M18 18.72a6 6 0 0 0-3.443-1.667.75.75 0 0 0-.257 0A6 6 0 0 0 10.5 18.72m9-11.22a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-9 0a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-3 11.22a6 6 0 0 0-3.443-1.667.75.75 0 0 0-.257 0A6 6 0 0 0 4.5 18.72m11-1.22a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
         </svg>
       </div>
       <h1 class="text-2xl font-serif font-black text-white tracking-tight">Staff Account Sign Up</h1>
-      <p class="text-xs text-[#7A9A8A] font-semibold uppercase tracking-wider">Register as a Golf Course Staff Member</p>
+      <p class="text-xs text-[#7A9A8A] font-semibold uppercase tracking-wider">Register as a Golf Course Staff Member
+      </p>
     </div>
 
     <form (ngSubmit)="submitSignup()" class="space-y-4 relative z-10">
@@ -39,23 +44,27 @@
       </div>
 
       <div>
-        <label class="block text-[10px] font-bold text-[#7A9A8A] uppercase tracking-widest mb-1.5">Select Club/Organization</label>
+        <label class="block text-[10px] font-bold text-[#7A9A8A] uppercase tracking-widest mb-1.5">Select
+          Club/Organization</label>
         <select [(ngModel)]="selectedOrgId" name="selectedOrgId" (change)="onOrgChange()" required
           class="block w-full rounded-xl border border-[#FAF7F2]/10 bg-[#051B11]/70 py-2.5 px-4 text-xs font-semibold focus:border-[#DCAE5A] focus:outline-none focus:ring-1 focus:ring-[#DCAE5A] transition-all text-white cursor-pointer">
           <option value="" disabled>-- Choose Organization --</option>
-          <option *ngFor="let org of organizations" [value]="org.id">{{ org.clubName || org.orgName || org.email }}</option>
+          <option *ngFor="let org of organizations" [value]="org.id">{{ org.clubName || org.orgName || org.email }}
+          </option>
         </select>
       </div>
 
       <div>
-        <label class="block text-[10px] font-bold text-[#7A9A8A] uppercase tracking-widest mb-1.5">Staff Invite Code</label>
+        <label class="block text-[10px] font-bold text-[#7A9A8A] uppercase tracking-widest mb-1.5">Staff Invite
+          Code</label>
         <input type="text" [(ngModel)]="inviteCode" name="inviteCode" required placeholder="Enter club invite code"
           class="block w-full rounded-xl border border-[#FAF7F2]/10 bg-[#051B11]/50 py-2.5 px-4 text-xs font-semibold focus:border-[#DCAE5A] focus:outline-none focus:ring-1 focus:ring-[#DCAE5A] transition-all text-white placeholder-white/20">
       </div>
 
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="block text-[10px] font-bold text-[#7A9A8A] uppercase tracking-widest mb-1.5">Assign Course</label>
+          <label class="block text-[10px] font-bold text-[#7A9A8A] uppercase tracking-widest mb-1.5">Assign
+            Course</label>
           <select [(ngModel)]="assignedCourse" name="assignedCourse" required
             class="block w-full rounded-xl border border-[#FAF7F2]/10 bg-[#051B11]/70 py-2.5 px-4 text-xs font-semibold focus:border-[#DCAE5A] focus:outline-none focus:ring-1 focus:ring-[#DCAE5A] transition-all text-white cursor-pointer">
             <option value="Unassigned">Unassigned</option>
@@ -64,7 +73,8 @@
         </div>
 
         <div>
-          <label class="block text-[10px] font-bold text-[#7A9A8A] uppercase tracking-widest mb-1.5">Initial Status</label>
+          <label class="block text-[10px] font-bold text-[#7A9A8A] uppercase tracking-widest mb-1.5">Initial
+            Status</label>
           <select [(ngModel)]="status" name="status" required
             class="block w-full rounded-xl border border-[#FAF7F2]/10 bg-[#051B11]/70 py-2.5 px-4 text-xs font-semibold focus:border-[#DCAE5A] focus:outline-none focus:ring-1 focus:ring-[#DCAE5A] transition-all text-white cursor-pointer">
             <option value="Active">Active</option>
@@ -73,7 +83,8 @@
         </div>
       </div>
 
-      <div *ngIf="errorMessage" class="text-red-400 text-xs font-semibold bg-red-950/30 border border-red-500/20 p-3 rounded-xl">
+      <div *ngIf="errorMessage"
+        class="text-red-400 text-xs font-semibold bg-red-950/30 border border-red-500/20 p-3 rounded-xl">
         {{ errorMessage }}
       </div>
 

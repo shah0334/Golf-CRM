@@ -84,7 +84,7 @@
         </div>
         <div>
           <div class="text-[9px] font-bold uppercase tracking-wider" style="color: #7A9A8A">Assigned Course</div>
-          <div class="text-xs font-extrabold text-white mt-0.5">{{ assignedCourse}}</div>
+          <div class="text-xs font-extrabold text-white mt-0.5">{{ assignedCourse || 'no assigned course' }}</div>
         </div>
       </div>
     </div>
@@ -294,7 +294,7 @@
   </div>
 
   <!-- Staff Quick Actions -->
-  <div *ngIf="isStaff" class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+  <div *ngIf="isStaff && !isDeactivated" class="grid  grid-cols-2 lg:grid-cols-4 gap-6">
 
     <!-- Create Event -->
     <div (click)="createTournament()"
@@ -366,7 +366,7 @@
 <!-- Assigned Course (Staff only) -->
 <section *ngIf="isStaff" class="space-y-4">
   <div class="flex items-center justify-between">
-    <h3 class="text-lg font-serif font-extrabold text-[#051B11]">
+    <h3 class="text-lg mt-4 font-serif font-extrabold text-[#051B11]">
       Assigned Course
     </h3>
     <span
@@ -375,8 +375,21 @@
     </span>
   </div>
 
+  <!-- Deactivated Staff Notice -->
+  <div *ngIf="isDeactivated" class="bg-red-50 border border-red-200 rounded-[24px] p-6 text-center space-y-2">
+    <div class="w-12 h-12 rounded-2xl bg-red-100/50 flex items-center justify-center mx-auto text-red-600">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+    </div>
+    <p class="text-sm font-bold text-red-800">Account Deactivated</p>
+    <p class="text-xs text-red-600/80 font-medium">Your account is deactivated. You do not have access to this course.
+    </p>
+  </div>
+
   <!-- Assigned Course Card -->
-  <div *ngIf="assignedCourse"
+  <div *ngIf="!isDeactivated && assignedCourse"
     class="bg-white border border-[#E1D9CD] rounded-3xl p-6 shadow-2xs hover:border-[#DCAE5A]/50 hover:shadow-xs transition-all">
     <div class="flex flex-col sm:flex-row sm:items-center gap-5">
 
@@ -423,7 +436,7 @@
   </div>
 
   <!-- No course assigned fallback -->
-  <div *ngIf="!assignedCourse"
+  <div *ngIf="!isDeactivated && !assignedCourse"
     class="bg-white border border-dashed border-[#E1D9CD] rounded-3xl p-8 text-center space-y-2">
     <div class="w-12 h-12 rounded-2xl bg-[#FAF7F2] flex items-center justify-center mx-auto">
       <svg class="w-6 h-6 text-[#7A9A8A]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -431,7 +444,7 @@
           d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.683c-.381.19-.622.58-.622 1.006v11.754c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
       </svg>
     </div>
-    <p class="text-sm font-bold text-[#051B11]">No Course Assigned</p>
+    <p class="text-sm font-bold text-[#051B11]">no assigned course yet</p>
     <p class="text-xs text-[#7A9A8A] font-medium">Contact your administrator to get assigned to a course.</p>
   </div>
 </section>
@@ -442,12 +455,25 @@
     <h3 class="text-lg font-serif font-extrabold text-[#051B11]">
       Your Tournaments
     </h3>
-    <button type="button" (click)="createTournament()"
-      class="px-4 py-2 bg-[#051B11] hover:bg-[#082b1c] text-white text-xs font-bold rounded-full transition-colors flex items-center gap-1.5 shadow-xs focus:outline-none cursor-pointer">
+    <button *ngIf="!isDeactivated" type="button" (click)="createTournament()"
+      class="px-4 py-2 mt-4 bg-[#051B11] hover:bg-[#082b1c] text-white text-xs font-bold rounded-full transition-colors flex items-center gap-1.5 shadow-xs focus:outline-none cursor-pointer">
       <span class="text-sm font-light leading-none">+</span> Create Event
     </button>
   </div>
 
+  @if (isDeactivated) {
+  <!-- Deactivated Tournaments Notice -->
+  <div class="bg-red-50 border border-red-200 rounded-[24px] p-6 text-center space-y-2">
+    <div class="w-12 h-12 rounded-2xl bg-red-100/50 flex items-center justify-center mx-auto text-red-600">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+    </div>
+    <p class="text-sm font-bold text-red-800">Access Denied</p>
+    <p class="text-xs text-red-600/80 font-medium">Your account is deactivated. You do not have access to events.</p>
+  </div>
+  } @else {
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     @for (trn of getFilteredTournaments(); track trn.id) {
     <div
@@ -564,6 +590,7 @@
     </div>
     }
   </div>
+  }
 </section>
 
 <!-- Scorecard Modal -->

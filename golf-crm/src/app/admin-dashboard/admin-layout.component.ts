@@ -25,6 +25,7 @@ export class AdminLayoutComponent implements OnInit {
   isStaff = false;
   staffName = '';
   assignedCourse = '';
+  isDeactivated = false;
 
   searchQuery = '';
   showArchived = false;
@@ -63,8 +64,11 @@ export class AdminLayoutComponent implements OnInit {
         if (org.role === 'Staff') {
           this.isStaff = true;
           this.staffName = org.fullName || org.name || org.email || 'Staff Member';
-          this.assignedCourse = org.assignedCourse || org.courseName || '';
+          const rawAssigned = org.assignedCourse || org.courseName || '';
+          this.assignedCourse = (rawAssigned === 'Unassigned') ? '' : rawAssigned;
           this.userName = this.staffName;
+          this.isDeactivated = org.status === 'Inactive';
+
           // Fetch real organization details to fix corrupted local storage orgName
           this.firebaseService.getOrganizations().subscribe({
             next: (orgs) => {
@@ -81,6 +85,22 @@ export class AdminLayoutComponent implements OnInit {
                     this.userInitials = updatedWords[0].substring(0, 2).toUpperCase();
                   }
                   
+                  this.cdr.detectChanges();
+                }
+              }
+            }
+          });
+
+          // Fetch fresh staff status to block access if deactivated
+          const orgDocId = this.firebaseService.getOrgDocId();
+          this.firebaseService.getStaff(orgDocId).subscribe({
+            next: (staffList) => {
+              if (staffList) {
+                const currentStaff = staffList.find(s => s.email?.toLowerCase() === org.email?.toLowerCase() || s.id === org.staffDocId);
+                if (currentStaff) {
+                  this.isDeactivated = currentStaff.status === 'Inactive';
+                  org.status = currentStaff.status;
+                  localStorage.setItem('activeOrganization', JSON.stringify(org));
                   this.cdr.detectChanges();
                 }
               }

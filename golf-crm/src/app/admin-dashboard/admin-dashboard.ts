@@ -61,6 +61,7 @@ export class AdminDashboard implements OnInit {
   staffName = '';
   assignedCourse = '';
   assignedOrgName = '';
+  isDeactivated = false;
 
   courses: Course[] = [
     {
@@ -127,8 +128,10 @@ export class AdminDashboard implements OnInit {
         if (org.role === 'Staff') {
           this.isStaff = true;
           this.staffName = org.fullName || org.name || org.email || 'Staff Member';
-          this.assignedCourse = org.assignedCourse || org.courseName || '';
+          const rawAssigned = org.assignedCourse || org.courseName || '';
+          this.assignedCourse = (rawAssigned === 'Unassigned') ? '' : rawAssigned;
           this.assignedOrgName = org.orgName || org.clubName || '';
+          this.isDeactivated = org.status === 'Inactive';
           
           // Fetch real organization details to fix corrupted local storage orgName
           this.firebaseService.getOrganizations().subscribe({
@@ -139,16 +142,25 @@ export class AdminDashboard implements OnInit {
                   if (parentOrg.orgName || parentOrg.clubName) {
                     this.assignedOrgName = parentOrg.orgName || parentOrg.clubName;
                   }
-                  // We always trust parentOrg.courseName as the highest priority source of truth for the organization's single course
-                  if (parentOrg.courseName && parentOrg.courseName !== 'Unassigned') {
-                    this.assignedCourse = parentOrg.courseName;
-                  } else if (parentOrg.courses && parentOrg.courses.length > 0) {
-                    const primary = parentOrg.courses.find((c: any) => c.id === 'CRS-001') || parentOrg.courses[0];
-                    this.assignedCourse = primary.name;
-                  }
                   
                   // Save parentOrg to a local property so we can use it in getCourses
                   (this as any)._fetchedParentOrg = parentOrg;
+                  this.cdr.detectChanges();
+                }
+              }
+            }
+          });
+
+          // Fetch fresh staff status to block access if deactivated
+          const orgDocId = this.firebaseService.getOrgDocId();
+          this.firebaseService.getStaff(orgDocId).subscribe({
+            next: (staffList) => {
+              if (staffList) {
+                const currentStaff = staffList.find(s => s.email?.toLowerCase() === org.email?.toLowerCase() || s.id === org.staffDocId);
+                if (currentStaff) {
+                  this.isDeactivated = currentStaff.status === 'Inactive';
+                  org.status = currentStaff.status;
+                  localStorage.setItem('activeOrganization', JSON.stringify(org));
                   this.cdr.detectChanges();
                 }
               }
@@ -184,23 +196,6 @@ export class AdminDashboard implements OnInit {
           next: (list) => {
             if (list && list.length > 0) {
               this.courses = list;
-              if (this.isStaff) {
-                const parentOrg = (this as any)._fetchedParentOrg;
-                // Only use the courses subcollection as a last resort if assignedCourse is missing
-                if (!this.assignedCourse || this.assignedCourse === 'Unassigned' || this.assignedCourse === 'Main Course') {
-                  const primary = list.find(c => c.id === 'CRS-001') || list[0];
-                  if (primary && primary.name) {
-                    this.assignedCourse = primary.name;
-                  }
-                }
-              }
-            } else if (this.isStaff && (!this.assignedCourse || this.assignedCourse === 'Unassigned')) {
-              // Fallback if subcollection is empty but we have courseName in local storage
-              if (org.courseName && org.courseName !== 'Unassigned') {
-                 this.assignedCourse = org.courseName;
-              } else {
-                 this.assignedCourse = 'Main Course'; // Absolute fallback
-              }
             }
             this.isLoading = false;
             this.cdr.detectChanges();
