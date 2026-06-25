@@ -66,6 +66,11 @@ export class SettingComponent implements OnInit {
   saveSettings() {
     if (this.isSaving) return;
 
+    if (this.isStaff && !this.newPassword) {
+      this.toastService.showWarning('Please enter a new password.');
+      return;
+    }
+
     if (this.newPassword) {
       if (this.newPassword.length < 6) {
         this.toastService.showError('New password must be at least 6 characters long.');
@@ -85,14 +90,15 @@ export class SettingComponent implements OnInit {
       if (activeOrgRaw) {
         const org = JSON.parse(activeOrgRaw);
         
-        const updatedData: any = {
-          orgName: this.orgName,
-          clubName: this.orgName,
-          phone: this.phone,
-          orgEmail: this.orgEmail,
-          email: this.orgEmail,
-          inviteCode: this.inviteCode
-        };
+        const updatedData: any = {};
+        if (!this.isStaff) {
+          updatedData.orgName = this.orgName;
+          updatedData.clubName = this.orgName;
+          updatedData.phone = this.phone;
+          updatedData.orgEmail = this.orgEmail;
+          updatedData.email = this.orgEmail;
+          updatedData.inviteCode = this.inviteCode;
+        }
 
         if (this.newPassword) {
           updatedData.password = this.newPassword;
@@ -106,9 +112,11 @@ export class SettingComponent implements OnInit {
             this.isSaving = false;
             const merged = { ...org, ...updatedData };
             localStorage.setItem('activeOrganization', JSON.stringify(merged));
-            localStorage.setItem('orgName', this.orgName);
-            localStorage.setItem('orgEmail', this.orgEmail);
-            window.dispatchEvent(new Event('local-storage-update'));
+            if (!this.isStaff) {
+              localStorage.setItem('orgName', this.orgName);
+              localStorage.setItem('orgEmail', this.orgEmail);
+              window.dispatchEvent(new Event('local-storage-update'));
+            }
             this.newPassword = '';
             this.confirmPassword = '';
             this.toastService.showSuccess('Settings updated successfully!');
