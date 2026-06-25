@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { FirebaseService } from '../../services/firebase.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-create-event.component',
@@ -15,6 +16,7 @@ export class CreateEventComponent implements OnInit {
   route = inject(ActivatedRoute);
   firebaseService = inject(FirebaseService);
   cd = inject(ChangeDetectorRef);
+  private toastService = inject(ToastService);
 
   currentStep = 1;
   totalSteps = 7;
@@ -167,7 +169,7 @@ export class CreateEventComponent implements OnInit {
           this.sponsors = trn.sponsors || [];
           this.cd.detectChanges();
         } else {
-          alert('Tournament not found. Starting a fresh form.');
+          this.toastService.showWarning('Tournament not found. Starting a fresh form.');
           this.isEditMode = false;
           this.eventId = 'EVT-' + Math.random().toString(36).substring(2, 8).toUpperCase();
           this.adminToken = 'ADM-' + Math.random().toString(36).substring(2, 8).toUpperCase() + '-' + Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -192,7 +194,7 @@ export class CreateEventComponent implements OnInit {
 
   copyText(text: string) {
     navigator.clipboard.writeText(text).then(() => {
-      alert('Copied to clipboard!');
+      this.toastService.showSuccess('Copied to clipboard!');
     });
   }
 
@@ -247,11 +249,11 @@ export class CreateEventComponent implements OnInit {
     save$.subscribe({
       next: () => {
         this.updateLocalCache(payload);
-        alert('Draft saved successfully! You can find it in your events list.');
+        this.toastService.showSuccess('Draft saved successfully! You can find it in your events list.');
       },
       error: (err) => {
         console.error('Failed to save draft:', err);
-        alert('Failed to save draft. Please try again.');
+        this.toastService.showError('Failed to save draft. Please try again.');
       }
     });
   }
@@ -265,12 +267,12 @@ export class CreateEventComponent implements OnInit {
       this.firebaseService.updateTournament(orgDocId, this.eventId, payload).subscribe({
         next: () => {
           this.updateLocalCache(payload);
-          alert('Tournament updated successfully!');
+          this.toastService.showSuccess('Tournament updated successfully!');
           this.router.navigate(['/admin-dashboard']);
         },
         error: (err) => {
           console.error('Failed to update tournament in Firebase:', err);
-          alert('Failed to update tournament. Please try again.');
+          this.toastService.showError('Failed to update tournament. Please try again.');
         }
       });
     } else {
@@ -278,12 +280,12 @@ export class CreateEventComponent implements OnInit {
       this.firebaseService.createTournament(orgDocId, payload).subscribe({
         next: () => {
           this.updateLocalCache(payload);
-          alert('Tournament created successfully!');
+          this.toastService.showSuccess('Tournament created successfully!');
           this.router.navigate(['/admin-dashboard']);
         },
         error: (err) => {
           console.error('Failed to create tournament in Firebase:', err);
-          alert('Failed to save tournament to Firebase. Please try again.');
+          this.toastService.showError('Failed to save tournament to Firebase. Please try again.');
         }
       });
     }
@@ -375,18 +377,18 @@ export class CreateEventComponent implements OnInit {
     this.firebaseService.updateTournament(orgDocId, this.eventId, payload).subscribe({
       next: () => {
         this.updateLocalCache(payload);
-        alert('Changes saved successfully!');
+        this.toastService.showSuccess('Changes saved successfully!');
       },
       error: (err) => {
         console.error('Failed to save changes in Firebase:', err);
-        alert('Failed to save changes. Please try again.');
+        this.toastService.showError('Failed to save changes. Please try again.');
       }
     });
   }
 
   closeTournament() {
     if (confirm('Are you sure you want to close this tournament?')) {
-      alert('Tournament closed successfully!');
+      this.toastService.showSuccess('Tournament closed successfully!');
       this.router.navigate(['/admin-dashboard']);
     }
   }
@@ -400,7 +402,7 @@ export class CreateEventComponent implements OnInit {
 
   addSponsor() {
     if (!this.sponsorDisplayName) {
-      alert('Please enter a sponsor display name.');
+      this.toastService.showError('Please enter a sponsor display name.');
       return;
     }
     this.sponsors.push({
@@ -409,7 +411,7 @@ export class CreateEventComponent implements OnInit {
       website: this.sponsorWebsite,
       logoUrl: this.sponsorLogoUrl
     });
-    alert(`Sponsor "${this.sponsorDisplayName}" added successfully!`);
+    this.toastService.showSuccess(`Sponsor "${this.sponsorDisplayName}" added successfully!`);
     this.clearSponsorForm();
   }
 }

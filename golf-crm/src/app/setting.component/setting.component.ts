@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { FirebaseService } from '../services/firebase.service';
+import { ToastService } from '../services/toast.service';
 
 @Component({
   selector: 'app-setting',
@@ -13,10 +14,10 @@ import { FirebaseService } from '../services/firebase.service';
 export class SettingComponent implements OnInit {
   private firebaseService = inject(FirebaseService);
   private router = inject(Router);
+  private toastService = inject(ToastService);
 
   isStaff = false;
-  successMessage = '';
-  errorMessage = '';
+  isSaving = false;
 
   // Admin settings fields
   orgName = '';
@@ -55,13 +56,13 @@ export class SettingComponent implements OnInit {
       }
     } catch (e) {
       console.error(e);
-      this.errorMessage = 'Failed to load settings data.';
+      this.toastService.showError('Failed to load settings data.');
     }
   }
 
   saveSettings() {
-    this.successMessage = '';
-    this.errorMessage = '';
+    if (this.isSaving) return;
+    this.isSaving = true;
 
     try {
       const activeOrgRaw = localStorage.getItem('activeOrganization');
@@ -82,24 +83,26 @@ export class SettingComponent implements OnInit {
 
         this.firebaseService.updateOrganization(email, uid, updatedData).subscribe({
           next: (res) => {
+            this.isSaving = false;
             const merged = { ...org, ...updatedData };
             localStorage.setItem('activeOrganization', JSON.stringify(merged));
             localStorage.setItem('orgName', this.orgName);
             localStorage.setItem('orgEmail', this.orgEmail);
-            this.successMessage = 'Settings updated successfully!';
-            setTimeout(() => {
-              this.successMessage = '';
-            }, 3000);
+            this.toastService.showSuccess('Settings updated successfully!');
           },
           error: (err) => {
+            this.isSaving = false;
             console.error(err);
-            this.errorMessage = 'Failed to update settings. Please try again.';
+            this.toastService.showError('Failed to update settings. Please try again.');
           }
         });
+      } else {
+        this.isSaving = false;
       }
     } catch (e) {
+      this.isSaving = false;
       console.error(e);
-      this.errorMessage = 'An error occurred while saving.';
+      this.toastService.showError('An error occurred while saving.');
     }
   }
 }

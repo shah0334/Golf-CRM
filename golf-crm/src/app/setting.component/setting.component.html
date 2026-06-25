@@ -36,24 +36,6 @@
         </div>
       </div>
 
-      <!-- Feedback Banner -->
-      @if (successMessage) {
-        <div class="bg-emerald-500/10 border border-emerald-500/35 text-emerald-400 text-xs font-bold px-4 py-3.5 rounded-xl mb-6 flex items-center gap-2">
-          <svg class="w-4 h-4 shrink-0 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-          </svg>
-          {{ successMessage }}
-        </div>
-      }
-      @if (errorMessage) {
-        <div class="bg-red-500/10 border border-red-500/35 text-red-400 text-xs font-bold px-4 py-3.5 rounded-xl mb-6 flex items-center gap-2">
-          <svg class="w-4 h-4 shrink-0 text-red-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-          </svg>
-          {{ errorMessage }}
-        </div>
-      }
-
       <!-- Role Based Forms -->
       @if (isStaff) {
         <!-- Staff View (Read-Only Info) -->
@@ -145,11 +127,19 @@
             </div>
           </div>
 
-          <!-- Submit Button -->
+      <!-- Submit Button -->
           <div class="pt-4 flex justify-end">
-            <button type="submit"
-              class="w-full md:w-auto px-8 py-3 bg-[#DCAE5A] hover:bg-[#DCAE5A]/90 text-[#051B11] font-extrabold text-xs rounded-xl tracking-wider uppercase transition-all shadow-md cursor-pointer select-none">
-              Save Settings
+            <button type="submit" [disabled]="isSaving"
+              class="w-full md:w-auto flex items-center justify-center gap-2 px-8 py-3 bg-[#DCAE5A] hover:bg-[#DCAE5A]/90 text-[#051B11] font-extrabold text-xs rounded-xl tracking-wider uppercase transition-all shadow-md cursor-pointer select-none disabled:opacity-50 disabled:cursor-not-allowed">
+              @if (isSaving) {
+                <svg class="animate-spin h-4 w-4 text-[#051B11]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Saving...</span>
+              } @else {
+                <span>Save Settings</span>
+              }
             </button>
           </div>
         </form>

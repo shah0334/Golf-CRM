@@ -1,3 +1,6 @@
+@if (isLoading) {
+  <app-loader [fullPage]="false" message="Loading Dashboard Standings..."></app-loader>
+} @else {
 <!-- Staff Welcome Card (Staff only) -->
 <section *ngIf="isStaff" class="mb-4 relative overflow-hidden rounded-[32px] animate-fade-in"
   style="background: linear-gradient(135deg, #051B11 0%, #0c3320 50%, #0f3d25 100%)">
@@ -76,7 +79,7 @@
           style="background: rgba(220,174,90,0.12)">
           <svg class="w-4.5 h-4.5" fill="none" stroke="#DCAE5A" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round"
-              d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317-.159-.69-.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.683c-.381.19-.622.58-.622 1.006v11.754c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
+              d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.683c-.381.19-.622.58-.622 1.006v11.754c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
           </svg>
         </div>
         <div>
@@ -261,7 +264,7 @@
         </div>
         <span
           class="bg-emerald-500/10 border border-emerald-500/35 text-emerald-400 text-[8px] font-extrabold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm">
-          <span class="w-1 h-1 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
           LIVE NOW
         </span>
       </div>
@@ -629,4 +632,5 @@
     </div>
   </div>
 </div>
+}
 }

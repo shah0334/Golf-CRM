@@ -2,6 +2,8 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FirebaseService } from '../services/firebase.service';
+import { LoaderComponent } from '../components/loader.component';
+import { ToastService } from '../services/toast.service';
 
 interface StaffMember {
   id: string; // e.g., STF-001
@@ -16,15 +18,17 @@ interface StaffMember {
 @Component({
   selector: 'app-staff.component',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LoaderComponent],
   templateUrl: './staff.component.html',
   styleUrl: './staff.component.css',
 })
 export class StaffComponent implements OnInit {
   private firebaseService = inject(FirebaseService);
   private cdr = inject(ChangeDetectorRef);
+  private toastService = inject(ToastService);
 
   staffList: StaffMember[] = [];
+  isLoading = true;
 
   // Statistics
   totalStaff = 0;
@@ -74,6 +78,7 @@ export class StaffComponent implements OnInit {
         this.staffList = list ? list.filter(s => s && s.email && !mockEmails.includes(s.email)) : [];
         this.saveStaff();
         this.calculateStats();
+        this.isLoading = false;
         this.cdr.detectChanges();
       },
       error: (e) => {
@@ -93,6 +98,7 @@ export class StaffComponent implements OnInit {
           }
         } catch (err) {}
         this.calculateStats();
+        this.isLoading = false;
         this.cdr.detectChanges();
       }
     });
@@ -153,7 +159,7 @@ export class StaffComponent implements OnInit {
       },
       error: (e) => {
         console.error('Failed to update status in Firestore, reverting:', e);
-        alert('Failed to update staff status in database: ' + (e.message || String(e)));
+        this.toastService.showError('Failed to update staff status in database: ' + (e.message || String(e)));
         // Revert on failure
         staff.status = oldStatus;
         this.saveStaff();
@@ -175,14 +181,14 @@ export class StaffComponent implements OnInit {
         },
         error: (e) => {
           console.error('Failed to delete staff from Firestore:', e);
-          alert('Failed to delete staff member from database: ' + (e.message || String(e)));
+          this.toastService.showError('Failed to delete staff member from database: ' + (e.message || String(e)));
         }
       });
     }
   }
 
   viewStaff(staff: StaffMember) {
-    alert(`Staff Member Details:\n\nName: ${staff.name}\nID: ${staff.id}\nEmail: ${staff.email}\nAssigned Course: ${staff.assignedCourse}\nStatus: ${staff.status}\nJoined: ${staff.joinDate}`);
+    this.toastService.showInfo(`Staff Details - Name: ${staff.name} | ID: ${staff.id} | Email: ${staff.email} | Course: ${staff.assignedCourse} | Status: ${staff.status} | Joined: ${staff.joinDate}`);
   }
 
   openAddModal() {
@@ -201,7 +207,7 @@ export class StaffComponent implements OnInit {
 
   submitAddStaff() {
     if (!this.newStaff.name || !this.newStaff.name.trim() || !this.newStaff.email || !this.newStaff.email.trim()) {
-      alert('Please fill out all fields.');
+      this.toastService.showError('Please fill out all fields.');
       return;
     }
     this.newStaff.email = this.newStaff.email.trim().toLowerCase();
@@ -285,7 +291,7 @@ export class StaffComponent implements OnInit {
             },
             error: (dbErr) => {
               console.error('Error saving staff to Firestore:', dbErr);
-              alert('Failed to save staff details in database: ' + (dbErr.message || String(dbErr)));
+              this.toastService.showError('Failed to save staff details in database: ' + (dbErr.message || String(dbErr)));
               this.isSendingEmail = false;
               this.cdr.detectChanges();
             }
@@ -293,7 +299,7 @@ export class StaffComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error adding staff member Auth:', err);
-          alert('Failed to register staff account: ' + (err.message || String(err)));
+          this.toastService.showError('Failed to register staff account: ' + (err.message || String(err)));
           this.isSendingEmail = false;
           this.cdr.detectChanges();
         }
@@ -366,7 +372,7 @@ export class StaffComponent implements OnInit {
         },
         error: (e) => {
           console.error('Failed to update assignment in Firestore:', e);
-          alert('Failed to update course assignment in database: ' + (e.message || String(e)));
+          this.toastService.showError('Failed to update course assignment in database: ' + (e.message || String(e)));
         }
       });
     }

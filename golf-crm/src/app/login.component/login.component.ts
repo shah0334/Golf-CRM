@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FirebaseService } from '../services/firebase.service';
+import { ToastService } from '../services/toast.service';
 
 @Component({
   selector: 'app-login.component',
@@ -18,6 +19,7 @@ export class LoginComponent implements OnInit {
   private router = inject(Router);
   private fb = inject(FormBuilder);
   private firebaseService = inject(FirebaseService);
+  private toastService = inject(ToastService);
   private cdr = inject(ChangeDetectorRef);
 
   form!: FormGroup;
@@ -72,6 +74,8 @@ export class LoginComponent implements OnInit {
           localStorage.removeItem('rememberMe');
         }
 
+        this.toastService.showSuccess(`Welcome back, ${orgData.orgName || orgData.clubName || 'User'}!`);
+
         // Redirect to admin dashboard
         this.router.navigate(['/admin-dashboard']);
         this.cdr.detectChanges();
@@ -85,6 +89,7 @@ export class LoginComponent implements OnInit {
         } else {
           this.errorMessage = 'Failed to sign in. Please verify your connection or console details.';
         }
+        this.toastService.showError(this.errorMessage);
         this.cdr.detectChanges();
       }
     });

@@ -1,3 +1,6 @@
+@if (isLoading) {
+  <app-loader [fullPage]="false" message="Loading Staff List..."></app-loader>
+} @else {
 <div class="space-y-8 animate-fade-in font-sans">
   
   <!-- Floating Toast Message -->
@@ -365,3 +368,4 @@
     </div>
 
 </div>
+}

@@ -4,6 +4,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import html2canvas from 'html2canvas-pro';
 import { FirebaseService } from '../../services/firebase.service';
+import { LoaderComponent } from '../../components/loader.component';
+import { ToastService } from '../../services/toast.service';
 
 interface Player {
   name: string;
@@ -20,7 +22,7 @@ interface TeamData {
 
 @Component({
   selector: 'app-scorecard.component',
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, LoaderComponent],
   templateUrl: './scorecard.component.html',
   styleUrl: './scorecard.component.css',
 })
@@ -29,6 +31,9 @@ export class ScorecardComponent implements OnInit {
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
   private firebaseService = inject(FirebaseService);
+  private toastService = inject(ToastService);
+
+  isScorecardLoading = false;
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
@@ -40,8 +45,8 @@ export class ScorecardComponent implements OnInit {
 
   tournamentId = '';
   isTeamBased = false;
-  tournamentName = 'Loading...';
-  courseName = 'Loading...';
+  tournamentName = '';
+  courseName = '';
   totalHoles = 18;
   totalPar = 72;
 
@@ -73,6 +78,7 @@ export class ScorecardComponent implements OnInit {
   }
 
   loadTournamentDetails() {
+    this.isScorecardLoading = true;
     try {
       const activeOrgRaw = localStorage.getItem('activeOrganization');
       if (activeOrgRaw) {
@@ -98,6 +104,7 @@ export class ScorecardComponent implements OnInit {
           this.courseName = targetCourseName || 'Oak Valley Championship Course';
           this.tournamentName = `${this.courseName} - Scorecard`;
           this.totalPar = targetPar;
+          this.isScorecardLoading = false;
           return;
         }
 
@@ -157,6 +164,7 @@ export class ScorecardComponent implements OnInit {
       }
     } catch (e) {
       console.error('Error loading tournament/course details:', e);
+      this.isScorecardLoading = false;
     }
   }
 
@@ -181,8 +189,13 @@ export class ScorecardComponent implements OnInit {
             this.selectedTeamName = this.teams[0].teamName;
           }
           this.loadScoresFromStorage();
-          this.cdr.detectChanges();
         }
+        this.isScorecardLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isScorecardLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -208,8 +221,13 @@ export class ScorecardComponent implements OnInit {
             this.selectedTeamName = this.teams[0].teamName;
           }
           this.loadScoresFromStorage();
-          this.cdr.detectChanges();
         }
+        this.isScorecardLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isScorecardLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -438,7 +456,7 @@ export class ScorecardComponent implements OnInit {
         p.inScores = [0, 0, 0, 0, 0, 0, 0, 0, 0];
       });
       this.saveScoresToStorage();
-      alert('Scores cleared and set to 0 successfully.');
+      this.toastService.showSuccess('Scores cleared and set to 0 successfully.');
     }
   }
 
@@ -448,9 +466,9 @@ export class ScorecardComponent implements OnInit {
     const incompleteIn = team.players.some(p => p.inScores.some(s => s === null || s === undefined));
     
     if (incompleteOut || incompleteIn) {
-      alert('Cannot finish the round yet. Some player scores are still missing for the scorecard holes.');
+      this.toastService.showWarning('Cannot finish the round yet. Some player scores are still missing for the scorecard holes.');
     } else {
-      alert(`Round successfully completed for Team ${this.selectedTeamName}! All player scores have been finalized.`);
+      this.toastService.showSuccess(`Round successfully completed for Team ${this.selectedTeamName}! All player scores have been finalized.`);
       this.router.navigate(['/admin-dashboard']);
     }
   }
@@ -458,14 +476,14 @@ export class ScorecardComponent implements OnInit {
   share() {
     const shareUrl = window.location.href;
     navigator.clipboard.writeText(shareUrl).then(() => {
-      alert('Scorecard share link copied to clipboard!');
+      this.toastService.showSuccess('Scorecard share link copied to clipboard!');
     });
   }
 
   saveAsImage() {
     const element = document.getElementById('scorecard-container');
     if (!element) {
-      alert('Scorecard element not found!');
+      this.toastService.showError('Scorecard element not found!');
       return;
     }
 
@@ -479,7 +497,7 @@ export class ScorecardComponent implements OnInit {
     // Handle ESM/CommonJS module interop
     const captureFn = (html2canvas as any).default || html2canvas;
     if (typeof captureFn !== 'function') {
-      alert('Failed to save scorecard as image: html2canvas library is not loaded properly.');
+      this.toastService.showError('Failed to save scorecard as image: html2canvas library is not loaded properly.');
       return;
     }
 
@@ -490,7 +508,7 @@ export class ScorecardComponent implements OnInit {
       link.click();
     }).catch((err: any) => {
       console.error('Error generating scorecard image:', err);
-      alert('Failed to save scorecard as image. Details: ' + (err?.message || err));
+      this.toastService.showError('Failed to save scorecard as image. Details: ' + (err?.message || err));
     });
   }
 }

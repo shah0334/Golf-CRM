@@ -1,3 +1,6 @@
+@if (isLoading) {
+  <app-loader [fullPage]="false" message="Loading Tournaments..."></app-loader>
+} @else {
 <div class="space-y-8 animate-fade-in">
     <!-- Header / Welcome Banner -->
     <section
@@ -321,3 +324,4 @@
         </div>
     </section>
 </div>
+}

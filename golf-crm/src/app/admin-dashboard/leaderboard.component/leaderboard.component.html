@@ -17,22 +17,7 @@
       {{ tournamentInfo.isLive ? 'AUTO-REFRESH • ' + lastRefreshTime : 'OFFLINE' }}
     </div>
   </div> @if (isLoading) {
-  <!-- Loader Container -->
-  <div class="flex flex-col items-center justify-center min-h-[60vh] max-w-6xl mx-auto text-center">
-    <div class="relative w-20 h-20 mb-6 flex items-center justify-center">
-      <!-- Golden outer ring spinner -->
-      <div class="absolute inset-0 rounded-full border-4 border-[#DCAE5A]/25 border-t-[#DCAE5A] animate-spin"></div>
-      <!-- Pulsing center cup/trophy icon -->
-      <svg class="w-8 h-8 text-[#DCAE5A] animate-pulse" fill="none" stroke="currentColor" stroke-width="1.8"
-        viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round"
-          d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0V9.75m-5.007 0V9.75m-5.007 0a3 3 0 01-3-3m-3.502 3a3 3 0 013-3m3.502 3h-3.502m3.502 0v1.5c0 .828-.672 1.5-1.5 1.5h-.5c-.828 0-1.5-.672-1.5-1.5v-1.5m1.5-6h-1.5" />
-      </svg>
-    </div>
-    <h3 class="text-[#DCAE5A] font-serif text-xl font-bold tracking-wider animate-pulse">Loading Leaderboard</h3>
-    <p class="text-[#7A9A8A] text-xs mt-2 uppercase tracking-widest font-sans font-bold">Synchronizing Live Standings...
-    </p>
-  </div>
+    <app-loader [fullPage]="false" message="Synchronizing Live Standings..."></app-loader>
   } @else {
   <!-- Main Leaderboard Board -->
   <div class="max-w-6xl mx-auto">
@@ -361,7 +346,7 @@
     }
 
   </div>
-  }>
+  }
 
   <!-- Bottom Fixed Sponsored Bar Ticker -->
   <div

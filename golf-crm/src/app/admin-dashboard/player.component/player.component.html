@@ -1,11 +1,6 @@
 <div class="min-h-screen bg-[#F5F5F5] p-6 flex flex-col items-center w-full relative">
     <!-- Global Loading Spinner Overlay -->
-    <div *ngIf="isLoading" class="fixed inset-0 bg-white/70 backdrop-blur-xs z-50 flex items-center justify-center">
-        <div class="flex flex-col items-center gap-3">
-            <div class="w-12 h-12 border-4 border-[#1B5E20] border-t-transparent rounded-full animate-spin"></div>
-            <p class="text-sm font-semibold text-[#0F3D2E]">Processing...</p>
-        </div>
-    </div>
+    <app-loader *ngIf="isLoading" [fullPage]="true" message="Processing..."></app-loader>
 
     <!-- Page Header -->
     <div class="w-full max-w-5xl flex justify-between items-center mb-6">

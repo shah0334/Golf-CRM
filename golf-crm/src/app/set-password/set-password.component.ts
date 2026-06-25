@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FirebaseService } from '../services/firebase.service';
+import { ToastService } from '../services/toast.service';
 
 @Component({
   selector: 'app-set-password',
@@ -61,6 +62,7 @@ export class SetPasswordComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private firebaseService = inject(FirebaseService);
+  private toastService = inject(ToastService);
 
   email = '';
   orgId = '';
@@ -118,7 +120,7 @@ export class SetPasswordComponent implements OnInit {
           localStorage.setItem(key, JSON.stringify(existing));
         }
 
-        alert('Password set successfully! You can now log in with your credentials.');
+        this.toastService.showSuccess('Password set successfully! You can now log in with your credentials.');
         this.router.navigate(['/']);
       } catch (e: any) {
         this.errorMessage = 'Failed to save password locally: ' + (e.message || String(e));

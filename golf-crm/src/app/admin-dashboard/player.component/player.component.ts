@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FirebaseService } from '../../services/firebase.service';
+import { LoaderComponent } from '../../components/loader.component';
+import { ToastService } from '../../services/toast.service';
 
 interface Player {
   id?: string;
@@ -35,7 +37,7 @@ interface Team {
 @Component({
   selector: 'app-player.component',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LoaderComponent],
   templateUrl: './player.component.html',
   styleUrl: './player.component.css',
 })
@@ -44,6 +46,7 @@ export class PlayerComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private firebaseService = inject(FirebaseService);
   private cdr = inject(ChangeDetectorRef);
+  private toastService = inject(ToastService);
 
   // Tournament/Event Context
   tournaments: any[] = [
@@ -388,7 +391,7 @@ export class PlayerComponent implements OnInit {
       });
     } else {
       if (!this.password) {
-        alert('Password is required for app access.');
+        this.toastService.showError('Password is required for app access.');
         this.isLoading = false;
         return;
       }
@@ -477,7 +480,7 @@ export class PlayerComponent implements OnInit {
     if (this.teamPlayers.length > 1) {
       this.teamPlayers.splice(index, 1);
     } else {
-      alert('A team must have at least 1 player.');
+      this.toastService.showError('A team must have at least 1 player.');
     }
   }
 
@@ -539,13 +542,13 @@ export class PlayerComponent implements OnInit {
 
   saveTeam(): void {
     if (!this.teamName || !this.captainName) {
-      alert('Team Name and Captain Name are required.');
+      this.toastService.showError('Team Name and Captain Name are required.');
       return;
     }
 
     const validPlayers = this.teamPlayers.filter(p => p.name.trim() !== '');
     if (validPlayers.length === 0) {
-      alert('Please add at least one player name.');
+      this.toastService.showError('Please add at least one player name.');
       return;
     }
 

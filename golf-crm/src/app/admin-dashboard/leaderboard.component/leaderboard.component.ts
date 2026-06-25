@@ -2,6 +2,8 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { FirebaseService } from '../../services/firebase.service';
+import { LoaderComponent } from '../../components/loader.component';
+import { ToastService } from '../../services/toast.service';
 
 interface TeamLeaderboard {
   rank: number;
@@ -38,7 +40,7 @@ interface SideGame {
 
 @Component({
   selector: 'app-leaderboard',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, LoaderComponent],
   templateUrl: './leaderboard.component.html',
   styleUrl: './leaderboard.component.css',
 })
@@ -46,6 +48,7 @@ export class LeaderboardComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private firebaseService = inject(FirebaseService);
   private cdr = inject(ChangeDetectorRef);
+  private toastService = inject(ToastService);
 
   activeTab: 'leaderboard' | 'sideGames' = 'leaderboard';
   isTVModeActive = false;
@@ -407,16 +410,16 @@ export class LeaderboardComponent implements OnInit {
       const minutes = String(now.getMinutes()).padStart(2, '0');
       this.lastRefreshTime = `${hours}:${minutes}`;
       this.cdr.detectChanges();
-      alert('Leaderboard data updated in real-time!');
+      this.toastService.showSuccess('Leaderboard data updated in real-time!');
     }, 500);
   }
 
   copyLeaderboardLink() {
     const pageUrl = window.location.href;
     navigator.clipboard.writeText(pageUrl).then(() => {
-      alert('Leaderboard share link copied to clipboard!');
+      this.toastService.showSuccess('Leaderboard share link copied to clipboard!');
     }).catch(() => {
-      alert('Failed to copy link.');
+      this.toastService.showError('Failed to copy link.');
     });
   }
 
@@ -427,7 +430,7 @@ export class LeaderboardComponent implements OnInit {
   toggleTVMode() {
     this.isTVModeActive = !this.isTVModeActive;
     if (this.isTVModeActive) {
-      alert('TV Widescreen Presentation Mode Active. Press ESC or click "Close TV Mode" to exit.');
+      this.toastService.showInfo('TV Widescreen Presentation Mode Active. Press ESC or click "Close TV Mode" to exit.');
     }
   }
 
@@ -470,7 +473,7 @@ export class LeaderboardComponent implements OnInit {
                 if (completed === updates.length) {
                   this.tournamentInfo.isLive = true;
                   this.loadLeaderboardData();
-                  alert('This leaderboard is now live! Previous live leaderboards have been deactivated.');
+                  this.toastService.showSuccess('This leaderboard is now live! Previous live leaderboards have been deactivated.');
                 }
               },
               error: () => {
@@ -486,7 +489,7 @@ export class LeaderboardComponent implements OnInit {
             next: () => {
               this.tournamentInfo.isLive = true;
               this.loadLeaderboardData();
-              alert('This leaderboard is now live!');
+              this.toastService.showSuccess('This leaderboard is now live!');
             }
           });
         }
@@ -496,7 +499,7 @@ export class LeaderboardComponent implements OnInit {
           next: () => {
             this.tournamentInfo.isLive = true;
             this.loadLeaderboardData();
-            alert('This leaderboard is now live!');
+            this.toastService.showSuccess('This leaderboard is now live!');
           }
         });
       }

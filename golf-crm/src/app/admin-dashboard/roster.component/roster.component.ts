@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { FirebaseService } from '../../services/firebase.service';
+import { LoaderComponent } from '../../components/loader.component';
+import { ToastService } from '../../services/toast.service';
 
 interface Team {
   id: string;
@@ -20,7 +22,7 @@ interface Team {
 
 @Component({
   selector: 'app-roster.component',
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, LoaderComponent],
   templateUrl: './roster.component.html',
   styleUrl: './roster.component.css',
 })
@@ -28,8 +30,11 @@ export class RosterComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private firebaseService = inject(FirebaseService);
+  private toastService = inject(ToastService);
   private cdr = inject(ChangeDetectorRef);
   eventId: string = '';
+  isRosterLoading = false;
+  isActionLoading = false;
   tournamentInfo: any = null;
   clubName: string = 'Classic Club';
   tournaments: any[] = [
@@ -77,6 +82,7 @@ export class RosterComponent implements OnInit {
   loadRosterData() {
     const orgDocId = this.firebaseService.getOrgDocId();
     const targetEventId = this.eventId || 'TRN-1042';
+    this.isRosterLoading = true;
 
     try {
       const activeOrgRaw = localStorage.getItem('activeOrganization');
@@ -274,15 +280,22 @@ export class RosterComponent implements OnInit {
 
             this.teams = mappedTeams;
             this.recalculateStats();
+            this.isRosterLoading = false;
             this.cdr.detectChanges();
           },
           error: (err) => {
             console.error('Error loading players for roster:', err);
+            this.isRosterLoading = false;
+            this.toastService.showError('Failed to load player information.');
+            this.cdr.detectChanges();
           }
         });
       },
       error: (err) => {
         console.error('Error loading teams for roster:', err);
+        this.isRosterLoading = false;
+        this.toastService.showError('Failed to load team roster.');
+        this.cdr.detectChanges();
       }
     });
   }
@@ -338,7 +351,7 @@ export class RosterComponent implements OnInit {
     if (this.modalTeamPlayers.length > 1) {
       this.modalTeamPlayers.splice(index, 1);
     } else {
-      alert('A team must have at least 1 player.');
+      this.toastService.showWarning('A team must have at least 1 player.');
     }
   }
 
@@ -352,15 +365,15 @@ export class RosterComponent implements OnInit {
         alertLevel: this.alertLevel
       }).subscribe({
         next: () => {
-          alert(`Organizer Alert Sent (${this.alertLevel}): "${this.organizerAlertText}"`);
+          this.toastService.showSuccess(`Organizer Alert Sent (${this.alertLevel}): "${this.organizerAlertText}"`);
         },
         error: (err) => {
           console.error(err);
-          alert('Failed to send alert to database.');
+          this.toastService.showError('Failed to send alert to database.');
         }
       });
     } else {
-      alert('Please enter an alert message first.');
+      this.toastService.showWarning('Please enter an alert message first.');
     }
   }
 
@@ -374,17 +387,18 @@ export class RosterComponent implements OnInit {
       alertLevel: 'Info'
     }).subscribe({
       next: () => {
-        alert('Alert cleared successfully.');
+        this.toastService.showSuccess('Alert cleared successfully.');
       },
       error: (err) => {
         console.error(err);
+        this.toastService.showError('Failed to clear alert.');
       }
     });
   }
 
   refreshData() {
     this.loadRosterData();
-    alert('Roster refreshed successfully.');
+    this.toastService.showSuccess('Roster refreshed successfully.');
   }
 
   copyRoster() {
@@ -392,7 +406,7 @@ export class RosterComponent implements OnInit {
       .map(t => `Team ${t.name} (Hole ${t.hole}): Captain ${t.captain}, Players: ${t.players.join(', ')}`)
       .join('\n');
     navigator.clipboard.writeText(rosterText).then(() => {
-      alert('Roster copied to clipboard!');
+      this.toastService.showSuccess('Roster copied to clipboard!');
     });
   }
 
@@ -401,12 +415,12 @@ export class RosterComponent implements OnInit {
     this.teams.forEach(t => allPlayers.push(...t.players));
     allPlayers.sort();
     navigator.clipboard.writeText(allPlayers.join('\n')).then(() => {
-      alert('Alphabetical player list copied to clipboard!');
+      this.toastService.showSuccess('Alphabetical player list copied to clipboard!');
     });
   }
 
   viewRulesSheet() {
-    alert('Displaying Rules Sheet builder...');
+    this.toastService.showInfo('Displaying Rules Sheet builder...');
   }
 
   goLive() {
@@ -436,7 +450,7 @@ export class RosterComponent implements OnInit {
                 completed++;
                 if (completed === updates.length) {
                   this.loadRosterData();
-                  alert('This leaderboard is now live! Previous live leaderboards have been deactivated.');
+                  this.toastService.showSuccess('This leaderboard is now live! Previous live leaderboards have been deactivated.');
                 }
               },
               error: () => {
@@ -451,7 +465,7 @@ export class RosterComponent implements OnInit {
           this.firebaseService.updateTournament(orgDocId, targetEventId, { isLive: true }).subscribe({
             next: () => {
               this.loadRosterData();
-              alert('This leaderboard is now live!');
+              this.toastService.showSuccess('This leaderboard is now live!');
             }
           });
         }
@@ -460,7 +474,7 @@ export class RosterComponent implements OnInit {
         this.firebaseService.updateTournament(orgDocId, targetEventId, { isLive: true }).subscribe({
           next: () => {
             this.loadRosterData();
-            alert('This leaderboard is now live!');
+            this.toastService.showSuccess('This leaderboard is now live!');
           }
         });
       }
@@ -482,11 +496,11 @@ export class RosterComponent implements OnInit {
       }
     });
     this.recalculateStats();
-    alert(`Auto-assigned ${assignedCount} team(s) to starting holes.`);
+    this.toastService.showSuccess(`Auto-assigned ${assignedCount} team(s) to starting holes.`);
   }
 
   createPairings() {
-    alert('Creating pairings and tee times configurations...');
+    this.toastService.showInfo('Creating pairings and tee times configurations...');
   }
 
   openAddTeamModal() {
@@ -540,7 +554,7 @@ export class RosterComponent implements OnInit {
 
     if (this.modalRegistrationType === 'Team') {
       if (!this.modalTeamName || !this.modalCaptainName) {
-        alert('Team Name and Captain Name are required.');
+        this.toastService.showWarning('Team Name and Captain Name are required.');
         return;
       }
 
@@ -563,16 +577,16 @@ export class RosterComponent implements OnInit {
         next: () => {
           this.closeAddTeamModal();
           this.loadRosterData();
-          alert('Team added successfully!');
+          this.toastService.showSuccess('Team added successfully!');
         },
         error: (err) => {
           console.error('Error creating team:', err);
-          alert('Failed to save team.');
+          this.toastService.showError('Failed to save team.');
         }
       });
     } else {
       if (!this.modalPlayerName || !this.modalPlayerEmail) {
-        alert('Player Name and Email are required.');
+        this.toastService.showWarning('Player Name and Email are required.');
         return;
       }
 
@@ -593,11 +607,11 @@ export class RosterComponent implements OnInit {
         next: () => {
           this.closeAddTeamModal();
           this.loadRosterData();
-          alert('Individual Player added successfully!');
+          this.toastService.showSuccess('Individual Player added successfully!');
         },
         error: (err) => {
           console.error('Error creating player:', err);
-          alert('Failed to save player.');
+          this.toastService.showError('Failed to save player.');
         }
       });
     }
@@ -623,7 +637,7 @@ export class RosterComponent implements OnInit {
   parseAndImportCSV(text: string) {
     const lines = text.split('\n').map(line => line.replace(/\r$/, '').trim());
     if (lines.length <= 1) {
-      alert('The CSV file is empty or invalid.');
+      this.toastService.showError('The CSV file is empty or invalid.');
       return;
     }
 
@@ -653,7 +667,7 @@ export class RosterComponent implements OnInit {
     const nameIdx = hasTeamName ? captainIdx : (captainIdx !== -1 ? captainIdx : header.findIndex(h => h === 'name' || h === 'player' || h === 'playername' || h === 'fullname'));
 
     if (!hasTeamName && nameIdx === -1) {
-      alert('Invalid CSV format. Must contain a "Name"/"Player" column or a "Team" and "Captain" column.');
+      this.toastService.showError('Invalid CSV format. Must contain a "Name"/"Player" column or a "Team" and "Captain" column.');
       return;
     }
 
@@ -662,7 +676,7 @@ export class RosterComponent implements OnInit {
     const rowsToProcess = lines.slice(1).filter(line => line !== '');
 
     if (rowsToProcess.length === 0) {
-      alert('No data rows found in CSV.');
+      this.toastService.showWarning('No data rows found in CSV.');
       return;
     }
 
@@ -704,7 +718,7 @@ export class RosterComponent implements OnInit {
             completedCount++;
             if (completedCount === importCount) {
               this.loadRosterData();
-              alert(`Successfully imported ${completedCount} team(s) from CSV!`);
+              this.toastService.showSuccess(`Successfully imported ${completedCount} team(s) from CSV!`);
             }
           },
           error: (err) => {
@@ -730,7 +744,7 @@ export class RosterComponent implements OnInit {
             completedCount++;
             if (completedCount === importCount) {
               this.loadRosterData();
-              alert(`Successfully imported ${completedCount} player(s) from CSV!`);
+              this.toastService.showSuccess(`Successfully imported ${completedCount} player(s) from CSV!`);
             }
           },
           error: (err) => {
@@ -763,11 +777,11 @@ export class RosterComponent implements OnInit {
   }
 
   printPlacards() {
-    alert('Preparing print layout for cart placards...');
+    this.toastService.showInfo('Preparing print layout for cart placards...');
   }
 
   copyPairings() {
-    alert('Pairings links copied to clipboard!');
+    this.toastService.showSuccess('Pairings links copied to clipboard!');
   }
 
   printPairings() {
@@ -775,7 +789,7 @@ export class RosterComponent implements OnInit {
   }
 
   sortByTeeTime() {
-    alert('Sorting roster by Tee Time / Assignment Order...');
+    this.toastService.showInfo('Sorting roster by Tee Time / Assignment Order...');
   }
 
   openScorecard(team: Team) {
@@ -808,7 +822,7 @@ export class RosterComponent implements OnInit {
       if (team.id.startsWith('TEM-')) {
         this.firebaseService.updateTeam(orgDocId, targetEventId, team.id, { hole: newHole.toUpperCase() }).subscribe({
           next: () => this.loadRosterData(),
-          error: (err) => alert('Failed to update hole assignment in database.')
+          error: (err) => this.toastService.showError('Failed to update hole assignment in database.')
         });
       } else {
         // Fallback for mock data
@@ -828,12 +842,12 @@ export class RosterComponent implements OnInit {
       if (team.id.startsWith('TEM-')) {
         this.firebaseService.deleteTeam(orgDocId, targetEventId, team.id).subscribe({
           next: () => this.loadRosterData(),
-          error: (err) => alert('Failed to delete team from database.')
+          error: (err) => this.toastService.showError('Failed to delete team from database.')
         });
       } else if (team.id.startsWith('PLY-') && team.id !== 'TEAM-001') {
         this.firebaseService.deletePlayer(orgDocId, targetEventId, team.id).subscribe({
           next: () => this.loadRosterData(),
-          error: (err) => alert('Failed to delete player from database.')
+          error: (err) => this.toastService.showError('Failed to delete player from database.')
         });
       } else {
         // Fallback for mock data
@@ -848,7 +862,7 @@ export class RosterComponent implements OnInit {
       .map(t => `Team ${t.name}: https://golfscorepro.com/scorecard/${t.scorecard}`)
       .join('\n');
     navigator.clipboard.writeText(linksText).then(() => {
-      alert('All team scorecard links copied to clipboard!');
+      this.toastService.showSuccess('All team scorecard links copied to clipboard!');
     });
   }
 

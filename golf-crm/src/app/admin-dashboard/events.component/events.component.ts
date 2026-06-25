@@ -4,6 +4,8 @@ import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AdminLayoutComponent } from '../admin-layout.component';
 import { FirebaseService } from '../../services/firebase.service';
+import { LoaderComponent } from '../../components/loader.component';
+import { ToastService } from '../../services/toast.service';
 
 interface Tournament {
   id: string;
@@ -17,7 +19,7 @@ interface Tournament {
 @Component({
   selector: 'app-events',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, LoaderComponent],
   templateUrl: './events.component.html',
   styleUrl: './events.component.css',
 })
@@ -26,8 +28,10 @@ export class EventsComponent implements OnInit {
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
   private firebaseService = inject(FirebaseService);
+  private toastService = inject(ToastService);
 
   selectedTag: 'ALL' | 'TOURNAMENT' | 'CLINIC' | 'CAMP' = 'ALL';
+  isLoading = true;
 
   tournaments: Tournament[] = [
     {
@@ -86,8 +90,14 @@ export class EventsComponent implements OnInit {
         if (list) {
           this.tournaments = list;
           this.saveTournamentsToStorage();
-          this.cdr.detectChanges();
         }
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error loading tournaments from Firebase:', err);
+        this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -165,16 +175,16 @@ export class EventsComponent implements OnInit {
         next: () => {
           trn.status = nextStatus;
           if (nextStatus === 'ACTIVE') {
-            alert(`Tournament "${trn.name}" restored successfully.`);
+            this.toastService.showSuccess(`Tournament "${trn.name}" restored successfully.`);
           } else {
-            alert(`Tournament "${trn.name}" archived successfully.`);
+            this.toastService.showSuccess(`Tournament "${trn.name}" archived successfully.`);
           }
           this.saveTournamentsToStorage();
           this.cdr.detectChanges();
         },
         error: (err) => {
           console.error('Failed to archive tournament in Firebase:', err);
-          alert('Failed to archive tournament on server. Please try again.');
+          this.toastService.showError('Failed to archive tournament on server. Please try again.');
         }
       });
     }
@@ -188,12 +198,12 @@ export class EventsComponent implements OnInit {
         next: () => {
           this.tournaments = this.tournaments.filter(t => t.id !== id);
           this.saveTournamentsToStorage();
-          alert('Tournament deleted successfully.');
+          this.toastService.showSuccess('Tournament deleted successfully.');
           this.cdr.detectChanges();
         },
         error: (err) => {
           console.error('Failed to delete tournament in Firebase:', err);
-          alert('Failed to delete tournament on server. Please try again.');
+          this.toastService.showError('Failed to delete tournament on server. Please try again.');
         }
       });
     }

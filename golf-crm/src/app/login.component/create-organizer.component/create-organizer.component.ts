@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RegistrationService } from '../../services/registration.service';
 import { FirebaseService } from '../../services/firebase.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-create-organizer',
@@ -20,6 +21,7 @@ export class CreateOrganizerComponent implements OnInit {
   private fb = inject(FormBuilder);
   private registrationService = inject(RegistrationService);
   private firebaseService = inject(FirebaseService);
+  private toastService = inject(ToastService);
   private cdr = inject(ChangeDetectorRef);
 
   form!: FormGroup;
@@ -56,6 +58,7 @@ export class CreateOrganizerComponent implements OnInit {
           this.isLoading = false;
           if (exists) {
             this.errorMessage = 'This email is already registered. Please use a different email or sign in.';
+            this.toastService.showError(this.errorMessage);
           } else {
             const currentData = this.registrationService.getData();
             const oldEmail = currentData.email;
@@ -71,6 +74,7 @@ export class CreateOrganizerComponent implements OnInit {
           this.isLoading = false;
           console.error('Error checking email availability:', err);
           this.errorMessage = 'Failed to verify email availability. Please check your network connection.';
+          this.toastService.showError(this.errorMessage);
           this.cdr.detectChanges();
         }
       });

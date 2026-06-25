@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { FirebaseService } from '../services/firebase.service';
 import { environment } from '../../environments/environment';
+import { ToastService } from '../services/toast.service';
 
 @Component({
   selector: 'app-staff-signup',
@@ -15,6 +16,7 @@ export class StaffSignupComponent implements OnInit {
   private router = inject(Router);
   private firebaseService = inject(FirebaseService);
   private cdr = inject(ChangeDetectorRef);
+  private toastService = inject(ToastService);
 
   name = '';
   email = '';
@@ -142,11 +144,11 @@ export class StaffSignupComponent implements OnInit {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(firestoreBody)
               }).then(() => {
-                alert('Staff account activated successfully! You can now log in.');
+                this.toastService.showSuccess('Staff account activated successfully! You can now log in.');
                 this.router.navigate(['/']);
               }).catch(e => {
                 console.error('Error updating credentials pointer:', e);
-                alert('Staff account activated successfully! You can now log in.');
+                this.toastService.showSuccess('Staff account activated successfully! You can now log in.');
                 this.router.navigate(['/']);
               });
             } else {
@@ -164,11 +166,11 @@ export class StaffSignupComponent implements OnInit {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(firestoreBody)
               }).then(() => {
-                alert('Staff account activated successfully! You can now log in.');
+                this.toastService.showSuccess('Staff account activated successfully! You can now log in.');
                 this.router.navigate(['/']);
               }).catch(e => {
                 console.error('Error creating credentials pointer:', e);
-                alert('Staff account activated successfully! You can now log in.');
+                this.toastService.showSuccess('Staff account activated successfully! You can now log in.');
                 this.router.navigate(['/']);
               });
             }
@@ -183,7 +185,7 @@ export class StaffSignupComponent implements OnInit {
               }
             } catch (e) {}
 
-            alert('Staff account activated successfully! You can now log in.');
+            this.toastService.showSuccess('Staff account activated successfully! You can now log in.');
             this.router.navigate(['/']);
           }
         },
@@ -221,11 +223,11 @@ export class StaffSignupComponent implements OnInit {
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(firestoreBody)
             }).then(() => {
-              alert('Staff account created successfully! You can now log in.');
+              this.toastService.showSuccess('Staff account created successfully! You can now log in.');
               this.router.navigate(['/']);
             }).catch(e => {
               console.error('Error saving credentials pointer:', e);
-              alert('Staff account created successfully! You can now log in.');
+              this.toastService.showSuccess('Staff account created successfully! You can now log in.');
               this.router.navigate(['/']);
             });
           } else {
@@ -239,7 +241,7 @@ export class StaffSignupComponent implements OnInit {
               }
             } catch (e) {}
 
-            alert('Staff account created successfully! You can now log in.');
+            this.toastService.showSuccess('Staff account created successfully! You can now log in.');
             this.router.navigate(['/']);
           }
         },

@@ -5,6 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { RegistrationService } from '../services/registration.service';
 import { FirebaseService } from '../services/firebase.service';
 import { AdminLayoutComponent } from './admin-layout.component';
+import { LoaderComponent } from '../components/loader.component';
+import { ToastService } from '../services/toast.service';
 
 interface Course {
   id: string;
@@ -35,7 +37,7 @@ interface Tournament {
 
 @Component({
   selector: 'app-admin-dashboard',
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, LoaderComponent],
   templateUrl: './admin-dashboard.html',
   styleUrl: './admin-dashboard.css',
 })
@@ -45,12 +47,14 @@ export class AdminDashboard implements OnInit {
   private registrationService = inject(RegistrationService);
   private firebaseService = inject(FirebaseService);
   public layout = inject(AdminLayoutComponent);
+  private toastService = inject(ToastService);
 
   copiedCourseId: string | null = null;
   selectedScorecardUrl: string | null = null;
   showQrModal = false;
   qrCodeUrl = '';
   qrCourseName = '';
+  isLoading = true;
 
   // Staff dashboard properties
   isStaff = false;
@@ -187,7 +191,6 @@ export class AdminDashboard implements OnInit {
                   }
                 }
               }
-              this.cdr.detectChanges();
             } else if (this.isStaff && (!this.assignedCourse || this.assignedCourse === 'Unassigned')) {
               // Fallback if subcollection is empty but we have courseName in local storage
               if (org.courseName && org.courseName !== 'Unassigned') {
@@ -195,8 +198,14 @@ export class AdminDashboard implements OnInit {
               } else {
                  this.assignedCourse = 'Main Course'; // Absolute fallback
               }
-              this.cdr.detectChanges();
             }
+            this.isLoading = false;
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            console.error('Error fetching courses from Firestore:', err);
+            this.isLoading = false;
+            this.cdr.detectChanges();
           }
         });
  
@@ -235,6 +244,7 @@ export class AdminDashboard implements OnInit {
       }
     } catch (e) {
       console.error('Error loading active organization details on dashboard:', e);
+      this.isLoading = false;
     }
   }
 
@@ -425,16 +435,16 @@ export class AdminDashboard implements OnInit {
         next: () => {
           trn.status = nextStatus;
           if (nextStatus === 'ACTIVE') {
-            alert(`Tournament "${trn.name}" restored successfully.`);
+            this.toastService.showSuccess(`Tournament "${trn.name}" restored successfully.`);
           } else {
-            alert(`Tournament "${trn.name}" archived successfully.`);
+            this.toastService.showSuccess(`Tournament "${trn.name}" archived successfully.`);
           }
           this.saveTournamentsToStorage();
           this.cdr.detectChanges();
         },
         error: (err) => {
           console.error('Failed to archive tournament in Firebase:', err);
-          alert('Failed to archive tournament on server. Please try again.');
+          this.toastService.showError('Failed to archive tournament on server. Please try again.');
         }
       });
     }
@@ -448,12 +458,12 @@ export class AdminDashboard implements OnInit {
         next: () => {
           this.tournaments = this.tournaments.filter(t => t.id !== id);
           this.saveTournamentsToStorage();
-          alert('Tournament deleted successfully.');
+          this.toastService.showSuccess('Tournament deleted successfully.');
           this.cdr.detectChanges();
         },
         error: (err) => {
           console.error('Failed to delete tournament in Firebase:', err);
-          alert('Failed to delete tournament on server. Please try again.');
+          this.toastService.showError('Failed to delete tournament on server. Please try again.');
         }
       });
     }
@@ -464,7 +474,7 @@ export class AdminDashboard implements OnInit {
     if (url) {
       this.selectedScorecardUrl = url;
     } else {
-      alert('No scorecard image has been uploaded for this course.');
+      this.toastService.showWarning('No scorecard image has been uploaded for this course.');
     }
   }
 }
