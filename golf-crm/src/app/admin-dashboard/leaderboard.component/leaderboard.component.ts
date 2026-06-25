@@ -11,6 +11,16 @@ interface TeamLeaderboard {
   netToParStr: string; // e.g. "-7", "E", "+2"
   thru: string; // "16", "completed", etc.
   updatedTime: string;
+  scoresOut?: (number | null)[];
+  scoresIn?: (number | null)[];
+  parsOut?: number[];
+  parsIn?: number[];
+  totalScore?: number;
+  totalPar?: number;
+  outScore?: number;
+  inScore?: number;
+  outPar?: number;
+  inPar?: number;
 }
 
 interface Sponsor {
@@ -43,6 +53,7 @@ export class LeaderboardComponent implements OnInit {
   lastRefreshTime = '17:49';
   eventId = '';
   isTeamBased = false;
+  selectedTeam: TeamLeaderboard | null = null;
 
   isLoading = true;
 
@@ -210,29 +221,46 @@ export class LeaderboardComponent implements OnInit {
                     let netToPar = 0;
                     let thruStr = '0';
                     
+                    let scoresOut: (number | null)[] = Array(9).fill(null);
+                    let scoresIn: (number | null)[] = Array(9).fill(null);
+                    let outScore = 0;
+                    let inScore = 0;
+
                     if (sTeam?.scores?.[0]) {
                       const pScores = sTeam.scores[0];
                       let pScoreTotal = 0;
                       let pParTotal = 0;
                       let pThru = 0;
                       (pScores.out || []).forEach((score: any, idx: number) => {
-                        if (score !== null && score > 0) {
-                          pScoreTotal += score;
-                          pParTotal += courseParsOut[idx];
-                          pThru++;
+                        if (idx < 9) {
+                          scoresOut[idx] = score;
+                          if (score !== null && score > 0) {
+                            pScoreTotal += score;
+                            pParTotal += courseParsOut[idx];
+                            pThru++;
+                            outScore += score;
+                          }
                         }
                       });
                       (pScores.in || []).forEach((score: any, idx: number) => {
-                        if (score !== null && score > 0) {
-                          pScoreTotal += score;
-                          pParTotal += courseParsIn[idx];
-                          pThru++;
+                        if (idx < 9) {
+                          scoresIn[idx] = score;
+                          if (score !== null && score > 0) {
+                            pScoreTotal += score;
+                            pParTotal += courseParsIn[idx];
+                            pThru++;
+                            inScore += score;
+                          }
                         }
                       });
                       netToPar = pScoreTotal - pParTotal;
                       thruStr = pThru === 18 ? 'completed' : String(pThru);
                     }
 
+                    const outPar = courseParsOut.reduce((acc, p) => acc + p, 0);
+                    const inPar = courseParsIn.reduce((acc, p) => acc + p, 0);
+                    const totalPar = outPar + inPar;
+                    const totalScore = outScore + inScore;
                     const playersInfoStr = `${(t.players || []).map((p: any) => p.name).join(' • ') || t.captain} • Hole ${t.hole || 'Unassigned'}`;
 
                     leaderboardTeams.push({
@@ -242,7 +270,17 @@ export class LeaderboardComponent implements OnInit {
                       netToPar: netToPar,
                       netToParStr: netToPar === 0 ? 'E' : (netToPar > 0 ? `+${netToPar}` : `${netToPar}`),
                       thru: thruStr,
-                      updatedTime: 'Just now'
+                      updatedTime: 'Just now',
+                      scoresOut,
+                      scoresIn,
+                      parsOut: courseParsOut,
+                      parsIn: courseParsIn,
+                      totalScore,
+                      totalPar,
+                      outScore,
+                      inScore,
+                      outPar,
+                      inPar
                     });
                   });
                 }
@@ -256,28 +294,46 @@ export class LeaderboardComponent implements OnInit {
                       let netToPar = 0;
                       let thruStr = '0';
                       
+                      let scoresOut: (number | null)[] = Array(9).fill(null);
+                      let scoresIn: (number | null)[] = Array(9).fill(null);
+                      let outScore = 0;
+                      let inScore = 0;
+
                       if (sTeam?.scores?.[0]) {
                         const pScores = sTeam.scores[0];
                         let pScoreTotal = 0;
                         let pParTotal = 0;
                         let pThru = 0;
                         (pScores.out || []).forEach((score: any, idx: number) => {
-                          if (score !== null && score > 0) {
-                            pScoreTotal += score;
-                            pParTotal += courseParsOut[idx];
-                            pThru++;
+                          if (idx < 9) {
+                            scoresOut[idx] = score;
+                            if (score !== null && score > 0) {
+                              pScoreTotal += score;
+                              pParTotal += courseParsOut[idx];
+                              pThru++;
+                              outScore += score;
+                            }
                           }
                         });
                         (pScores.in || []).forEach((score: any, idx: number) => {
-                          if (score !== null && score > 0) {
-                            pScoreTotal += score;
-                            pParTotal += courseParsIn[idx];
-                            pThru++;
+                          if (idx < 9) {
+                            scoresIn[idx] = score;
+                            if (score !== null && score > 0) {
+                              pScoreTotal += score;
+                              pParTotal += courseParsIn[idx];
+                              pThru++;
+                              inScore += score;
+                            }
                           }
                         });
                         netToPar = pScoreTotal - pParTotal;
                         thruStr = pThru === 18 ? 'completed' : String(pThru);
                       }
+
+                      const outPar = courseParsOut.reduce((acc, val) => acc + val, 0);
+                      const inPar = courseParsIn.reduce((acc, val) => acc + val, 0);
+                      const totalPar = outPar + inPar;
+                      const totalScore = outScore + inScore;
 
                       leaderboardTeams.push({
                         rank: 1,
@@ -286,7 +342,17 @@ export class LeaderboardComponent implements OnInit {
                         netToPar: netToPar,
                         netToParStr: netToPar === 0 ? 'E' : (netToPar > 0 ? `+${netToPar}` : `${netToPar}`),
                         thru: thruStr,
-                        updatedTime: 'Just now'
+                        updatedTime: 'Just now',
+                        scoresOut,
+                        scoresIn,
+                        parsOut: courseParsOut,
+                        parsIn: courseParsIn,
+                        totalScore,
+                        totalPar,
+                        outScore,
+                        inScore,
+                        outPar,
+                        inPar
                       });
                     }
                   });
@@ -366,7 +432,11 @@ export class LeaderboardComponent implements OnInit {
   }
 
   openScorecard(team: TeamLeaderboard) {
-    alert(`Opening live scorecard details for ${team.name}...`);
+    this.selectedTeam = team;
+  }
+
+  closeScorecard() {
+    this.selectedTeam = null;
   }
 
   goLive() {

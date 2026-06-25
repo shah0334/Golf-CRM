@@ -93,154 +93,271 @@
         </span>
       </div>
     </div>
-    <!-- Toggle Tab Pills Container -->
-    <div class="flex justify-start mb-6">
-      <div
-        class="inline-flex p-1 bg-[#051B11]/55 border border-[#FAF7F2]/10 rounded-2xl shadow-inner z-10 relative font-sans">
-        <button (click)="toggleTab('leaderboard')"
-          class="font-extrabold text-xs py-2.5 px-5 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer select-none font-sans"
-          [ngClass]="activeTab === 'leaderboard' ? 'bg-[#DCAE5A] text-[#051B11] shadow-md' : 'text-[#7A9A8A] hover:text-[#FAF7F2]'">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871" />
-          </svg>
-          Leaderboard
-        </button>
-      </div>
-    </div>
-
-    <!-- Active Tab: Leaderboard Table -->
-    @if (activeTab === 'leaderboard') {
-    <div
-      class="z-10 relative bg-[#0B2316]/75 border border-[#FAF7F2]/10 backdrop-blur-md rounded-[24px] overflow-hidden shadow-2xl">
-
-      <!-- Table Column Headers (Aligned precisely with data columns) -->
-      <div
-        class="hidden md:grid grid-cols-[70px_1fr_120px_100px_100px] gap-4 text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-widest px-6 py-4 border-b border-[#FAF7F2]/10 bg-transparent font-sans">
-        <div class="text-left pl-4">RANK</div>
-        <div class="text-left">TEAMS</div>
-        <div class="text-right pr-6">NET TO PAR</div>
-        <div class="text-center">THRU</div>
-        <div class="text-right pr-4">UPDATED</div>
-      </div>
-
-      <!-- Leaderboard Rows List with alternating green backgrounds -->
-      <div class="font-sans">
-        @for (team of teams; track team.rank) {
-        <div (click)="openScorecard(team)"
-          class="px-6 py-5 grid grid-cols-12 gap-y-3 items-center hover:bg-white/[0.05] transition-all cursor-pointer group relative md:grid-cols-[70px_1fr_120px_100px_100px] md:gap-4"
-          [ngClass]="team.rank % 2 !== 0 ? 'bg-[#133824]/30' : 'bg-transparent'">
-
-          <!-- RANK Badge -->
-          <div class="col-span-2 md:col-auto flex items-center justify-start pl-4">
-            <!-- Rank Circle Badge with precise styling, glow shadows, and text colors -->
-            <div
-              class="w-11 h-11 rounded-full flex items-center justify-center font-serif font-black text-base shadow-sm transition-all shrink-0"
-              [ngClass]="{
-                      'bg-gradient-to-b from-[#FCD667] to-[#F5A623] text-[#051B11] shadow-[0_0_12px_rgba(245,166,35,0.35)]': team.rank === 1,
-                      'bg-gradient-to-b from-white to-[#B8C5C0] text-[#051B11] shadow-[0_0_12px_rgba(255,255,255,0.25)]': team.rank === 2,
-                      'bg-gradient-to-b from-[#FFA767] to-[#D05A16] text-[#051B11] shadow-[0_0_12px_rgba(208,90,22,0.25)]': team.rank === 3,
-                      'border border-white/20 text-white bg-transparent font-serif font-bold': team.rank > 3
-                    }">
-              {{ team.rank }}
-            </div>
-          </div>
-
-          <!-- TEAM Info (Playfair Display serif for name, Inter for description) -->
-          <div class="col-span-10 md:col-auto flex flex-col justify-center pl-1 md:pl-0">
-            <h3
-              class="text-base md:text-[17px] font-serif font-bold text-white tracking-tight leading-snug group-hover:text-[#DCAE5A] transition-colors">
-              {{ team.name }}
-            </h3>
-            <div class="text-[11px] text-[#7A9A8A] font-medium mt-1.5 flex items-center gap-1.5 min-w-0">
-              <!-- User group outline SVG icon before players info -->
-              <svg class="w-3.5 h-3.5 text-[#7A9A8A]/80 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8"
-                viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A11.386 11.386 0 018.625 21c-2.28 0-4.4-.67-6.18-1.825a3.984 3.984 0 012.7-3.175 4.045 4.045 0 013.905.748 4.087 4.087 0 011.5 3.175V19.13zM15 9.75a3 3 0 11-6 0 3 3 0 016 0zm6.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-              </svg>
-              <span class="truncate pr-2 font-sans">{{ team.playersInfo }}</span>
-            </div>
-          </div>
-
-          <!-- NET TO PAR Score (Right-aligned to match headers) -->
-          <div
-            class="col-span-4 md:col-auto flex items-center justify-start md:justify-end mt-2 md:mt-0 gap-1.5 md:gap-0 md:pr-6">
-            <span class="md:hidden text-[9px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mr-1">NET</span>
-            <!-- Exact color coding matching mockup scores -->
-            <span class="text-2xl md:text-[28px] font-black tracking-tight font-sans" [ngClass]="{
-                      'text-[#3CD2A5]': team.netToPar < 0,
-                      'text-[#DCAE5A]': team.netToPar === 0,
-                      'text-[#FFA2A2]': team.netToPar > 0
-                    }">
-              {{ team.netToParStr }}
-            </span>
-          </div>
-
-          <!-- THRU Holes (Centered) -->
-          <div
-            class="col-span-4 md:col-auto flex items-center justify-start md:justify-center mt-2 md:mt-0 gap-1.5 md:gap-0">
-            <span class="md:hidden text-[9px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mr-1">THRU</span>
-
-            <!-- Display pill: flag if completed (with yellow border), or standard number hole -->
-            <div
-              class="bg-[#051B11]/50 border border-white/10 text-white font-extrabold text-xs px-3.5 py-1.5 rounded-[12px] min-w-[48px] text-center flex items-center justify-center gap-1.5 shadow-inner shrink-0"
-              [class.border-[#DCAE5A]]="team.thru === 'completed'" [class.text-[#DCAE5A]]="team.thru === 'completed'">
-              @if (team.thru === 'completed') {
-              <!-- Gold Flag Staff-and-Triangle Outline SVG -->
-              <svg class="w-4 h-4 text-[#DCAE5A]" fill="none" stroke="currentColor" stroke-width="2.2"
-                viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 4v16M6 4l12 4-12 4" />
-              </svg>
-              } @else {
-              {{ team.thru }}
-              }
-            </div>
-          </div>
-
-          <!-- UPDATED Timestamp (Right-aligned) -->
-          <div
-            class="col-span-4 md:col-auto flex items-center justify-start md:justify-end mt-2 md:mt-0 gap-1.5 md:gap-0 md:pr-4">
-            <span
-              class="md:hidden text-[9px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mr-1">UPDATED</span>
-            <span class="text-[10px] text-[#7A9A8A] font-semibold text-right leading-none">
-              {{ team.updatedTime }}
-            </span>
-          </div>
-
+    @if (!selectedTeam) {
+      <!-- Toggle Tab Pills Container -->
+      <div class="flex justify-start mb-6">
+        <div
+          class="inline-flex p-1 bg-[#051B11]/55 border border-[#FAF7F2]/10 rounded-2xl shadow-inner z-10 relative font-sans">
+          <button (click)="toggleTab('leaderboard')"
+            class="font-extrabold text-xs py-2.5 px-5 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer select-none font-sans"
+            [ngClass]="activeTab === 'leaderboard' ? 'bg-[#DCAE5A] text-[#051B11] shadow-md' : 'text-[#7A9A8A] hover:text-[#FAF7F2]'">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871" />
+            </svg>
+            Leaderboard
+          </button>
         </div>
-        }
       </div>
-    </div>
-    }
 
-    <!-- Active Tab: Side Games Tab Content -->
-    @if (activeTab === 'sideGames') {
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 z-10 relative">
-      @for (game of sideGames; track game.name) {
+      <!-- Active Tab: Leaderboard Table -->
+      @if (activeTab === 'leaderboard') {
       <div
-        class="bg-[#133824]/40 border border-[#FAF7F2]/10 backdrop-blur-md rounded-3xl p-6 hover:border-[#DCAE5A]/35 transition-all shadow-md">
-        <div class="flex items-center justify-between mb-4">
-          <span
-            class="text-[10px] font-extrabold text-[#DCAE5A] tracking-wider uppercase bg-[#051B11]/55 border border-[#FAF7F2]/10 px-3 py-1 rounded-lg font-sans">
-            {{ game.hole }}
-          </span>
-          <!-- Prize Icon SVG -->
-          <svg class="w-5 h-5 text-[#DCAE5A]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25m18 0l-3-3m3 3l-3 3m-12-6l3-3m-3 3l3 3M3.75 7.5h16.5M12 3v12" />
-          </svg>
+        class="z-10 relative bg-[#0B2316]/75 border border-[#FAF7F2]/10 backdrop-blur-md rounded-[24px] overflow-hidden shadow-2xl">
+
+        <!-- Table Column Headers (Aligned precisely with data columns) -->
+        <div
+          class="hidden md:grid grid-cols-[70px_1fr_120px_100px_100px] gap-4 text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-widest px-6 py-4 border-b border-[#FAF7F2]/10 bg-transparent font-sans">
+          <div class="text-left pl-4">RANK</div>
+          <div class="text-left">TEAMS</div>
+          <div class="text-right pr-6">NET TO PAR</div>
+          <div class="text-center">THRU</div>
+          <div class="text-right pr-4">UPDATED</div>
         </div>
-        <h3 class="text-base font-extrabold text-white tracking-tight font-sans">{{ game.name }}</h3>
-        <div class="mt-3 space-y-1 text-xs font-sans">
-          <p class="text-[#7A9A8A] font-semibold">Leader: <span class="text-white font-extrabold">{{ game.winner
-              }}</span></p>
-          <p class="text-[#7A9A8A] font-semibold">Performance: <span class="text-[#DCAE5A] font-extrabold">{{
-              game.result }}</span></p>
+
+        <!-- Leaderboard Rows List with alternating green backgrounds -->
+        <div class="font-sans">
+          @for (team of teams; track team.name) {
+          <div (click)="openScorecard(team)"
+            class="px-6 py-5 grid grid-cols-12 gap-y-3 items-center hover:bg-white/[0.05] transition-all cursor-pointer group relative md:grid-cols-[70px_1fr_120px_100px_100px] md:gap-4"
+            [ngClass]="team.rank % 2 !== 0 ? 'bg-[#133824]/30' : 'bg-transparent'">
+
+            <!-- RANK Badge -->
+            <div class="col-span-2 md:col-auto flex items-center justify-start pl-4">
+              <!-- Rank Circle Badge with precise styling, glow shadows, and text colors -->
+              <div
+                class="w-11 h-11 rounded-full flex items-center justify-center font-serif font-black text-base shadow-sm transition-all shrink-0"
+                [ngClass]="{
+                        'bg-gradient-to-b from-[#FCD667] to-[#F5A623] text-[#051B11] shadow-[0_0_12px_rgba(245,166,35,0.35)]': team.rank === 1,
+                        'bg-gradient-to-b from-white to-[#B8C5C0] text-[#051B11] shadow-[0_0_12px_rgba(255,255,255,0.25)]': team.rank === 2,
+                        'bg-gradient-to-b from-[#FFA767] to-[#D05A16] text-[#051B11] shadow-[0_0_12px_rgba(208,90,22,0.25)]': team.rank === 3,
+                        'border border-white/20 text-white bg-transparent font-serif font-bold': team.rank > 3
+                      }">
+                {{ team.rank }}
+              </div>
+            </div>
+
+            <!-- TEAM Info (Playfair Display serif for name, Inter for description) -->
+            <div class="col-span-10 md:col-auto flex flex-col justify-center pl-1 md:pl-0">
+              <h3
+                class="text-base md:text-[17px] font-serif font-bold text-white tracking-tight leading-snug group-hover:text-[#DCAE5A] transition-colors">
+                {{ team.name }}
+              </h3>
+              <div class="text-[11px] text-[#7A9A8A] font-medium mt-1.5 flex items-center gap-1.5 min-w-0">
+                <!-- User group outline SVG icon before players info -->
+                <svg class="w-3.5 h-3.5 text-[#7A9A8A]/80 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8"
+                  viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A11.386 11.386 0 018.625 21c-2.28 0-4.4-.67-6.18-1.825a3.984 3.984 0 012.7-3.175 4.045 4.045 0 013.905.748 4.087 4.087 0 011.5 3.175V19.13zM15 9.75a3 3 0 11-6 0 3 3 0 016 0zm6.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                </svg>
+                <span class="truncate pr-2 font-sans">{{ team.playersInfo }}</span>
+              </div>
+            </div>
+
+            <!-- NET TO PAR Score (Right-aligned to match headers) -->
+            <div
+              class="col-span-4 md:col-auto flex items-center justify-start md:justify-end mt-2 md:mt-0 gap-1.5 md:gap-0 md:pr-6">
+              <span class="md:hidden text-[9px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mr-1">NET</span>
+              <!-- Exact color coding matching mockup scores -->
+              <span class="text-2xl md:text-[28px] font-black tracking-tight font-sans" [ngClass]="{
+                        'text-[#3CD2A5]': team.netToPar < 0,
+                        'text-[#DCAE5A]': team.netToPar === 0,
+                        'text-[#FFA2A2]': team.netToPar > 0
+                      }">
+                {{ team.netToParStr }}
+              </span>
+            </div>
+
+            <!-- THRU Holes (Centered) -->
+            <div
+              class="col-span-4 md:col-auto flex items-center justify-start md:justify-center mt-2 md:mt-0 gap-1.5 md:gap-0">
+              <span class="md:hidden text-[9px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mr-1">THRU</span>
+
+              <!-- Display pill: flag if completed (with yellow border), or standard number hole -->
+              <div
+                class="bg-[#051B11]/50 border border-white/10 text-white font-extrabold text-xs px-3.5 py-1.5 rounded-[12px] min-w-[48px] text-center flex items-center justify-center gap-1.5 shadow-inner shrink-0"
+                [class.border-[#DCAE5A]]="team.thru === 'completed'" [class.text-[#DCAE5A]]="team.thru === 'completed'">
+                @if (team.thru === 'completed') {
+                <!-- Gold Flag Staff-and-Triangle Outline SVG -->
+                <svg class="w-4 h-4 text-[#DCAE5A]" fill="none" stroke="currentColor" stroke-width="2.2"
+                  viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 4v16M6 4l12 4-12 4" />
+                </svg>
+                } @else {
+                {{ team.thru }}
+                }
+              </div>
+            </div>
+
+            <!-- UPDATED Timestamp (Right-aligned) -->
+            <div
+              class="col-span-4 md:col-auto flex items-center justify-start md:justify-end mt-2 md:mt-0 gap-1.5 md:gap-0 md:pr-4">
+              <span
+                class="md:hidden text-[9px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mr-1">UPDATED</span>
+              <span class="text-[10px] text-[#7A9A8A] font-semibold text-right leading-none">
+                {{ team.updatedTime }}
+              </span>
+            </div>
+
+          </div>
+          }
         </div>
       </div>
       }
-    </div>
+
+      <!-- Active Tab: Side Games Tab Content -->
+      @if (activeTab === 'sideGames') {
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 z-10 relative">
+        @for (game of sideGames; track game.name) {
+        <div
+          class="bg-[#133824]/40 border border-[#FAF7F2]/10 backdrop-blur-md rounded-3xl p-6 hover:border-[#DCAE5A]/35 transition-all shadow-md">
+          <div class="flex items-center justify-between mb-4">
+            <span
+              class="text-[10px] font-extrabold text-[#DCAE5A] tracking-wider uppercase bg-[#051B11]/55 border border-[#FAF7F2]/10 px-3 py-1 rounded-lg font-sans">
+              {{ game.hole }}
+            </span>
+            <!-- Prize Icon SVG -->
+            <svg class="w-5 h-5 text-[#DCAE5A]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25m18 0l-3-3m3 3l-3 3m-12-6l3-3m-3 3l3 3M3.75 7.5h16.5M12 3v12" />
+            </svg>
+          </div>
+          <h3 class="text-base font-extrabold text-white tracking-tight font-sans">{{ game.name }}</h3>
+          <div class="mt-3 space-y-1 text-xs font-sans">
+            <p class="text-[#7A9A8A] font-semibold">Leader: <span class="text-white font-extrabold">{{ game.winner
+                }}</span></p>
+            <p class="text-[#7A9A8A] font-semibold">Performance: <span class="text-[#DCAE5A] font-extrabold">{{
+                game.result }}</span></p>
+          </div>
+        </div>
+        }
+      </div>
+      }
+    } @else {
+      <!-- Scorecard View details -->
+      <div class="z-10 relative bg-[#0B2316]/75 border border-[#FAF7F2]/10 backdrop-blur-md rounded-[24px] overflow-hidden shadow-2xl p-6 md:p-8">
+        
+        <!-- Back Button -->
+        <button (click)="closeScorecard()"
+          class="flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#FAF7F2]/15 text-[11px] font-bold text-[#FAF7F2] hover:bg-white/10 transition-all cursor-pointer shadow-xs mb-6 uppercase tracking-wider">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+          </svg>
+          BACK TO LEADERBOARD
+        </button>
+
+        <!-- Player/Team Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 pb-6 border-b border-[#FAF7F2]/10">
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-full flex items-center justify-center font-serif font-black text-lg shadow-md shrink-0"
+              [ngClass]="{
+                'bg-gradient-to-b from-[#FCD667] to-[#F5A623] text-[#051B11] shadow-[0_0_12px_rgba(245,166,35,0.35)]': selectedTeam.rank === 1,
+                'bg-gradient-to-b from-white to-[#B8C5C0] text-[#051B11] shadow-[0_0_12px_rgba(255,255,255,0.25)]': selectedTeam.rank === 2,
+                'bg-gradient-to-b from-[#FFA767] to-[#D05A16] text-[#051B11] shadow-[0_0_12px_rgba(208,90,22,0.25)]': selectedTeam.rank === 3,
+                'border border-white/20 text-white bg-transparent font-serif font-bold': selectedTeam.rank > 3
+              }">
+              {{ selectedTeam.rank }}
+            </div>
+            <div>
+              <span class="text-[9px] font-extrabold text-[#DCAE5A] uppercase tracking-widest block mb-1">LIVE SCORECARD</span>
+              <h2 class="text-2xl md:text-3xl font-serif font-bold text-white leading-tight">
+                {{ selectedTeam.name }}
+              </h2>
+              <p class="text-xs text-[#7A9A8A] font-medium mt-1">
+                {{ selectedTeam.playersInfo }}
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-6">
+            <div class="text-right font-sans">
+              <span class="block text-[9px] font-extrabold text-[#7A9A8A] tracking-wider uppercase">NET TO PAR</span>
+              <span class="text-3xl md:text-4xl font-black tracking-tight" [ngClass]="{
+                  'text-[#3CD2A5]': selectedTeam.netToPar < 0,
+                  'text-[#DCAE5A]': selectedTeam.netToPar === 0,
+                  'text-[#FFA2A2]': selectedTeam.netToPar > 0
+                }">
+                {{ selectedTeam.netToParStr }}
+              </span>
+            </div>
+            <div class="text-right border-l border-white/10 pl-6 font-sans">
+              <span class="block text-[9px] font-extrabold text-[#7A9A8A] tracking-wider uppercase">THRU</span>
+              <span class="text-xl md:text-2xl font-black text-white uppercase tracking-wider mt-1 block">
+                {{ selectedTeam.thru === 'completed' ? 'F' : selectedTeam.thru }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 18-Hole Scorecard Grid -->
+        <div class="overflow-x-auto no-scrollbar rounded-xl border border-[#FAF7F2]/10 bg-[#051B11]/45">
+          <table class="w-full min-w-[900px] border-collapse text-center text-xs md:text-sm font-sans">
+            <thead>
+              <tr class="bg-[#051B11]/80 text-[#7A9A8A] font-extrabold border-b border-[#FAF7F2]/10">
+                <th class="py-3 px-4 text-left font-bold uppercase tracking-wider bg-[#051B11] w-20">Hole</th>
+                @for (h of [1,2,3,4,5,6,7,8,9]; track h) {
+                  <th class="py-3 border-l border-[#FAF7F2]/10">{{ h }}</th>
+                }
+                <th class="py-3 px-3 bg-[#133824]/85 text-[#DCAE5A] font-black border-l border-[#FAF7F2]/10 w-16">OUT</th>
+                @for (h of [10,11,12,13,14,15,16,17,18]; track h) {
+                  <th class="py-3 border-l border-[#FAF7F2]/10">{{ h }}</th>
+                }
+                <th class="py-3 px-3 bg-[#133824]/85 text-[#DCAE5A] font-black border-l border-[#FAF7F2]/10 w-16">IN</th>
+                <th class="py-3 px-4 bg-[#DCAE5A] text-[#051B11] font-black border-l border-[#FAF7F2]/10 w-20">TOT</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Par Row -->
+              <tr class="border-b border-[#FAF7F2]/10 text-white/70 font-semibold bg-[#133824]/10">
+                <td class="py-3 px-4 text-left font-bold text-[#7A9A8A] bg-[#051B11]/20">Par</td>
+                @for (p of selectedTeam.parsOut; track $index) {
+                  <td class="py-3 border-l border-[#FAF7F2]/10">{{ p }}</td>
+                }
+                <td class="py-3 bg-[#133824]/60 text-[#DCAE5A] font-bold border-l border-[#FAF7F2]/10">{{ selectedTeam.outPar }}</td>
+                @for (p of selectedTeam.parsIn; track $index) {
+                  <td class="py-3 border-l border-[#FAF7F2]/10">{{ p }}</td>
+                }
+                <td class="py-3 bg-[#133824]/60 text-[#DCAE5A] font-bold border-l border-[#FAF7F2]/10">{{ selectedTeam.inPar }}</td>
+                <td class="py-3 bg-[#DCAE5A]/15 text-[#DCAE5A] font-bold border-l border-[#FAF7F2]/10">{{ selectedTeam.totalPar }}</td>
+              </tr>
+              <!-- Score Row -->
+              <tr class="text-white font-extrabold">
+                <td class="py-4 px-4 text-left font-bold text-[#7A9A8A] bg-[#051B11]/20">Score</td>
+                @for (s of selectedTeam.scoresOut; track $index) {
+                  <td class="py-4 border-l border-[#FAF7F2]/10" [ngClass]="{
+                    'text-[#3CD2A5]': s !== null && s < (selectedTeam.parsOut?.[$index] || 4),
+                    'text-white': s === null || s === (selectedTeam.parsOut?.[$index] || 4),
+                    'text-[#FFA2A2]': s !== null && s > (selectedTeam.parsOut?.[$index] || 4)
+                  }">
+                    {{ s !== null && s > 0 ? s : '-' }}
+                  </td>
+                }
+                <td class="py-4 bg-[#133824]/75 text-[#3CD2A5] font-black border-l border-[#FAF7F2]/10">{{ selectedTeam.outScore }}</td>
+                @for (s of selectedTeam.scoresIn; track $index) {
+                  <td class="py-4 border-l border-[#FAF7F2]/10" [ngClass]="{
+                    'text-[#3CD2A5]': s !== null && s < (selectedTeam.parsIn?.[$index] || 4),
+                    'text-white': s === null || s === (selectedTeam.parsIn?.[$index] || 4),
+                    'text-[#FFA2A2]': s !== null && s > (selectedTeam.parsIn?.[$index] || 4)
+                  }">
+                    {{ s !== null && s > 0 ? s : '-' }}
+                  </td>
+                }
+                <td class="py-4 bg-[#133824]/75 text-[#3CD2A5] font-black border-l border-[#FAF7F2]/10">{{ selectedTeam.inScore }}</td>
+                <td class="py-4 bg-[#DCAE5A]/25 text-[#DCAE5A] font-black border-l border-[#FAF7F2]/10">{{ selectedTeam.totalScore }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     }
 
   </div>
