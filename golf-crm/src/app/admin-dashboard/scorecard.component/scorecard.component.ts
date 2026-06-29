@@ -621,4 +621,67 @@ export class ScorecardComponent implements OnInit, OnDestroy {
       this.toastService.showError('Failed to save scorecard as image. Details: ' + (err?.message || err));
     });
   }
+
+  openLiveLeaderboard() {
+    const path = this.isStaff ? '/staff-dashboard/leaderboard' : '/admin-dashboard/leaderboard';
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree([path], {
+        queryParams: { eventId: this.tournamentId || 'TRN-1042', autoLive: true }
+      })
+    );
+    window.open(url, '_blank');
+    this.goLive();
+  }
+
+  goLive() {
+    const orgDocId = this.firebaseService.getOrgDocId();
+    const targetEventId = this.tournamentId || 'TRN-1042';
+
+    this.firebaseService.getTournaments(orgDocId).subscribe({
+      next: (tournamentsList) => {
+        const updates: any[] = [];
+        tournamentsList.forEach((t: any) => {
+          if (t.id === targetEventId) {
+            if (!t.isLive) {
+              updates.push(this.firebaseService.updateTournament(orgDocId, t.id, { isLive: true }));
+            }
+          } else {
+            if (t.isLive) {
+              updates.push(this.firebaseService.updateTournament(orgDocId, t.id, { isLive: false }));
+            }
+          }
+        });
+
+        if (updates.length > 0) {
+          let completed = 0;
+          updates.forEach(obs => {
+            obs.subscribe({
+              next: () => {
+                completed++;
+                if (completed === updates.length) {
+                  this.toastService.showSuccess('This leaderboard is now live! Previous live leaderboards have been deactivated.');
+                }
+              },
+              error: () => {
+                completed++;
+              }
+            });
+          });
+        } else {
+          this.firebaseService.updateTournament(orgDocId, targetEventId, { isLive: true }).subscribe({
+            next: () => {
+              this.toastService.showSuccess('This leaderboard is now live!');
+            }
+          });
+        }
+      },
+      error: () => {
+        this.firebaseService.updateTournament(orgDocId, targetEventId, { isLive: true }).subscribe({
+          next: () => {
+            this.toastService.showSuccess('This leaderboard is now live!');
+          }
+        });
+      }
+    });
+  }
 }
