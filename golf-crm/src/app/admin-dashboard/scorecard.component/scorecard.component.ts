@@ -50,7 +50,6 @@ export class ScorecardComponent implements OnInit, OnDestroy {
   onStorageChange(event: StorageEvent) {
     if (event.key === `scorecard_scores_${this.tournamentId}`) {
       if (Date.now() - this.lastInputTime < 4000) return;
-      if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
       const savedRaw = event.newValue;
       if (savedRaw) {
         const savedData = JSON.parse(savedRaw);
@@ -135,7 +134,6 @@ export class ScorecardComponent implements OnInit, OnDestroy {
   refreshScoresFromDb() {
     if (this.isScorecardLoading || !this.tournamentId) return;
     if (Date.now() - this.lastInputTime < 4000) return;
-    if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
     const orgDocId = this.firebaseService.getOrgDocId();
     this.firebaseService.getTournaments(orgDocId).subscribe({
       next: (list) => {
