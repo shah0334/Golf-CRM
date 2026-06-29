@@ -1,7 +1,8 @@
-import { Component, OnInit, inject, ChangeDetectorRef, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Subscription, interval } from 'rxjs';
 import html2canvas from 'html2canvas-pro';
 import { FirebaseService } from '../../services/firebase.service';
 import { LoaderComponent } from '../../components/loader.component';
@@ -26,12 +27,14 @@ interface TeamData {
   templateUrl: './scorecard.component.html',
   styleUrl: './scorecard.component.css',
 })
-export class ScorecardComponent implements OnInit {
+export class ScorecardComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
   private firebaseService = inject(FirebaseService);
   private toastService = inject(ToastService);
+  private pollSubscription?: Subscription;
+  private lastInputTime = 0;
 
   isScorecardLoading = false;
 
@@ -46,6 +49,8 @@ export class ScorecardComponent implements OnInit {
   @HostListener('window:storage', ['$event'])
   onStorageChange(event: StorageEvent) {
     if (event.key === `scorecard_scores_${this.tournamentId}`) {
+      if (Date.now() - this.lastInputTime < 4000) return;
+      if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
       const savedRaw = event.newValue;
       if (savedRaw) {
         const savedData = JSON.parse(savedRaw);
@@ -112,6 +117,33 @@ export class ScorecardComponent implements OnInit {
             this.applyScores(savedData);
             this.cdr.detectChanges();
           }
+        }
+      }
+    });
+
+    this.pollSubscription = interval(3000).subscribe(() => {
+      this.refreshScoresFromDb();
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.pollSubscription) {
+      this.pollSubscription.unsubscribe();
+    }
+  }
+
+  refreshScoresFromDb() {
+    if (this.isScorecardLoading || !this.tournamentId) return;
+    if (Date.now() - this.lastInputTime < 4000) return;
+    if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
+    const orgDocId = this.firebaseService.getOrgDocId();
+    this.firebaseService.getTournaments(orgDocId).subscribe({
+      next: (list) => {
+        const found = (list || []).find((t: any) => t.id === this.tournamentId);
+        if (found && found.scorecardScores) {
+          this.fetchedTournament = found;
+          this.applyScores(found.scorecardScores);
+          this.cdr.detectChanges();
         }
       }
     });
@@ -433,6 +465,7 @@ export class ScorecardComponent implements OnInit {
   }
 
   onScoreInput(player: Player, holeIdx: number, event: Event, type: 'out' | 'in') {
+    this.lastInputTime = Date.now();
     const input = event.target as HTMLInputElement;
     // Strip out all non-numeric characters immediately
     let val = input.value.replace(/[^0-9]/g, '');

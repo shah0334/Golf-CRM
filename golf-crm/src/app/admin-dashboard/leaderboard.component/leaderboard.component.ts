@@ -1,6 +1,7 @@
-import { Component, OnInit, inject, ChangeDetectorRef, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { Subscription, interval } from 'rxjs';
 import { FirebaseService } from '../../services/firebase.service';
 import { LoaderComponent } from '../../components/loader.component';
 import { ToastService } from '../../services/toast.service';
@@ -45,12 +46,13 @@ interface SideGame {
   templateUrl: './leaderboard.component.html',
   styleUrl: './leaderboard.component.css',
 })
-export class LeaderboardComponent implements OnInit {
+export class LeaderboardComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private firebaseService = inject(FirebaseService);
   private cdr = inject(ChangeDetectorRef);
   private toastService = inject(ToastService);
+  private pollSubscription?: Subscription;
 
   activeTab: 'leaderboard' | 'sideGames' = 'leaderboard';
   isTVModeActive = false;
@@ -174,6 +176,16 @@ export class LeaderboardComponent implements OnInit {
         this.loadLeaderboardData(false);
       }
     });
+
+    this.pollSubscription = interval(3000).subscribe(() => {
+      this.loadLeaderboardData(false);
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.pollSubscription) {
+      this.pollSubscription.unsubscribe();
+    }
   }
 
   loadLeaderboardData(forceSyncWithDb: boolean = true) {
