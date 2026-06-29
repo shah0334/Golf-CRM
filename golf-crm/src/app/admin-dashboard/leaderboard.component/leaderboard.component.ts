@@ -81,18 +81,12 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
   };
 
   presentingSponsor: Sponsor = {
-    name: 'Acme Roofing',
-    initials: 'AR',
-    tier: 'TOURNAMENT SPONSOR',
+    name: '',
+    initials: '',
+    tier: '',
   };
 
-  sponsors: Sponsor[] = [
-    { name: 'Acme Roofing', initials: 'AR', tier: 'PRESENTING' },
-    { name: 'Running Co.', initials: 'RC', tier: 'PLATINUM' },
-    { name: 'Silver Star', initials: 'SS', tier: 'GOLD' },
-    { name: 'Iron Brew Co.', initials: 'IB', tier: 'HOLE' },
-    { name: 'Pinehurst Motors', initials: 'PM', tier: 'CART' },
-  ];
+  sponsors: Sponsor[] = [];
 
   teams: TeamLeaderboard[] = [];
 
@@ -228,6 +222,32 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
           this.tournamentInfo.totalPar = courseTotalPar;
           this.tournamentInfo.isLive = !!currentTrn.isLive;
           this.isTeamBased = !(currentTrn.playersJoinMode || '').toLowerCase().includes('individual') && !(currentTrn.playersJoinMode || '').toLowerCase().includes('single');
+
+          if (currentTrn.sponsors && Array.isArray(currentTrn.sponsors)) {
+            this.sponsors = currentTrn.sponsors.map((sp: any) => {
+              const displayName = sp.displayName || sp.name || 'Unnamed Sponsor';
+              const words = displayName.split(' ').filter((w: string) => w.length > 0);
+              const initials = words.length >= 2 ? (words[0][0] + words[1][0]).toUpperCase() : displayName.substring(0, 2).toUpperCase();
+              return {
+                name: displayName,
+                initials: initials,
+                tier: sp.tier || 'SPONSOR',
+                logoUrl: sp.logoUrl || null,
+                website: sp.website || null
+              };
+            });
+            const pres = this.sponsors.find(s => s.tier?.toUpperCase() === 'PRESENTING' || s.tier?.toUpperCase() === 'TOURNAMENT SPONSOR' || s.tier?.toUpperCase() === 'TITLE');
+            if (pres) {
+              this.presentingSponsor = pres;
+            } else if (this.sponsors.length > 0) {
+              this.presentingSponsor = this.sponsors[0];
+            } else {
+              this.presentingSponsor = { name: '', initials: '', tier: '' };
+            }
+          } else {
+            this.sponsors = [];
+            this.presentingSponsor = { name: '', initials: '', tier: '' };
+          }
         }
 
         // Fetch Teams/Players

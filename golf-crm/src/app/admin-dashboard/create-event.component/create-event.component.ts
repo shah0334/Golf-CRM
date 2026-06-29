@@ -354,7 +354,8 @@ export class CreateEventComponent implements OnInit {
           players: payload.players,
           tag: payload.tag,
           status: payload.status,
-          playersJoinMode: payload.playersJoinMode
+          playersJoinMode: payload.playersJoinMode,
+          sponsors: payload.sponsors
         };
         if (index !== -1) {
           org.tournaments[index] = { ...org.tournaments[index], ...summary };
@@ -419,5 +420,39 @@ export class CreateEventComponent implements OnInit {
     });
     this.toastService.showSuccess(`Sponsor "${this.sponsorDisplayName}" added successfully!`);
     this.clearSponsorForm();
+    this.autoSaveSponsors();
+  }
+
+  removeSponsor(index: number) {
+    if (index >= 0 && index < this.sponsors.length) {
+      const removed = this.sponsors[index].displayName;
+      this.sponsors.splice(index, 1);
+      this.toastService.showSuccess(`Sponsor "${removed}" removed successfully.`);
+      this.autoSaveSponsors();
+    }
+  }
+
+  autoSaveSponsors() {
+    const payload = this.buildTournamentPayload(this.eventStatus || 'DRAFT');
+    const orgDocId = this.firebaseService.getOrgDocId();
+    this.firebaseService.getTournaments(orgDocId).subscribe({
+      next: (list) => {
+        const exists = (list || []).some((t: any) => t.id === this.eventId);
+        if (exists) {
+          this.firebaseService.updateTournament(orgDocId, this.eventId, payload).subscribe({
+            next: () => {
+              this.updateLocalCache(payload);
+            }
+          });
+        } else {
+          this.firebaseService.createTournament(orgDocId, payload).subscribe({
+            next: () => {
+              this.isEditMode = true;
+              this.updateLocalCache(payload);
+            }
+          });
+        }
+      }
+    });
   }
 }
