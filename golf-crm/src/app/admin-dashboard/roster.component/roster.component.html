@@ -2,7 +2,7 @@
   <!-- Top Navigation Header -->
   <div class="flex items-center justify-between border-b border-[#133824] pb-5 mb-6">
     <div class="flex items-center gap-4 flex-wrap">
-      <a routerLink="/admin-dashboard"
+      <a [routerLink]="isStaff ? '/staff-dashboard' : '/admin-dashboard'"
         class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/20 text-[11px] font-bold text-[#FAF7F2] hover:bg-white/10 transition-all">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
@@ -50,7 +50,7 @@
           </svg>
           Rules Sheet
         </button> -->
-        <a [routerLink]="['/admin-dashboard/leaderboard']" [queryParams]="{eventId: eventId}" target="_blank"
+        <a [routerLink]="[isStaff ? '/staff-dashboard/leaderboard' : '/admin-dashboard/leaderboard']" [queryParams]="{eventId: eventId}" target="_blank"
           class="px-4 py-2 bg-transparent hover:bg-[#DCAE5A]/10 border border-[#DCAE5A] text-[#DCAE5A] font-bold rounded-full text-xs transition-colors flex items-center gap-1.5 cursor-pointer">
           <svg class="w-3.5 h-3.5 text-[#DCAE5A]" fill="none" stroke="currentColor" stroke-width="2.5"
             viewBox="0 0 24 24">
@@ -59,7 +59,7 @@
           </svg>
           Leaderboard
         </a>
-        <a [routerLink]="['/admin-dashboard/leaderboard']" [queryParams]="{eventId: eventId, autoLive: true}" target="_blank"
+        <a [routerLink]="[isStaff ? '/staff-dashboard/leaderboard' : '/admin-dashboard/leaderboard']" [queryParams]="{eventId: eventId, autoLive: true}" target="_blank"
           class="px-4 py-2 bg-transparent hover:bg-[#DCAE5A]/10 border border-[#DCAE5A] text-[#DCAE5A] font-bold rounded-full text-xs transition-colors flex items-center gap-1.5 cursor-pointer">
           <svg class="w-3.5 h-3.5 text-[#DCAE5A]" fill="none" stroke="currentColor" stroke-width="2.5"
             viewBox="0 0 24 24">
@@ -68,7 +68,7 @@
           </svg>
           Live Leaderboard
         </a>
-        <a [routerLink]="['/admin-dashboard/scorecard', eventId || 'TRN-1042']" target="_blank"
+        <a [routerLink]="[isStaff ? '/staff-dashboard/scorecard' : '/admin-dashboard/scorecard', eventId || 'TRN-1042']" target="_blank"
           class="px-4 py-2 bg-transparent hover:bg-[#DCAE5A]/10 border border-[#DCAE5A] text-[#DCAE5A] font-bold rounded-full text-xs transition-colors flex items-center gap-1.5 cursor-pointer">
           <svg class="w-3.5 h-3.5 text-[#DCAE5A]" fill="none" stroke="currentColor" stroke-width="2.5"
             viewBox="0 0 24 24">

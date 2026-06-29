@@ -1,7 +1,7 @@
 <div class="min-h-screen w-full bg-[#03140C] text-white font-sans flex flex-col animate-fade-in pb-16">
   <!-- Top Header bar -->
   <header class="w-full px-6 sm:px-12 py-4 bg-[#051B11]/90 backdrop-blur-md border-b border-[#FAF7F2]/10 flex justify-between items-center sticky top-0 z-50">
-    <a routerLink="/admin-dashboard" class="px-4 py-2 bg-white/5 hover:bg-white/10 text-white border border-white/20 hover:border-white/40 font-bold rounded-xl text-xs transition-colors flex items-center gap-2 cursor-pointer focus:outline-none">
+    <a [routerLink]="isStaff ? '/staff-dashboard' : '/admin-dashboard'" class="px-4 py-2 bg-white/5 hover:bg-white/10 text-white border border-white/20 hover:border-white/40 font-bold rounded-xl text-xs transition-colors flex items-center gap-2 cursor-pointer focus:outline-none">
       <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
       </svg>

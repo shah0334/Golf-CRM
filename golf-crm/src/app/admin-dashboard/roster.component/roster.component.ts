@@ -35,6 +35,7 @@ export class RosterComponent implements OnInit {
   eventId: string = '';
   isRosterLoading = false;
   isActionLoading = false;
+  isStaff = false;
   tournamentInfo: any = null;
   clubName: string = 'Classic Club';
   tournaments: any[] = [
@@ -73,6 +74,7 @@ export class RosterComponent implements OnInit {
   ];
 
   ngOnInit() {
+    this.isStaff = this.router.url.includes('/staff-dashboard');
     this.route.queryParams.subscribe(params => {
       this.eventId = params['eventId'] || '';
       this.loadRosterData();
@@ -799,12 +801,17 @@ export class RosterComponent implements OnInit {
 
   editScorecard(team: Team) {
     const id = this.eventId || 'TRN-1042';
-    this.router.navigate(['/admin-dashboard/scorecard', id]);
+    const isStaff = this.router.url.includes('/staff-dashboard');
+    const path = isStaff ? '/staff-dashboard/scorecard' : '/admin-dashboard/scorecard';
+    this.router.navigate([path, id], {
+      queryParams: { select: team.name }
+    });
   }
 
   editTeam(team: Team) {
     const isPlayer = team.id.startsWith('PLY-');
-    this.router.navigate(['/admin-dashboard/player'], {
+    const path = this.isStaff ? '/staff-dashboard/player' : '/admin-dashboard/player';
+    this.router.navigate([path], {
       queryParams: {
         eventId: this.eventId || 'TRN-1042',
         [isPlayer ? 'editPlayerId' : 'editTeamId']: team.id,

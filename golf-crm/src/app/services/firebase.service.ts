@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, from, of, throwError } from 'rxjs';
+import { Observable, from, of, throwError, Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -7,6 +7,13 @@ import { environment } from '../../environments/environment';
 })
 export class FirebaseService {
   public isFirebaseConfigured = false;
+  
+  private scorecardUpdatedSource = new Subject<string>();
+  scorecardUpdated$ = this.scorecardUpdatedSource.asObservable();
+
+  notifyScorecardUpdated(tournamentId: string) {
+    this.scorecardUpdatedSource.next(tournamentId);
+  }
 
   constructor() {
     this.checkFirebaseConfig();
@@ -993,6 +1000,7 @@ export class FirebaseService {
           if ('doubleValue' in item) return Number(item.doubleValue);
           if ('booleanValue' in item) return item.booleanValue;
           if ('integerValue' in item) return Number(item.integerValue);
+          if ('nullValue' in item) return null;
           if ('mapValue' in item) return this.mapFromFirestore(item.mapValue.fields);
           return item;
         });

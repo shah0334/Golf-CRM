@@ -163,7 +163,7 @@ export class EventsComponent implements OnInit {
 
   // Card Operations
   createTournament() {
-    this.router.navigate(['/admin-dashboard/create-event']);
+    this.router.navigate([this.layout.dashboardPrefix + '/create-event']);
   }
 
   archiveTournament(id: string) {

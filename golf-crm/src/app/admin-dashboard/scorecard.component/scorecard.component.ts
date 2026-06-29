@@ -43,12 +43,30 @@ export class ScorecardComponent implements OnInit {
     }
   }
 
+  @HostListener('window:storage', ['$event'])
+  onStorageChange(event: StorageEvent) {
+    if (event.key === `scorecard_scores_${this.tournamentId}`) {
+      const savedRaw = event.newValue;
+      if (savedRaw) {
+        const savedData = JSON.parse(savedRaw);
+        if (this.fetchedTournament) {
+          this.fetchedTournament.scorecardScores = savedData;
+        }
+        this.applyScores(savedData);
+        this.cdr.detectChanges();
+      }
+    }
+  }
+
   tournamentId = '';
   isTeamBased = false;
   tournamentName = '';
   courseName = '';
   totalHoles = 18;
   totalPar = 72;
+  fetchedTournament: any = null;
+  preselectedName: string | null = null;
+  isStaff = false;
 
   // Search and selector state
   searchQuery = '';
@@ -69,12 +87,34 @@ export class ScorecardComponent implements OnInit {
   teams: TeamData[] = [];
 
   ngOnInit() {
+    this.isStaff = this.router.url.includes('/staff-dashboard');
     this.route.paramMap.subscribe(params => {
       this.tournamentId = params.get('id') || 'TRN-1042';
-      this.loadTournamentDetails();
+      
+      this.route.queryParams.subscribe(qParams => {
+        this.preselectedName = qParams['select'] || qParams['player'] || null;
+        this.loadTournamentDetails();
+      });
     });
 
     this.loadScoresFromStorage();
+
+    this.firebaseService.scorecardUpdated$.subscribe({
+      next: (tid) => {
+        if (tid === this.tournamentId) {
+          const key = `scorecard_scores_${this.tournamentId}`;
+          const savedRaw = localStorage.getItem(key);
+          if (savedRaw) {
+            const savedData = JSON.parse(savedRaw);
+            if (this.fetchedTournament) {
+              this.fetchedTournament.scorecardScores = savedData;
+            }
+            this.applyScores(savedData);
+            this.cdr.detectChanges();
+          }
+        }
+      }
+    });
   }
 
   loadTournamentDetails() {
@@ -113,6 +153,7 @@ export class ScorecardComponent implements OnInit {
           next: (list) => {
             const found = (list || []).find((t: any) => t.id === this.tournamentId);
             if (found) {
+              this.fetchedTournament = found;
               this.tournamentName = found.name;
               this.courseName = org.courseName || 'Oak Valley Championship Course';
               this.totalPar = org.course?.holesList
@@ -186,7 +227,12 @@ export class ScorecardComponent implements OnInit {
           });
           
           if (this.teams.length > 0) {
-            this.selectedTeamName = this.teams[0].teamName;
+            if (this.preselectedName && this.teams.some(t => t.teamName?.toLowerCase() === this.preselectedName?.toLowerCase())) {
+              const matched = this.teams.find(t => t.teamName?.toLowerCase() === this.preselectedName?.toLowerCase());
+              this.selectedTeamName = matched!.teamName;
+            } else {
+              this.selectedTeamName = this.teams[0].teamName;
+            }
           }
           this.loadScoresFromStorage();
         }
@@ -218,7 +264,12 @@ export class ScorecardComponent implements OnInit {
           });
           
           if (this.teams.length > 0) {
-            this.selectedTeamName = this.teams[0].teamName;
+            if (this.preselectedName && this.teams.some(t => t.teamName?.toLowerCase() === this.preselectedName?.toLowerCase())) {
+              const matched = this.teams.find(t => t.teamName?.toLowerCase() === this.preselectedName?.toLowerCase());
+              this.selectedTeamName = matched!.teamName;
+            } else {
+              this.selectedTeamName = this.teams[0].teamName;
+            }
           }
           this.loadScoresFromStorage();
         }
@@ -413,6 +464,22 @@ export class ScorecardComponent implements OnInit {
         }))
       }));
       localStorage.setItem(key, JSON.stringify(data));
+
+      // Sync with Firestore database
+      const orgDocId = this.firebaseService.getOrgDocId();
+      this.firebaseService.updateTournament(orgDocId, this.tournamentId, {
+        scorecardScores: data
+      }).subscribe({
+        next: () => {
+          if (this.fetchedTournament) {
+            this.fetchedTournament.scorecardScores = data;
+          }
+          this.firebaseService.notifyScorecardUpdated(this.tournamentId);
+        },
+        error: (err) => {
+          console.error('Failed to sync scorecard scores with Firestore:', err);
+        }
+      });
     } catch (e) {
       console.error('Error saving scores:', e);
     }
@@ -420,32 +487,43 @@ export class ScorecardComponent implements OnInit {
 
   loadScoresFromStorage() {
     try {
+      if (this.fetchedTournament && this.fetchedTournament.scorecardScores) {
+        this.applyScores(this.fetchedTournament.scorecardScores);
+        return;
+      }
+
       const key = `scorecard_scores_${this.tournamentId}`;
       const savedRaw = localStorage.getItem(key);
       if (savedRaw) {
         const savedData = JSON.parse(savedRaw);
-        savedData.forEach((sTeam: any) => {
-          const matchingTeam = this.teams.find(t => t.teamName === sTeam.teamName);
-          if (matchingTeam) {
-            matchingTeam.players.forEach((p, pIdx) => {
-              const savedPlayer = sTeam.scores?.[pIdx];
-              if (savedPlayer) {
-                if (Array.isArray(savedPlayer)) {
-                  // Old format: savedPlayer is an array of inScores
-                  p.inScores = savedPlayer;
-                } else {
-                  // New format: savedPlayer is { out: ..., in: ... }
-                  if (savedPlayer.out) p.outScores = savedPlayer.out;
-                  if (savedPlayer.in) p.inScores = savedPlayer.in;
-                }
-              }
-            });
-          }
-        });
+        this.applyScores(savedData);
       }
     } catch (e) {
       console.error('Error loading scores:', e);
     }
+  }
+
+  applyScores(savedData: any[]) {
+    if (!savedData) return;
+    const sanitize = (val: any) => (val && typeof val === 'object') ? null : val;
+    savedData.forEach((sTeam: any) => {
+      const matchingTeam = this.teams.find(t => t.teamName === sTeam.teamName);
+      if (matchingTeam) {
+        matchingTeam.players.forEach((p, pIdx) => {
+          const savedPlayer = sTeam.scores?.[pIdx];
+          if (savedPlayer) {
+            if (Array.isArray(savedPlayer)) {
+              // Old format
+              p.inScores = savedPlayer.map(sanitize);
+            } else {
+              // New format
+              if (savedPlayer.out) p.outScores = savedPlayer.out.map(sanitize);
+              if (savedPlayer.in) p.inScores = savedPlayer.in.map(sanitize);
+            }
+          }
+        });
+      }
+    });
   }
 
   clearScores() {
@@ -469,7 +547,8 @@ export class ScorecardComponent implements OnInit {
       this.toastService.showWarning('Cannot finish the round yet. Some player scores are still missing for the scorecard holes.');
     } else {
       this.toastService.showSuccess(`Round successfully completed for Team ${this.selectedTeamName}! All player scores have been finalized.`);
-      this.router.navigate(['/admin-dashboard']);
+      const path = this.isStaff ? '/staff-dashboard' : '/admin-dashboard';
+      this.router.navigate([path]);
     }
   }
 

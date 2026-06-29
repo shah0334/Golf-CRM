@@ -502,7 +502,7 @@
         </p>
       </div>
       <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
-        <a [routerLink]="['/admin-dashboard/scorecard', trn.id]"
+        <a [routerLink]="[layout.dashboardPrefix + '/scorecard', trn.id]"
           class="flex flex-col items-start gap-1 p-2 bg-[#FAF7F2]/40 border border-[#E1D9CD]/55 hover:border-[#DCAE5A]/40 rounded-xl transition-all focus:outline-none text-left cursor-pointer">
           <div class="flex items-center gap-1">
             <svg class="w-3.5 h-3.5 text-[#5E806D]" fill="none" stroke="currentColor" stroke-width="2"
@@ -514,7 +514,7 @@
           </div>
           <span class="text-[8px] text-[#5E806D] truncate leading-none">View tournament...</span>
         </a>
-        <a [routerLink]="['/admin-dashboard/leaderboard']" [queryParams]="{eventId: trn.id}"
+        <a [routerLink]="[layout.dashboardPrefix + '/leaderboard']" [queryParams]="{eventId: trn.id}"
           class="flex flex-col items-start gap-1 p-2 bg-[#FAF7F2]/40 border border-[#E1D9CD]/55 hover:border-[#DCAE5A]/40 rounded-xl transition-all focus:outline-none text-left cursor-pointer">
           <div class="flex items-center gap-1">
             <svg class="w-3.5 h-3.5 text-[#5E806D]" fill="none" stroke="currentColor" stroke-width="2"
@@ -526,7 +526,7 @@
           </div>
           <span class="text-[8px] text-[#5E806D] truncate leading-none"></span>
         </a>
-        <a [routerLink]="['/admin-dashboard/roster']" [queryParams]="{eventId: trn.id}"
+        <a [routerLink]="[layout.dashboardPrefix + '/roster']" [queryParams]="{eventId: trn.id}"
           class="flex flex-col items-start gap-1 p-2 bg-[#FAF7F2]/40 border border-[#E1D9CD]/55 hover:border-[#DCAE5A]/40 rounded-xl transition-all focus:outline-none text-left cursor-pointer">
           <div class="flex items-center gap-1">
             <svg class="w-3.5 h-3.5 text-[#5E806D]" fill="none" stroke="currentColor" stroke-width="2"
@@ -537,7 +537,7 @@
           </div>
           <span class="text-[8px] text-[#5E806D] truncate leading-none">Players & teams ...</span>
         </a>
-        <a [routerLink]="['/admin-dashboard/player']"
+        <a [routerLink]="[layout.dashboardPrefix + '/player']"
           [queryParams]="{eventId: trn.id, playersJoinMode: trn.playersJoinMode || (trn.tag === 'CLINIC' || trn.tag === 'CAMP' || trn.id === 'TRN-1043' || trn.id === 'TRN-1044' ? 'Group / Team Sign-Up' : 'Individual Sign-Up')}"
           class="flex flex-col items-start gap-1 p-2 bg-[#FAF7F2]/40 border border-[#E1D9CD]/55 hover:border-[#DCAE5A]/40 rounded-xl transition-all focus:outline-none text-left cursor-pointer">
           <div class="flex items-center gap-1">

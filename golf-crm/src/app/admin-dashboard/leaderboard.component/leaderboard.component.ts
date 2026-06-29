@@ -1,6 +1,6 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, ActivatedRoute } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { FirebaseService } from '../../services/firebase.service';
 import { LoaderComponent } from '../../components/loader.component';
 import { ToastService } from '../../services/toast.service';
@@ -23,6 +23,7 @@ interface TeamLeaderboard {
   inScore?: number;
   outPar?: number;
   inPar?: number;
+  players?: any[];
 }
 
 interface Sponsor {
@@ -45,6 +46,7 @@ interface SideGame {
   styleUrl: './leaderboard.component.css',
 })
 export class LeaderboardComponent implements OnInit {
+  private router = inject(Router);
   private route = inject(ActivatedRoute);
   private firebaseService = inject(FirebaseService);
   private cdr = inject(ChangeDetectorRef);
@@ -57,8 +59,16 @@ export class LeaderboardComponent implements OnInit {
   eventId = '';
   isTeamBased = false;
   selectedTeam: TeamLeaderboard | null = null;
+  isStaff = false;
 
   isLoading = true;
+
+  @HostListener('window:storage', ['$event'])
+  onStorageChange(event: StorageEvent) {
+    if (event.key && event.key.startsWith('scorecard_scores_')) {
+      this.loadLeaderboardData(false);
+    }
+  }
 
   tournamentInfo = {
     title: '',
@@ -92,6 +102,7 @@ export class LeaderboardComponent implements OnInit {
   ];
 
   ngOnInit() {
+    this.isStaff = this.router.url.includes('/staff-dashboard');
     this.route.queryParams.subscribe(params => {
       this.eventId = params['eventId'] || '';
       
@@ -156,9 +167,16 @@ export class LeaderboardComponent implements OnInit {
         this.loadLeaderboardData();
       }
     });
+
+    this.firebaseService.scorecardUpdated$.subscribe((updatedTournamentId) => {
+      const resolvedEventId = this.eventId || 'TRN-1042';
+      if (updatedTournamentId === resolvedEventId) {
+        this.loadLeaderboardData(false);
+      }
+    });
   }
 
-  loadLeaderboardData() {
+  loadLeaderboardData(forceSyncWithDb: boolean = true) {
     const orgDocId = this.firebaseService.getOrgDocId();
     const targetEventId = this.eventId || 'TRN-1042';
 
@@ -205,15 +223,30 @@ export class LeaderboardComponent implements OnInit {
           next: (teamsList) => {
             this.firebaseService.getPlayers(orgDocId, resolvedEventId).subscribe({
               next: (playersList) => {
-                // Read scores from localStorage
+                // Read scores from tournament data or localStorage
                 let savedScores: any[] = [];
-                try {
-                  const key = `scorecard_scores_${resolvedEventId}`;
-                  const savedRaw = localStorage.getItem(key);
-                  if (savedRaw) {
-                    savedScores = JSON.parse(savedRaw);
+                const scoreKey = `scorecard_scores_${resolvedEventId}`;
+                
+                if (forceSyncWithDb && currentTrn && currentTrn.scorecardScores) {
+                  savedScores = currentTrn.scorecardScores;
+                  try {
+                    localStorage.setItem(scoreKey, JSON.stringify(savedScores));
+                  } catch(e) {}
+                } else {
+                  try {
+                    const savedRaw = localStorage.getItem(scoreKey);
+                    if (savedRaw) {
+                      savedScores = JSON.parse(savedRaw);
+                    }
+                  } catch(e) {}
+                  
+                  if ((!savedScores || savedScores.length === 0) && currentTrn && currentTrn.scorecardScores) {
+                    savedScores = currentTrn.scorecardScores;
+                    try {
+                      localStorage.setItem(scoreKey, JSON.stringify(savedScores));
+                    } catch(e) {}
                   }
-                } catch(e) {}
+                }
 
                 // Merge teams and individual players into list of Leaderboard rows
                 const leaderboardTeams: TeamLeaderboard[] = [];
@@ -228,6 +261,52 @@ export class LeaderboardComponent implements OnInit {
                     let scoresIn: (number | null)[] = Array(9).fill(null);
                     let outScore = 0;
                     let inScore = 0;
+
+                    // Build list of players with their individual scores
+                    const teamPlayers = (t.players || []).map((p: any, pIdx: number) => {
+                      let pScoresOut: (number | null)[] = Array(9).fill(null);
+                      let pScoresIn: (number | null)[] = Array(9).fill(null);
+                      let pOutScore = 0;
+                      let pInScore = 0;
+                      let pScoreTotal = 0;
+                      let pParTotal = 0;
+
+                      const pScores = sTeam?.scores?.[pIdx];
+                      if (pScores) {
+                        (pScores.out || []).forEach((score: any, idx: number) => {
+                          if (idx < 9) {
+                            pScoresOut[idx] = score;
+                            if (score !== null && score > 0) {
+                              pScoreTotal += score;
+                              pParTotal += courseParsOut[idx];
+                              pOutScore += score;
+                            }
+                          }
+                        });
+                        (pScores.in || []).forEach((score: any, idx: number) => {
+                          if (idx < 9) {
+                            pScoresIn[idx] = score;
+                            if (score !== null && score > 0) {
+                              pScoreTotal += score;
+                              pParTotal += courseParsIn[idx];
+                              pInScore += score;
+                            }
+                          }
+                        });
+                      }
+
+                      const pNetToPar = pScoreTotal - pParTotal;
+                      return {
+                        name: p.name || 'Unnamed Player',
+                        scoresOut: pScoresOut,
+                        scoresIn: pScoresIn,
+                        outScore: pOutScore,
+                        inScore: pInScore,
+                        totalScore: pOutScore + pInScore,
+                        netToPar: pNetToPar,
+                        netToParStr: pNetToPar === 0 ? 'E' : (pNetToPar > 0 ? `+${pNetToPar}` : `${pNetToPar}`)
+                      };
+                    });
 
                     if (sTeam?.scores?.[0]) {
                       const pScores = sTeam.scores[0];
@@ -260,8 +339,8 @@ export class LeaderboardComponent implements OnInit {
                       thruStr = pThru === 18 ? 'completed' : String(pThru);
                     }
 
-                    const outPar = courseParsOut.reduce((acc, p) => acc + p, 0);
-                    const inPar = courseParsIn.reduce((acc, p) => acc + p, 0);
+                    const outPar = courseParsOut.reduce((acc, val) => acc + val, 0);
+                    const inPar = courseParsIn.reduce((acc, val) => acc + val, 0);
                     const totalPar = outPar + inPar;
                     const totalScore = outScore + inScore;
                     const playersInfoStr = `${(t.players || []).map((p: any) => p.name).join(' • ') || t.captain} • Hole ${t.hole || 'Unassigned'}`;
@@ -283,7 +362,8 @@ export class LeaderboardComponent implements OnInit {
                       outScore,
                       inScore,
                       outPar,
-                      inPar
+                      inPar,
+                      players: teamPlayers
                     });
                   });
                 }
@@ -338,6 +418,17 @@ export class LeaderboardComponent implements OnInit {
                       const totalPar = outPar + inPar;
                       const totalScore = outScore + inScore;
 
+                      const pPlayer = {
+                        name: p.name || 'Unnamed Player',
+                        scoresOut,
+                        scoresIn,
+                        outScore,
+                        inScore,
+                        totalScore,
+                        netToPar,
+                        netToParStr: netToPar === 0 ? 'E' : (netToPar > 0 ? `+${netToPar}` : `${netToPar}`)
+                      };
+
                       leaderboardTeams.push({
                         rank: 1,
                         name: p.name || 'Unnamed Player',
@@ -355,7 +446,8 @@ export class LeaderboardComponent implements OnInit {
                         outScore,
                         inScore,
                         outPar,
-                        inPar
+                        inPar,
+                        players: [pPlayer]
                       });
                     }
                   });
@@ -375,6 +467,13 @@ export class LeaderboardComponent implements OnInit {
                   });
 
                   this.teams = leaderboardTeams;
+                  
+                  if (this.selectedTeam) {
+                    const updatedSelected = this.teams.find(t => t.name === this.selectedTeam?.name);
+                    if (updatedSelected) {
+                      this.selectedTeam = updatedSelected;
+                    }
+                  }
                 } else {
                   this.teams = [];
                 }

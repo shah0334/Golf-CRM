@@ -97,8 +97,10 @@ export class CreateEventComponent implements OnInit {
       icon: '📅'
     }
   ];
+  isStaff = false;
 
   ngOnInit() {
+    this.isStaff = this.router.url.includes('/staff-dashboard');
     // Check if we are in edit mode (query param ?edit=TOURNAMENT_ID)
     this.route.queryParams.subscribe(params => {
       const editId = params['edit'];
@@ -268,7 +270,8 @@ export class CreateEventComponent implements OnInit {
         next: () => {
           this.updateLocalCache(payload);
           this.toastService.showSuccess('Tournament updated successfully!');
-          this.router.navigate(['/admin-dashboard']);
+          const path = this.isStaff ? '/staff-dashboard' : '/admin-dashboard';
+          this.router.navigate([path]);
         },
         error: (err) => {
           console.error('Failed to update tournament in Firebase:', err);
@@ -281,7 +284,8 @@ export class CreateEventComponent implements OnInit {
         next: () => {
           this.updateLocalCache(payload);
           this.toastService.showSuccess('Tournament created successfully!');
-          this.router.navigate(['/admin-dashboard']);
+          const path = this.isStaff ? '/staff-dashboard' : '/admin-dashboard';
+          this.router.navigate([path]);
         },
         error: (err) => {
           console.error('Failed to create tournament in Firebase:', err);
@@ -367,7 +371,8 @@ export class CreateEventComponent implements OnInit {
   loadExisting() {
     const id = prompt('Enter Event ID to load:');
     if (id) {
-      this.router.navigate(['/admin-dashboard/create-event'], { queryParams: { edit: id } });
+      const path = this.isStaff ? '/staff-dashboard/create-event' : '/admin-dashboard/create-event';
+      this.router.navigate([path], { queryParams: { edit: id } });
     }
   }
 
@@ -389,7 +394,8 @@ export class CreateEventComponent implements OnInit {
   closeTournament() {
     if (confirm('Are you sure you want to close this tournament?')) {
       this.toastService.showSuccess('Tournament closed successfully!');
-      this.router.navigate(['/admin-dashboard']);
+      const path = this.isStaff ? '/staff-dashboard' : '/admin-dashboard';
+      this.router.navigate([path]);
     }
   }
 

@@ -48,6 +48,8 @@ export class PlayerComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   private toastService = inject(ToastService);
 
+  isStaff = false;
+
   // Tournament/Event Context
   tournaments: any[] = [
     {
@@ -126,6 +128,7 @@ export class PlayerComponent implements OnInit {
   generalFormError: string = '';
 
   ngOnInit(): void {
+    this.isStaff = this.router.url.includes('/staff-dashboard');
     this.activeOrgDocId = this.firebaseService.getOrgDocId();
 
     // Subscribe to query parameters immediately
@@ -679,11 +682,13 @@ export class PlayerComponent implements OnInit {
       this.editingTeam = null;
       this.resetTeamForm();
     } else {
-      this.router.navigate(['/admin-dashboard']);
+      const path = this.isStaff ? '/staff-dashboard' : '/admin-dashboard';
+      this.router.navigate([path]);
     }
   }
 
   goBack(): void {
-    this.router.navigate(['/admin-dashboard']);
+    const path = this.isStaff ? '/staff-dashboard' : '/admin-dashboard';
+    this.router.navigate([path]);
   }
 }
