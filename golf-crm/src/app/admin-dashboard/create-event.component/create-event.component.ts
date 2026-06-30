@@ -412,6 +412,11 @@ export class CreateEventComponent implements OnInit {
       this.toastService.showError('Please enter a sponsor display name.');
       return;
     }
+    const isDuplicate = this.sponsors.some(s => s.displayName.trim().toLowerCase() === this.sponsorDisplayName.trim().toLowerCase());
+    if (isDuplicate) {
+      this.toastService.showError(`Sponsor "${this.sponsorDisplayName}" has already been added.`);
+      return;
+    }
     this.sponsors.push({
       tier: this.sponsorTier,
       displayName: this.sponsorDisplayName,

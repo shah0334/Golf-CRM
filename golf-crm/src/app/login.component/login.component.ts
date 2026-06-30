@@ -29,11 +29,12 @@ export class LoginComponent implements OnInit {
 
   ngOnInit() {
     const savedEmail = localStorage.getItem('rememberedEmail') || '';
+    const savedPassword = localStorage.getItem('rememberedPassword') || '';
     const shouldRemember = localStorage.getItem('rememberMe') === 'true';
 
     this.form = this.fb.group({
       email: [savedEmail, [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
-      password: ['', [Validators.required]],
+      password: [savedPassword, [Validators.required]],
       rememberMe: [shouldRemember]
     });
   }
@@ -68,9 +69,11 @@ export class LoginComponent implements OnInit {
         // Save or remove Remember Me credentials
         if (rememberMe) {
           localStorage.setItem('rememberedEmail', email);
+          localStorage.setItem('rememberedPassword', password);
           localStorage.setItem('rememberMe', 'true');
         } else {
           localStorage.removeItem('rememberedEmail');
+          localStorage.removeItem('rememberedPassword');
           localStorage.removeItem('rememberMe');
         }
 

@@ -89,6 +89,7 @@ export class EventsComponent implements OnInit {
       next: (list) => {
         if (list) {
           this.tournaments = list;
+          this.fetchPlayersCounts(orgDocId);
           this.saveTournamentsToStorage();
         }
         this.isLoading = false;
@@ -207,5 +208,43 @@ export class EventsComponent implements OnInit {
         }
       });
     }
+  }
+
+  fetchPlayersCounts(orgDocId: string) {
+    if (!orgDocId || !this.tournaments) return;
+    this.tournaments.forEach(trn => {
+      this.firebaseService.getPlayers(orgDocId, trn.id).subscribe({
+        next: (players) => {
+          this.firebaseService.getTeams(orgDocId, trn.id).subscribe({
+            next: (teams) => {
+              let count = 0;
+              if (players && players.length > 0) {
+                count += players.length;
+              }
+              if (teams && teams.length > 0) {
+                teams.forEach(t => {
+                  if (t.players && Array.isArray(t.players)) {
+                    count += t.players.length;
+                  } else {
+                    count += 1;
+                  }
+                });
+              }
+
+              // Fallback to mock count for default mock tournaments if no database records exist yet
+              if (count === 0 && trn.id.startsWith('TRN-')) {
+                if (trn.id === 'TRN-1042') count = 84;
+                else if (trn.id === 'TRN-1043') count = 24;
+                else if (trn.id === 'TRN-1044') count = 32;
+                else if (trn.id === 'TRN-1038') count = 96;
+              }
+
+              trn.players = count;
+              this.cdr.detectChanges();
+            }
+          });
+        }
+      });
+    });
   }
 }

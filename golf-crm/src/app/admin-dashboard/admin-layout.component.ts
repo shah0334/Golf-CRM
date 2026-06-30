@@ -134,12 +134,16 @@ export class AdminLayoutComponent implements OnInit {
     this.cdr.detectChanges();
     setTimeout(() => {
       const rememberedEmail = localStorage.getItem('rememberedEmail');
+      const rememberedPassword = localStorage.getItem('rememberedPassword');
       const rememberMe = localStorage.getItem('rememberMe');
 
       localStorage.clear();
 
       if (rememberedEmail) {
         localStorage.setItem('rememberedEmail', rememberedEmail);
+      }
+      if (rememberedPassword) {
+        localStorage.setItem('rememberedPassword', rememberedPassword);
       }
       if (rememberMe) {
         localStorage.setItem('rememberMe', rememberMe);
