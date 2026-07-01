@@ -56,9 +56,10 @@ export class CreateEventComponent implements OnInit {
   organizerEmail = '';
 
   // Form Fields for Step 4
-  selectedCourse = '— Choose a course —';
+  selectedCourse = '';
   eventDate = '';
   eventStatus = 'Draft';
+  showStepErrors = false;
 
   // Form Fields for Step 5
   scoringFormat = 'Stroke Play';
@@ -162,7 +163,7 @@ export class CreateEventComponent implements OnInit {
           this.playersJoinMode = trn.playersJoinMode || 'Group / Team Sign-Up';
           this.organizerName = trn.organizerName || '';
           this.organizerEmail = trn.organizerEmail || '';
-          this.selectedCourse = trn.selectedCourse || '— Choose a course —';
+          this.selectedCourse = trn.selectedCourse || '';
           this.eventDate = trn.eventDate || '';
           this.eventStatus = trn.status || 'Draft';
           this.scoringFormat = trn.scoringFormat || 'Stroke Play';
@@ -200,18 +201,26 @@ export class CreateEventComponent implements OnInit {
     });
   }
 
+  isEmailValid(email: string): boolean {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+  }
+
   areRequiredFieldsComplete(): boolean {
     if (!this.eventName || this.eventName.trim() === '') return false;
     if (!this.selectedEventType || this.selectedEventType.trim() === '') return false;
     if (!this.playersJoinMode || this.playersJoinMode.trim() === '') return false;
     if (!this.organizerName || this.organizerName.trim() === '') return false;
-    if (!this.organizerEmail || this.organizerEmail.trim() === '') return false;
+    if (!this.organizerEmail || !this.isEmailValid(this.organizerEmail)) return false;
     if (!this.eventDate || this.eventDate.trim() === '') return false;
     if (!this.eventStatus || this.eventStatus.trim() === '') return false;
-    if (!this.scoringFormat || this.scoringFormat.trim() === '') return false;
-    if (!this.handicapCalculation || this.handicapCalculation.trim() === '') return false;
-    if (!this.holesToPlay || this.holesToPlay.trim() === '') return false;
-    if (this.selectedCourse === '— Choose a course —') return false;
+    if (this.selectedCourse === '') return false;
+
+    if (this.selectedEventType === 'tournament') {
+      if (!this.scoringFormat || this.scoringFormat.trim() === '') return false;
+      if (!this.handicapCalculation || this.handicapCalculation.trim() === '') return false;
+      if (!this.holesToPlay || this.holesToPlay.trim() === '') return false;
+    }
     return true;
   }
 
@@ -224,19 +233,62 @@ export class CreateEventComponent implements OnInit {
     return et ? et.title : 'Event';
   }
 
+  isStepComplete(step: number): boolean {
+    if (step === 2) {
+      return !!this.eventName && this.eventName.trim() !== '' &&
+        !!this.selectedEventType && this.selectedEventType.trim() !== '';
+    }
+    if (step === 3) {
+      return !!this.playersJoinMode && this.playersJoinMode.trim() !== '' &&
+        !!this.organizerName && this.organizerName.trim() !== '' &&
+        !!this.organizerEmail && this.isEmailValid(this.organizerEmail);
+    }
+    if (step === 4) {
+      return !!this.eventDate && this.eventDate.trim() !== '' &&
+        !!this.eventStatus && this.eventStatus.trim() !== '' &&
+        this.selectedCourse !== '';
+    }
+    if (step === 5) {
+      if (this.selectedEventType === 'tournament') {
+        return !!this.scoringFormat && this.scoringFormat.trim() !== '' &&
+          !!this.handicapCalculation && this.handicapCalculation.trim() !== '' &&
+          !!this.holesToPlay && this.holesToPlay.trim() !== '';
+      }
+      return true;
+    }
+    return true;
+  }
+
   nextStep() {
+    if (!this.isStepComplete(this.currentStep)) {
+      this.showStepErrors = true;
+      this.toastService.showWarning('Please fill in all required fields marked with before continuing.');
+      return;
+    }
+    this.showStepErrors = false;
     if (this.currentStep < this.totalSteps) {
       this.currentStep++;
     }
   }
 
   prevStep() {
+    this.showStepErrors = false;
     if (this.currentStep > 1) {
       this.currentStep--;
     }
   }
 
   goToStep(stepNumber: number) {
+    if (stepNumber > this.currentStep) {
+      for (let s = this.currentStep; s < stepNumber; s++) {
+        if (!this.isStepComplete(s)) {
+          this.showStepErrors = true;
+          this.toastService.showWarning(`Please complete the required fields in Step ${s} before proceeding.`);
+          return;
+        }
+      }
+    }
+    this.showStepErrors = false;
     this.currentStep = stepNumber;
   }
 
@@ -261,6 +313,11 @@ export class CreateEventComponent implements OnInit {
   }
 
   createTournament() {
+    if (!this.areRequiredFieldsComplete()) {
+      this.showStepErrors = true;
+      this.toastService.showError('Please complete all required fields marked with * before creating the event.');
+      return;
+    }
     const payload = this.buildTournamentPayload();
     const orgDocId = this.firebaseService.getOrgDocId();
 

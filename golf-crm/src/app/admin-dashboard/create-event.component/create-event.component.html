@@ -203,19 +203,27 @@
           <!-- Event Name -->
           <div>
             <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
-              Event Name <span class="text-[#DCAE5A]">*</span>
+              Event Name <span class="text-red-500">*</span>
             </label>
-            <input type="text" [(ngModel)]="eventName" name="eventName" placeholder="e.g., Spring Member Open"
+            <input type="text" [(ngModel)]="eventName" name="eventName" placeholder="e.g., Spring Member Open" required #eventNameModel="ngModel"
               class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] placeholder-[#7A9A8A]/50 font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none" />
+            @if (eventNameModel.invalid && (eventNameModel.touched || showStepErrors)) {
+              <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                </svg>
+                <span>Event Name is required.</span>
+              </div>
+            }
           </div>
 
           <!-- Event Type (Dynamic Dropdown) -->
           <div>
             <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
-              Event Type <span class="text-[#DCAE5A]">*</span>
+              Event Type <span class="text-red-500">*</span>
             </label>
             <div class="relative">
-              <select [(ngModel)]="selectedEventType" name="selectedEventType"
+              <select [(ngModel)]="selectedEventType" name="selectedEventType" required #selectedEventTypeModel="ngModel"
                 class="w-full px-5 py-3.5 bg-white border border-[#051B11] focus:border-[#5E806D] text-[#051B11] font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none appearance-none cursor-pointer pr-12">
                 <option value="tournament">Tournament</option>
                 <option value="clinic">Clinic</option>
@@ -228,6 +236,14 @@
                 </svg>
               </div>
             </div>
+            @if (selectedEventTypeModel.invalid && (selectedEventTypeModel.touched || showStepErrors)) {
+              <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                </svg>
+                <span>Event Type is required.</span>
+              </div>
+            }
           </div>
           <!-- DYNAMIC FIELDS FOR CLINIC -->
           @if (selectedEventType === 'clinic') {
@@ -341,10 +357,10 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 mt-8">
           <div>
             <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
-              How Will Players Join? <span class="text-[#DCAE5A]">*</span>
+              How Will Players Join? <span class="text-red-500">*</span>
             </label>
             <div class="relative">
-              <select [(ngModel)]="playersJoinMode" name="playersJoinMode"
+              <select [(ngModel)]="playersJoinMode" name="playersJoinMode" required #playersJoinModeModel="ngModel"
                 class="w-full px-5 py-3.5 bg-white border border-[#051B11] focus:border-[#5E806D] text-[#051B11] font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none appearance-none cursor-pointer pr-12">
                 <option value="Group / Team Sign-Up">Group / Team Sign-Up</option>
                 <option value="Individual Sign-Up">Individual Sign-Up</option>
@@ -355,24 +371,55 @@
                 </svg>
               </div>
             </div>
+            @if (playersJoinModeModel.invalid && (playersJoinModeModel.touched || showStepErrors)) {
+              <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                </svg>
+                <span>Player Join Mode is required.</span>
+              </div>
+            }
           </div>
 
           <!-- Organizer Name -->
           <div>
             <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
-              Organizer Name <span class="text-[#DCAE5A]">*</span>
+              Organizer Name <span class="text-red-500">*</span>
             </label>
-            <input type="text" [(ngModel)]="organizerName" name="organizerName" placeholder="John Anderson"
+            <input type="text" [(ngModel)]="organizerName" name="organizerName" placeholder="John Anderson" required #organizerNameModel="ngModel"
               class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] placeholder-[#7A9A8A]/50 font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none" />
+            @if (organizerNameModel.invalid && (organizerNameModel.touched || showStepErrors)) {
+              <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                </svg>
+                <span>Organizer Name is required.</span>
+              </div>
+            }
           </div>
 
           <!-- Organizer Email -->
           <div>
             <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
-              Organizer Email <span class="text-[#DCAE5A]">*</span>
+              Organizer Email <span class="text-red-500">*</span>
             </label>
-            <input type="email" [(ngModel)]="organizerEmail" name="organizerEmail" placeholder="john@oakvalley.com"
+            <input type="email" [(ngModel)]="organizerEmail" name="organizerEmail" placeholder="john@oakvalley.com" required #organizerEmailModel="ngModel"
+              pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
               class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] placeholder-[#7A9A8A]/50 font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none" />
+            @if (organizerEmailModel.invalid && (organizerEmailModel.touched || showStepErrors)) {
+              <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                </svg>
+                <span>
+                  @if (organizerEmailModel.errors?.['required']) {
+                    Organizer Email is required.
+                  } @else {
+                    Please enter a valid email address.
+                  }
+                </span>
+              </div>
+            }
           </div>
 
         </div>
@@ -395,12 +442,12 @@
           <!-- Select Course (Full width) -->
           <div class="md:col-span-2">
             <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
-              Select Course <span class="text-[#DCAE5A]">*</span>
+              Select Course <span class="text-red-500">*</span>
             </label>
             <div class="relative">
-              <select [(ngModel)]="selectedCourse" name="selectedCourse"
+              <select [(ngModel)]="selectedCourse" name="selectedCourse" required #selectedCourseModel="ngModel"
                 class="w-full px-5 py-3.5 bg-white border border-[#051B11] focus:border-[#5E806D] text-[#051B11] font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none appearance-none cursor-pointer pr-12">
-                <option value="— Choose a course —">— Choose a course —</option>
+                <option value="">— Choose a course —</option>
                 @for (course of courses; track course.id) {
                 <option [value]="course.name">{{ course.name }}</option>
                 }
@@ -411,30 +458,45 @@
                 </svg>
               </div>
             </div>
+            @if (selectedCourseModel.invalid && (selectedCourseModel.touched || showStepErrors)) {
+              <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                </svg>
+                <span>Course Selection is required.</span>
+              </div>
+            }
           </div>
 
           <!-- Event Date -->
           <div>
             <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
-              Event Date <span class="text-[#DCAE5A]">*</span>
+              Event Date <span class="text-red-500">*</span>
             </label>
             <div class="relative">
-              <input type="date" [(ngModel)]="eventDate" name="eventDate"
+              <input type="date" [(ngModel)]="eventDate" name="eventDate" required #eventDateModel="ngModel"
                 class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none" />
             </div>
+            @if (eventDateModel.invalid && (eventDateModel.touched || showStepErrors)) {
+              <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                </svg>
+                <span>Event Date is required.</span>
+              </div>
+            }
           </div>
 
           <!-- Event Status -->
           <div>
             <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
-              Event Status <span class="text-[#DCAE5A]">*</span>
+              Event Status <span class="text-red-500">*</span>
             </label>
             <div class="relative">
-              <select [(ngModel)]="eventStatus" name="eventStatus"
+              <select [(ngModel)]="eventStatus" name="eventStatus" required #eventStatusModel="ngModel"
                 class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none appearance-none cursor-pointer pr-12">
                 <option value="Draft">Draft</option>
                 <option value="live">Open (Live)</option>
-
               </select>
               <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-[#051B11]">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -442,6 +504,14 @@
                 </svg>
               </div>
             </div>
+            @if (eventStatusModel.invalid && (eventStatusModel.touched || showStepErrors)) {
+              <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                </svg>
+                <span>Event Status is required.</span>
+              </div>
+            }
           </div>
         </div>
       </div>
@@ -471,10 +541,10 @@
           <!-- Scoring Format -->
           <div>
             <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
-              Scoring Format <span class="text-[#DCAE5A]">*</span>
+              Scoring Format <span class="text-red-500">*</span>
             </label>
             <div class="relative">
-              <select [(ngModel)]="scoringFormat" name="scoringFormat"
+              <select [(ngModel)]="scoringFormat" name="scoringFormat" required #scoringFormatModel="ngModel"
                 class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none appearance-none cursor-pointer pr-12">
                 <option value="Stroke Play">Stroke Play</option>
                 <option value="Stableford">Stableford</option>
@@ -486,15 +556,23 @@
                 </svg>
               </div>
             </div>
+            @if (scoringFormatModel.invalid && (scoringFormatModel.touched || showStepErrors)) {
+              <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                </svg>
+                <span>Scoring Format is required.</span>
+              </div>
+            }
           </div>
 
           <!-- Handicap Calculation -->
           <div>
             <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
-              Handicap Calculation <span class="text-[#DCAE5A]">*</span>
+              Handicap Calculation <span class="text-red-500">*</span>
             </label>
             <div class="relative">
-              <select [(ngModel)]="handicapCalculation" name="handicapCalculation"
+              <select [(ngModel)]="handicapCalculation" name="handicapCalculation" required #handicapCalculationModel="ngModel"
                 class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none appearance-none cursor-pointer pr-12">
                 <option value="No Handicap">No Handicap</option>
                 <option value="Course Handicap">Course Handicap</option>
@@ -505,15 +583,23 @@
                 </svg>
               </div>
             </div>
+            @if (handicapCalculationModel.invalid && (handicapCalculationModel.touched || showStepErrors)) {
+              <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                </svg>
+                <span>Handicap Calculation is required.</span>
+              </div>
+            }
           </div>
 
           <!-- Holes to Play -->
           <div>
             <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
-              Holes to Play <span class="text-[#DCAE5A]">*</span>
+              Holes to Play <span class="text-red-500">*</span>
             </label>
             <div class="relative">
-              <select [(ngModel)]="holesToPlay" name="holesToPlay"
+              <select [(ngModel)]="holesToPlay" name="holesToPlay" required #holesToPlayModel="ngModel"
                 class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none appearance-none cursor-pointer pr-12">
                 <option value="18 Holes">18 Holes</option>
                 <option value="9 Holes">9 Holes</option>
@@ -524,6 +610,14 @@
                 </svg>
               </div>
             </div>
+            @if (holesToPlayModel.invalid && (holesToPlayModel.touched || showStepErrors)) {
+              <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                </svg>
+                <span>Holes to Play is required.</span>
+              </div>
+            }
           </div>
         </div>
         } @else {

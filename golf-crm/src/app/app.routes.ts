@@ -95,7 +95,6 @@ export const routes: Routes = [
     children: [
       { path: '', component: AdminDashboard },
       { path: 'events', component: EventsComponent },
-      { path: 'create-event', component: CreateEventComponent },
 
       { path: 'player', component: PlayerComponent },
       { path: 'staff', component: StaffComponent },
@@ -109,7 +108,6 @@ export const routes: Routes = [
     children: [
       { path: '', component: AdminDashboard },
       { path: 'events', component: EventsComponent },
-      { path: 'create-event', component: CreateEventComponent },
 
       { path: 'player', component: PlayerComponent },
       { path: 'staff', component: StaffComponent },
@@ -118,9 +116,11 @@ export const routes: Routes = [
   },
   { path: 'admin-dashboard/roster', component: RosterComponent, canActivate: [authGuard] },
   { path: 'admin-dashboard/leaderboard', component: LeaderboardComponent, canActivate: [authGuard] },
+  { path: 'admin-dashboard/create-event', component: CreateEventComponent, canActivate: [authGuard] },
   { path: 'admin-dashboard/scorecard/:id', component: ScorecardComponent },
   { path: 'staff-dashboard/roster', component: RosterComponent, canActivate: [authGuard] },
   { path: 'staff-dashboard/leaderboard', component: LeaderboardComponent, canActivate: [authGuard] },
+  { path: 'staff-dashboard/create-event', component: CreateEventComponent, canActivate: [authGuard] },
   { path: 'staff-dashboard/scorecard/:id', component: ScorecardComponent },
   { path: 'set-password', component: SetPasswordComponent },
   { path: 'staff-signup', component: StaffSignupComponent },
