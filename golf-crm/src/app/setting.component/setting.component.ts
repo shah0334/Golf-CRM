@@ -140,4 +140,9 @@ export class SettingComponent implements OnInit {
       this.cdr.detectChanges();
     }
   }
+  onInviteCodeInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    input.value = input.value.replace(/[^0-9]/g, '');
+    this.inviteCode = input.value;
+  }
 }

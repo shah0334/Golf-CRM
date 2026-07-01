@@ -164,7 +164,7 @@
                 Share this unique invite code with your club staff members so they can sign up under your organization. You can update this code at any time to restrict registrations.
               </p>
               <div class="max-w-md">
-                <input type="text" [(ngModel)]="inviteCode" name="inviteCode" required
+                <input type="text" [(ngModel)]="inviteCode" (input)="onInviteCodeInput($event)" name="inviteCode" required
                   class="w-full bg-[#051B11]/70 border border-[#DCAE5A]/45 rounded-xl px-4 py-3 text-xs text-[#DCAE5A] font-extrabold tracking-widest placeholder-amber-500/30 focus:outline-none focus:border-[#DCAE5A] transition-all uppercase">
               </div>
             </div>

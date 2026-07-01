@@ -168,4 +168,10 @@ export class OrganizationCourseComponent implements OnInit {
       this.form.markAllAsTouched();
     }
   }
+  onInviteCodeInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const cleanValue = input.value.replace(/[^0-9]/g, '');
+    input.value = cleanValue;
+    this.form.get('inviteCode')?.setValue(cleanValue, { emitEvent: false });
+  }
 }

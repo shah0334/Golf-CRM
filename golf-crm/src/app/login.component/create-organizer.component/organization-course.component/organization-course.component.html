@@ -154,7 +154,7 @@
                 <path d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
               </svg>
             </div>
-            <input type="text" formControlName="inviteCode"
+            <input type="text" formControlName="inviteCode" (input)="onInviteCodeInput($event)"
                    [ngClass]="form.get('inviteCode')?.invalid && form.get('inviteCode')?.touched ? 'border-red-500 text-[#051B11] focus:ring-red-200 focus:border-red-500' : 'border-[#E1D9CD] text-[#051B11] focus:ring-[#DCAE5A]/20 focus:border-[#DCAE5A]'"
                    class="block w-full pl-11 pr-4 py-3.5 bg-white border rounded-xl placeholder-[#5E806D]/50 focus:outline-none focus:ring-2 transition-all text-sm font-semibold disabled:bg-[#FAF7F2] disabled:text-[#5E806D]/60 disabled:cursor-not-allowed"
                    placeholder="Enter Staff Invite Code">
@@ -188,11 +188,7 @@
                 Back
               </a>
             }
-            @if (!isAddCourseMode) {
-              <button type="button" (click)="skipStep()" class="text-sm font-bold text-[#5E806D] hover:text-[#051B11] transition-colors cursor-pointer bg-transparent border-none p-0 align-baseline">
-                Skip For Now
-              </button>
-            }
+
           </div>
        
           <button type="submit" class="px-6 py-2.5 bg-[#051B11] hover:bg-[#082b1c] text-white font-bold rounded-xl text-sm shadow-md transition-colors flex items-center gap-2 cursor-pointer">
