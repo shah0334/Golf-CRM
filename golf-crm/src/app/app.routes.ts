@@ -53,7 +53,7 @@ const step4Guard = () => {
   if (localStorage.getItem('isAddCourseMode') === 'true') {
     return true;
   }
-  const step3Complete = data.orgName && data.courseName && data.orgEmail && data.phone && data.inviteCode;
+  const step3Complete = data.orgName && data.courseName && data.orgEmail && data.inviteCode;
   if (step3Complete || data.skippedStep3) {
     return true;
   }
@@ -68,7 +68,7 @@ const step5Guard = () => {
   if (localStorage.getItem('isAddCourseMode') === 'true') {
     return true;
   }
-  const step3Complete = data.orgName && data.courseName && data.orgEmail && data.phone && data.inviteCode;
+  const step3Complete = data.orgName && data.courseName && data.orgEmail && data.inviteCode;
   if (step3Complete || data.skippedStep3) {
     return true;
   }

@@ -57,12 +57,21 @@ export class OrganizationCourseComponent implements OnInit {
         .replace(/(^-|-$)/g, '');
     }
 
+    const optionalPhoneValidator = (control: any) => {
+      const val = control.value;
+      if (val === null || val === undefined || val === '') {
+        return null;
+      }
+      const regex = /^[+]?[0-9\s\-\(\)]{7,20}$/;
+      return regex.test(val) ? null : { pattern: true };
+    };
+
     this.form = this.fb.group({
       orgName: [initialOrgName, [Validators.required]],
       courseName: [data.courseName || '', [Validators.required]],
       urlSlug: [initialSlug, []],
       email: [initialEmail, [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
-      phone: [initialPhone, [Validators.pattern('^[+]?[0-9\\s\\-\\(\\)]{7,20}$')]],
+      phone: [initialPhone, [optionalPhoneValidator]],
       inviteCode: [initialInvite, [Validators.required]]
     });
 

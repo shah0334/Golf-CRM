@@ -31,8 +31,8 @@ export class FinishComponent implements OnInit {
   brandingAssets = 'Skipped';
   scorecardImported = 'No';
 
-  teeBoxNames = 'Black, Blue, White, Red';
-  teeBoxes: string[] = ['Black', 'Blue', 'White', 'Red'];
+  teeBoxNames = 'Black';
+  teeBoxes: string[] = ['Black'];
   
   courseUrlAutoGenerate = true;
   courseUrl = '/course/oak-valley-championship-course';
@@ -61,12 +61,12 @@ export class FinishComponent implements OnInit {
         this.teeBoxes = data.teeBoxes;
         this.teeBoxNames = data.teeBoxes.join(', ');
       } else {
-        this.teeBoxNames = '';
-        this.teeBoxes = [];
+        this.teeBoxNames = 'Black';
+        this.teeBoxes = ['Black'];
       }
     } else {
-      this.teeBoxNames = 'Black, Blue, White, Red';
-      this.teeBoxes = ['Black', 'Blue', 'White', 'Red'];
+      this.teeBoxNames = 'Black';
+      this.teeBoxes = ['Black'];
     }
 
     this.onTeeBoxNamesChange(this.teeBoxNames);
