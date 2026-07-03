@@ -205,15 +205,18 @@
             <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
               Event Name <span class="text-red-500">*</span>
             </label>
-            <input type="text" [(ngModel)]="eventName" name="eventName" placeholder="e.g., Spring Member Open" required #eventNameModel="ngModel"
+            <input type="text" [(ngModel)]="eventName" name="eventName" placeholder="e.g., Spring Member Open" required
+              #eventNameModel="ngModel"
               class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] placeholder-[#7A9A8A]/50 font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none" />
             @if (eventNameModel.invalid && (eventNameModel.touched || showStepErrors)) {
-              <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
-                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                </svg>
-                <span>Event Name is required.</span>
-              </div>
+            <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
+              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+              </svg>
+              <span>Event Name is required.</span>
+            </div>
             }
           </div>
 
@@ -223,7 +226,8 @@
               Event Type <span class="text-red-500">*</span>
             </label>
             <div class="relative">
-              <select [(ngModel)]="selectedEventType" name="selectedEventType" required #selectedEventTypeModel="ngModel"
+              <select [(ngModel)]="selectedEventType" name="selectedEventType" required
+                #selectedEventTypeModel="ngModel"
                 class="w-full px-5 py-3.5 bg-white border border-[#051B11] focus:border-[#5E806D] text-[#051B11] font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none appearance-none cursor-pointer pr-12">
                 <option value="tournament">Tournament</option>
                 <option value="clinic">Clinic</option>
@@ -237,12 +241,14 @@
               </div>
             </div>
             @if (selectedEventTypeModel.invalid && (selectedEventTypeModel.touched || showStepErrors)) {
-              <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
-                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                </svg>
-                <span>Event Type is required.</span>
-              </div>
+            <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
+              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+              </svg>
+              <span>Event Type is required.</span>
+            </div>
             }
           </div>
           <!-- DYNAMIC FIELDS FOR CLINIC -->
@@ -372,12 +378,14 @@
               </div>
             </div>
             @if (playersJoinModeModel.invalid && (playersJoinModeModel.touched || showStepErrors)) {
-              <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
-                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                </svg>
-                <span>Player Join Mode is required.</span>
-              </div>
+            <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
+              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+              </svg>
+              <span>Player Join Mode is required.</span>
+            </div>
             }
           </div>
 
@@ -386,15 +394,18 @@
             <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
               Organizer Name <span class="text-red-500">*</span>
             </label>
-            <input type="text" [(ngModel)]="organizerName" name="organizerName" placeholder="John Anderson" required #organizerNameModel="ngModel"
-              class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] placeholder-[#7A9A8A]/50 font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none" />
+            <input type="text" [(ngModel)]="organizerName" name="organizerName" placeholder="Organization Name" required
+              #organizerNameModel="ngModel" disabled
+              class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] placeholder-[#7A9A8A]/50 font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none disabled:bg-[#FAF7F2]/60 disabled:text-[#051B11]/50 disabled:cursor-not-allowed" />
             @if (organizerNameModel.invalid && (organizerNameModel.touched || showStepErrors)) {
-              <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
-                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                </svg>
-                <span>Organizer Name is required.</span>
-              </div>
+            <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
+              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+              </svg>
+              <span>Organizer Name is required.</span>
+            </div>
             }
           </div>
 
@@ -403,22 +414,24 @@
             <label class="block text-[10px] font-extrabold text-[#7A9A8A] uppercase tracking-wider mb-2">
               Organizer Email <span class="text-red-500">*</span>
             </label>
-            <input type="email" [(ngModel)]="organizerEmail" name="organizerEmail" placeholder="john@oakvalley.com" required #organizerEmailModel="ngModel"
-              pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
-              class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] placeholder-[#7A9A8A]/50 font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none" />
+            <input type="email" [(ngModel)]="organizerEmail" name="organizerEmail" placeholder="john@oakvalley.com"
+              required #organizerEmailModel="ngModel" disabled pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+              class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] placeholder-[#7A9A8A]/50 font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none disabled:bg-[#FAF7F2]/60 disabled:text-[#051B11]/50 disabled:cursor-not-allowed" />
             @if (organizerEmailModel.invalid && (organizerEmailModel.touched || showStepErrors)) {
-              <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
-                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                </svg>
-                <span>
-                  @if (organizerEmailModel.errors?.['required']) {
-                    Organizer Email is required.
-                  } @else {
-                    Please enter a valid email address.
-                  }
-                </span>
-              </div>
+            <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
+              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+              </svg>
+              <span>
+                @if (organizerEmailModel.errors?.['required']) {
+                Organizer Email is required.
+                } @else {
+                Please enter a valid email address.
+                }
+              </span>
+            </div>
             }
           </div>
 
@@ -459,12 +472,14 @@
               </div>
             </div>
             @if (selectedCourseModel.invalid && (selectedCourseModel.touched || showStepErrors)) {
-              <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
-                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                </svg>
-                <span>Course Selection is required.</span>
-              </div>
+            <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
+              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+              </svg>
+              <span>Course Selection is required.</span>
+            </div>
             }
           </div>
 
@@ -478,12 +493,14 @@
                 class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none" />
             </div>
             @if (eventDateModel.invalid && (eventDateModel.touched || showStepErrors)) {
-              <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
-                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                </svg>
-                <span>Event Date is required.</span>
-              </div>
+            <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
+              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+              </svg>
+              <span>Event Date is required.</span>
+            </div>
             }
           </div>
 
@@ -505,12 +522,14 @@
               </div>
             </div>
             @if (eventStatusModel.invalid && (eventStatusModel.touched || showStepErrors)) {
-              <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
-                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                </svg>
-                <span>Event Status is required.</span>
-              </div>
+            <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
+              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+              </svg>
+              <span>Event Status is required.</span>
+            </div>
             }
           </div>
         </div>
@@ -557,12 +576,14 @@
               </div>
             </div>
             @if (scoringFormatModel.invalid && (scoringFormatModel.touched || showStepErrors)) {
-              <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
-                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                </svg>
-                <span>Scoring Format is required.</span>
-              </div>
+            <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
+              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+              </svg>
+              <span>Scoring Format is required.</span>
+            </div>
             }
           </div>
 
@@ -572,7 +593,8 @@
               Handicap Calculation <span class="text-red-500">*</span>
             </label>
             <div class="relative">
-              <select [(ngModel)]="handicapCalculation" name="handicapCalculation" required #handicapCalculationModel="ngModel"
+              <select [(ngModel)]="handicapCalculation" name="handicapCalculation" required
+                #handicapCalculationModel="ngModel"
                 class="w-full px-5 py-3.5 bg-white border border-[#E1D9CD] focus:border-[#5E806D] text-[#051B11] font-semibold text-sm rounded-2xl shadow-3xs transition-colors focus:outline-none appearance-none cursor-pointer pr-12">
                 <option value="No Handicap">No Handicap</option>
                 <option value="Course Handicap">Course Handicap</option>
@@ -584,12 +606,14 @@
               </div>
             </div>
             @if (handicapCalculationModel.invalid && (handicapCalculationModel.touched || showStepErrors)) {
-              <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
-                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                </svg>
-                <span>Handicap Calculation is required.</span>
-              </div>
+            <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
+              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+              </svg>
+              <span>Handicap Calculation is required.</span>
+            </div>
             }
           </div>
 
@@ -611,12 +635,14 @@
               </div>
             </div>
             @if (holesToPlayModel.invalid && (holesToPlayModel.touched || showStepErrors)) {
-              <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
-                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                </svg>
-                <span>Holes to Play is required.</span>
-              </div>
+            <div class="flex items-center gap-1.5 text-xs text-red-500 font-medium pt-1">
+              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+              </svg>
+              <span>Holes to Play is required.</span>
+            </div>
             }
           </div>
         </div>
@@ -910,13 +936,13 @@
       <!-- Action buttons -->
       <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
         <button type="button" (click)="prevStep()" [disabled]="currentStep === 1"
-          class="px-6 py-2.5 bg-black border border-[#E1D9CD] hover:border-[#5E806D] text-white hover:text-[#051B11] disabled:text-[#7A9A8A]/40 disabled:border-[#E1D9CD]/60 font-bold rounded-full text-xs transition-all cursor-pointer focus:outline-none disabled:cursor-not-allowed shadow-2xs">
+          class="px-6 py-2.5 bg-[#808080] border border-[#E1D9CD] hover:border-[#5E806D] text-white disabled:text-[#c4c3d0]/40 disabled:border-[#E1D9CD]/60 font-bold rounded-full text-xs transition-all cursor-pointer focus:outline-none disabled:cursor-not-allowed shadow-2xs">
           Back
         </button>
-        <button type="button" (click)="saveDraft()"
+        <!-- <button type="button" (click)="saveDraft()"
           class="px-6 py-2.5 bg-white border border-[#E1D9CD] hover:border-[#5E806D] text-[#051B11] font-bold rounded-full text-xs transition-all cursor-pointer focus:outline-none shadow-2xs">
           Save Draft
-        </button>
+        </button> -->
         @if (currentStep === totalSteps) {
         <button type="button" (click)="createTournament()"
           class="px-7 py-2.5 bg-[#DCAE5A] hover:bg-[#cda04f] text-[#051B11] font-extrabold rounded-full text-xs transition-all flex items-center justify-center gap-1 cursor-pointer focus:outline-none shadow-xs">

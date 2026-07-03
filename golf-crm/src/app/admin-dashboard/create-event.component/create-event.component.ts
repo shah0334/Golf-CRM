@@ -113,6 +113,17 @@ export class CreateEventComponent implements OnInit {
         // Only generate new IDs in create mode
         this.eventId = 'EVT-' + Math.random().toString(36).substring(2, 8).toUpperCase();
         this.adminToken = 'ADM-' + Math.random().toString(36).substring(2, 8).toUpperCase() + '-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+        
+        try {
+          const activeOrgRaw = localStorage.getItem('activeOrganization');
+          if (activeOrgRaw) {
+            const org = JSON.parse(activeOrgRaw);
+            this.organizerName = org.orgName || org.clubName || '';
+            this.organizerEmail = org.orgEmail || org.email || '';
+          }
+        } catch (e) {
+          console.error('Error pre-populating organizer details from local storage:', e);
+        }
       }
     });
 
