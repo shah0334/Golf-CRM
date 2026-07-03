@@ -320,7 +320,7 @@ export class AdminDashboard implements OnInit {
                             id.toLowerCase().includes((this.layout.searchQuery || '').toLowerCase());
       
       if (this.layout.showArchived) {
-        return matchesSearch && status === 'ARCHIVED';
+        return matchesSearch;
       } else {
         return matchesSearch && status !== 'ARCHIVED';
       }
