@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FirebaseService } from '../services/firebase.service';
@@ -22,7 +22,7 @@ interface StaffMember {
   templateUrl: './staff.component.html',
   styleUrl: './staff.component.css',
 })
-export class StaffComponent implements OnInit {
+export class StaffComponent implements OnInit, OnDestroy {
   private firebaseService = inject(FirebaseService);
   private cdr = inject(ChangeDetectorRef);
   private toastService = inject(ToastService);
@@ -102,6 +102,21 @@ export class StaffComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.toggleBackgroundScroll(false);
+  }
+
+  private toggleBackgroundScroll(disable: boolean) {
+    const mainContainer = document.querySelector('main');
+    if (disable) {
+      document.body.classList.add('overflow-hidden');
+      if (mainContainer) mainContainer.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+      if (mainContainer) mainContainer.classList.remove('overflow-hidden');
+    }
   }
 
   saveStaff() {
@@ -199,10 +214,12 @@ export class StaffComponent implements OnInit {
       status: 'Active'
     };
     this.showAddModal = true;
+    this.toggleBackgroundScroll(true);
   }
 
   closeAddModal() {
     this.showAddModal = false;
+    this.toggleBackgroundScroll(false);
   }
 
   submitAddStaff() {
@@ -351,11 +368,13 @@ export class StaffComponent implements OnInit {
     this.selectedStaffForAssign = staff;
     this.newAssignedCourse = staff.assignedCourse;
     this.showAssignModal = true;
+    this.toggleBackgroundScroll(true);
   }
 
   closeAssignModal() {
     this.showAssignModal = false;
     this.selectedStaffForAssign = null;
+    this.toggleBackgroundScroll(false);
   }
 
   submitAssignCourse() {

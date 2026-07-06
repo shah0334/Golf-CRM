@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -41,7 +41,7 @@ interface Tournament {
   templateUrl: './admin-dashboard.html',
   styleUrl: './admin-dashboard.css',
 })
-export class AdminDashboard implements OnInit {
+export class AdminDashboard implements OnInit, OnDestroy {
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
   private registrationService = inject(RegistrationService);
@@ -116,6 +116,21 @@ export class AdminDashboard implements OnInit {
       status: 'COMPLETED',
     }
   ];
+
+  ngOnDestroy() {
+    this.toggleBackgroundScroll(false);
+  }
+
+  private toggleBackgroundScroll(disable: boolean) {
+    const mainContainer = document.querySelector('main');
+    if (disable) {
+      document.body.classList.add('overflow-hidden');
+      if (mainContainer) mainContainer.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+      if (mainContainer) mainContainer.classList.remove('overflow-hidden');
+    }
+  }
 
   ngOnInit() {
     // Load dynamic organization details if available
@@ -368,12 +383,14 @@ export class AdminDashboard implements OnInit {
     this.qrCourseName = course.name;
     this.qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(scorecardUrl)}`;
     this.showQrModal = true;
+    this.toggleBackgroundScroll(true);
   }
 
   closeQrModal() {
     this.showQrModal = false;
     this.qrCodeUrl = '';
     this.qrCourseName = '';
+    this.toggleBackgroundScroll(false);
   }
 
   addCourse() {
@@ -518,8 +535,14 @@ export class AdminDashboard implements OnInit {
     const url = course.scorecardPreview || course.branding?.scorecardPreview || null;
     if (url) {
       this.selectedScorecardUrl = url;
+      this.toggleBackgroundScroll(true);
     } else {
       this.toastService.showWarning('No scorecard image has been uploaded for this course.');
     }
+  }
+
+  closeScorecard() {
+    this.selectedScorecardUrl = null;
+    this.toggleBackgroundScroll(false);
   }
 }

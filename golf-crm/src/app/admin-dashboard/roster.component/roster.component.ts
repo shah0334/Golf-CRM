@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
@@ -18,6 +18,14 @@ interface Team {
   scorecard: string;
   rosterName: string;
   assignmentStatus: string;
+  captainEmail?: string;
+  captainPassword?: string;
+  status?: string;
+  teeBox?: string;
+  rawPlayers?: any[];
+  phone?: string;
+  handicap?: number | null;
+  notes?: string;
 }
 
 @Component({
@@ -26,7 +34,7 @@ interface Team {
   templateUrl: './roster.component.html',
   styleUrl: './roster.component.css',
 })
-export class RosterComponent implements OnInit {
+export class RosterComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private firebaseService = inject(FirebaseService);
@@ -79,6 +87,28 @@ export class RosterComponent implements OnInit {
       this.eventId = params['eventId'] || '';
       this.loadRosterData();
     });
+    
+    // Reset scroll position to top
+    window.scrollTo(0, 0);
+    const mainContainer = document.querySelector('main');
+    if (mainContainer) {
+      mainContainer.scrollTop = 0;
+    }
+  }
+
+  ngOnDestroy() {
+    this.toggleBackgroundScroll(false);
+  }
+
+  private toggleBackgroundScroll(disable: boolean) {
+    const mainContainer = document.querySelector('main');
+    if (disable) {
+      document.body.classList.add('overflow-hidden');
+      if (mainContainer) mainContainer.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+      if (mainContainer) mainContainer.classList.remove('overflow-hidden');
+    }
   }
 
   loadRosterData() {
@@ -164,7 +194,7 @@ export class RosterComponent implements OnInit {
 
             // 1. Add all registered teams
             if (teamsList && teamsList.length > 0) {
-              teamsList.forEach(t => {
+               teamsList.forEach(t => {
                 mappedTeams.push({
                   id: t.id || `TEAM-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
                   name: (t.name || '').toUpperCase(),
@@ -176,7 +206,12 @@ export class RosterComponent implements OnInit {
                   players: (t.players || []).map((p: any) => typeof p === 'string' ? p : (p.name || '')),
                   scorecard: t.scorecard || `SC - ${(t.name || '').toUpperCase()} - ${t.id || '001'}`,
                   rosterName: `${(t.name || '').toUpperCase()} Roster`,
-                  assignmentStatus: t.hole && t.hole !== 'Unassigned' ? 'Assigned' : 'Unassigned'
+                  assignmentStatus: t.hole && t.hole !== 'Unassigned' ? 'Assigned' : 'Unassigned',
+                  captainEmail: t.captainEmail || '',
+                  captainPassword: t.captainPassword || '',
+                  status: t.status || 'Registered',
+                  teeBox: t.teeBox || '',
+                  rawPlayers: t.players || []
                 });
               });
             }
@@ -198,7 +233,14 @@ export class RosterComponent implements OnInit {
                     players: [p.name],
                     scorecard: `SC - ${(p.name || '').toUpperCase()} - ${p.id || '001'}`,
                     rosterName: `${(p.name || '').toUpperCase()} Roster`,
-                    assignmentStatus: 'Unassigned'
+                    assignmentStatus: 'Unassigned',
+                    captainEmail: p.email || '',
+                    captainPassword: p.password || '',
+                    status: p.status || 'Registered',
+                    phone: p.phone || '',
+                    handicap: p.handicap ?? null,
+                    notes: p.notes || '',
+                    rawPlayers: []
                   });
                 }
               });
@@ -323,6 +365,8 @@ export class RosterComponent implements OnInit {
 
   // Add Team / Player Modal state variables
   showAddTeamModal = false;
+  editingTeamId: string | null = null;
+  wasSubmitted = false;
   modalRegistrationType: 'Team' | 'Individual' = 'Team';
   modalTeamName = '';
   modalCaptainName = '';
@@ -507,6 +551,9 @@ export class RosterComponent implements OnInit {
 
   openAddTeamModal() {
     this.showAddTeamModal = true;
+    this.editingTeamId = null;
+    this.wasSubmitted = false;
+    this.toggleBackgroundScroll(true);
     
     // Automatically detect registration type based on tournamentInfo
     const mode = (this.tournamentInfo?.playersJoinMode || '').toLowerCase();
@@ -548,74 +595,190 @@ export class RosterComponent implements OnInit {
 
   closeAddTeamModal() {
     this.showAddTeamModal = false;
+    this.toggleBackgroundScroll(false);
+  }
+
+  isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email || '');
+  }
+
+  editTeam(team: Team) {
+    this.showAddTeamModal = true;
+    this.wasSubmitted = false;
+    this.toggleBackgroundScroll(true);
+    this.editingTeamId = team.id;
+
+    if (team.id.startsWith('PLY-')) {
+      this.modalRegistrationType = 'Individual';
+      this.modalPlayerName = team.captain;
+      this.modalPlayerEmail = team.captainEmail || '';
+      this.modalPlayerPassword = team.captainPassword || '';
+      this.modalPlayerPhone = team.phone || '';
+      this.modalPlayerHandicap = team.handicap || null;
+      this.modalPlayerNotes = team.notes || '';
+      this.modalHole = team.hole || 'Unassigned';
+    } else {
+      this.modalRegistrationType = 'Team';
+      this.modalTeamName = team.name;
+      this.modalCaptainName = team.captain;
+      this.modalCaptainEmail = team.captainEmail || '';
+      this.modalCaptainPassword = team.captainPassword || '';
+      this.modalTeamStatus = (team.status as any) || 'Registered';
+      this.modalHole = team.hole || 'Unassigned';
+      this.modalTeeBoxOverride = team.teeBox || '';
+      if (team.rawPlayers && team.rawPlayers.length > 0) {
+        this.modalTeamPlayers = team.rawPlayers.map(p => ({
+          name: typeof p === 'string' ? p : (p.name || ''),
+          handicap: typeof p === 'string' ? null : (p.handicap ?? null)
+        }));
+      } else {
+        this.modalTeamPlayers = [{ name: '', handicap: null }];
+      }
+    }
   }
 
   submitAddTeamModal() {
+    this.wasSubmitted = true;
     const orgDocId = this.firebaseService.getOrgDocId();
     const targetEventId = this.eventId || 'TRN-1042';
 
     if (this.modalRegistrationType === 'Team') {
-      if (!this.modalTeamName || !this.modalCaptainName) {
-        this.toastService.showWarning('Team Name and Captain Name are required.');
+      const hasEmptyPlayer = this.modalTeamPlayers.some(p => !p.name || p.name.trim() === '');
+
+      if (!this.modalTeamName || !this.modalCaptainName || !this.modalCaptainEmail || !this.modalCaptainPassword) {
+        this.toastService.showWarning('Team Name, Captain Name, Email, and Password are required.');
         return;
       }
 
-      const newId = 'TEM-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+      if (!this.isValidEmail(this.modalCaptainEmail)) {
+        this.toastService.showWarning('Please enter a valid Captain Email address.');
+        return;
+      }
+
+      if (hasEmptyPlayer) {
+        this.toastService.showWarning('Please fill out all visible player names.');
+        return;
+      }
+
       const validPlayers = this.modalTeamPlayers.filter(p => p.name.trim() !== '');
+      if (validPlayers.length === 0) {
+        this.toastService.showWarning('At least one team player name is required.');
+        return;
+      }
 
-      const newTeam = {
-        id: newId,
-        name: this.modalTeamName,
-        captain: this.modalCaptainName,
-        captainEmail: this.modalCaptainEmail || `${this.modalCaptainName.toLowerCase().replace(/\s+/g, '')}@example.com`,
-        captainPassword: this.modalCaptainPassword || 'password123',
-        status: this.modalTeamStatus || 'Registered',
-        hole: this.modalHole || 'Unassigned',
-        teeBox: this.modalTeeBoxOverride || undefined,
-        players: validPlayers.map(p => ({ name: p.name, handicap: p.handicap }))
-      };
+      if (this.editingTeamId) {
+        // Edit Mode
+        const updatedTeam = {
+          name: this.modalTeamName,
+          captain: this.modalCaptainName,
+          captainEmail: this.modalCaptainEmail,
+          captainPassword: this.modalCaptainPassword,
+          status: this.modalTeamStatus || 'Registered',
+          hole: this.modalHole || 'Unassigned',
+          teeBox: this.modalTeeBoxOverride || undefined,
+          players: validPlayers.map(p => ({ name: p.name, handicap: p.handicap }))
+        };
 
-      this.firebaseService.createTeam(orgDocId, targetEventId, newTeam).subscribe({
-        next: () => {
-          this.closeAddTeamModal();
-          this.loadRosterData();
-          this.toastService.showSuccess('Team added successfully!');
-        },
-        error: (err) => {
-          console.error('Error creating team:', err);
-          this.toastService.showError('Failed to save team.');
-        }
-      });
+        this.firebaseService.updateTeam(orgDocId, targetEventId, this.editingTeamId, updatedTeam).subscribe({
+          next: () => {
+            this.closeAddTeamModal();
+            this.loadRosterData();
+            this.toastService.showSuccess('Team updated successfully!');
+          },
+          error: (err) => {
+            console.error('Error updating team:', err);
+            this.toastService.showError('Failed to update team.');
+          }
+        });
+      } else {
+        // Create Mode
+        const newId = 'TEM-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+        const newTeam = {
+          id: newId,
+          name: this.modalTeamName,
+          captain: this.modalCaptainName,
+          captainEmail: this.modalCaptainEmail,
+          captainPassword: this.modalCaptainPassword,
+          status: this.modalTeamStatus || 'Registered',
+          hole: this.modalHole || 'Unassigned',
+          teeBox: this.modalTeeBoxOverride || undefined,
+          players: validPlayers.map(p => ({ name: p.name, handicap: p.handicap }))
+        };
+
+        this.firebaseService.createTeam(orgDocId, targetEventId, newTeam).subscribe({
+          next: () => {
+            this.closeAddTeamModal();
+            this.loadRosterData();
+            this.toastService.showSuccess('Team added successfully!');
+          },
+          error: (err) => {
+            console.error('Error creating team:', err);
+            this.toastService.showError('Failed to save team.');
+          }
+        });
+      }
     } else {
       if (!this.modalPlayerName || !this.modalPlayerEmail) {
         this.toastService.showWarning('Player Name and Email are required.');
         return;
       }
 
-      const newId = 'PLY-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-      const newPlayer = {
-        id: newId,
-        name: this.modalPlayerName,
-        email: this.modalPlayerEmail,
-        password: this.modalPlayerPassword || 'password123',
-        phone: this.modalPlayerPhone,
-        handicap: this.modalPlayerHandicap,
-        notes: this.modalPlayerNotes,
-        hole: this.modalHole || 'Unassigned',
-        status: 'Registered'
-      };
+      if (!this.isValidEmail(this.modalPlayerEmail)) {
+        this.toastService.showWarning('Please enter a valid Player Email address.');
+        return;
+      }
 
-      this.firebaseService.createPlayer(orgDocId, targetEventId, newPlayer).subscribe({
-        next: () => {
-          this.closeAddTeamModal();
-          this.loadRosterData();
-          this.toastService.showSuccess('Individual Player added successfully!');
-        },
-        error: (err) => {
-          console.error('Error creating player:', err);
-          this.toastService.showError('Failed to save player.');
-        }
-      });
+      if (this.editingTeamId) {
+        // Edit Mode
+        const updatedPlayer = {
+          name: this.modalPlayerName,
+          email: this.modalPlayerEmail,
+          password: this.modalPlayerPassword || undefined,
+          phone: this.modalPlayerPhone,
+          handicap: this.modalPlayerHandicap,
+          notes: this.modalPlayerNotes,
+          hole: this.modalHole || 'Unassigned'
+        };
+
+        this.firebaseService.updatePlayer(orgDocId, targetEventId, this.editingTeamId, updatedPlayer).subscribe({
+          next: () => {
+            this.closeAddTeamModal();
+            this.loadRosterData();
+            this.toastService.showSuccess('Player updated successfully!');
+          },
+          error: (err) => {
+            console.error('Error updating player:', err);
+            this.toastService.showError('Failed to update player.');
+          }
+        });
+      } else {
+        // Create Mode
+        const newId = 'PLY-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+        const newPlayer = {
+          id: newId,
+          name: this.modalPlayerName,
+          email: this.modalPlayerEmail,
+          password: this.modalPlayerPassword || 'password123',
+          phone: this.modalPlayerPhone,
+          handicap: this.modalPlayerHandicap,
+          notes: this.modalPlayerNotes,
+          hole: this.modalHole || 'Unassigned',
+          status: 'Registered'
+        };
+
+        this.firebaseService.createPlayer(orgDocId, targetEventId, newPlayer).subscribe({
+          next: () => {
+            this.closeAddTeamModal();
+            this.loadRosterData();
+            this.toastService.showSuccess('Individual Player added successfully!');
+          },
+          error: (err) => {
+            console.error('Error creating player:', err);
+            this.toastService.showError('Failed to save player.');
+          }
+        });
+      }
     }
   }
 
@@ -808,17 +971,7 @@ export class RosterComponent implements OnInit {
     });
   }
 
-  editTeam(team: Team) {
-    const isPlayer = team.id.startsWith('PLY-');
-    const path = this.isStaff ? '/staff-dashboard/player' : '/admin-dashboard/player';
-    this.router.navigate([path], {
-      queryParams: {
-        eventId: this.eventId || 'TRN-1042',
-        [isPlayer ? 'editPlayerId' : 'editTeamId']: team.id,
-        playersJoinMode: isPlayer ? 'Individual Sign-Up' : 'Group / Team Sign-Up'
-      }
-    });
-  }
+
 
   changeHole(team: Team) {
     const newHole = prompt(`Enter starting hole (e.g. 1B, 2A):`, team.hole);

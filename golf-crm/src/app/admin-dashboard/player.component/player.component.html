@@ -30,7 +30,8 @@
                             <label class="block text-sm font-semibold text-[#1F2937] mb-1">Player Name <span
                                     class="text-[#DCAE5A]">*</span></label>
                             <input type="text" name="playerName" [(ngModel)]="playerName" required
-                                class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]" />
+                                class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]"
+                                [class.border-red-500]="playerNameError" />
                             <p *ngIf="playerNameError" class="text-xs text-red-600 mt-1 font-semibold">{{ playerNameError }}</p>
                         </div>
                         <!-- Email Address -->
@@ -38,7 +39,8 @@
                             <label class="block text-sm font-semibold text-[#1F2937] mb-1">Email Address <span
                                     class="text-[#DCAE5A]">*</span></label>
                             <input type="email" name="email" [(ngModel)]="email" required
-                                class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]" />
+                                class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]"
+                                [class.border-red-500]="emailError" />
                             <p *ngIf="emailError" class="text-xs text-red-600 mt-1 font-semibold">{{ emailError }}</p>
                         </div>
                         <!-- Password -->
@@ -175,14 +177,17 @@
                                 <label class="block text-sm font-semibold text-[#1F2937] mb-1">Team / Company Name <span
                                         class="text-[#DCAE5A]">*</span></label>
                                 <input type="text" name="teamName" [(ngModel)]="teamName" required
-                                    class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]" />
+                                    class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]"
+                                    [class.border-red-500]="teamNameError" />
+                                <p *ngIf="teamNameError" class="text-xs text-red-600 mt-1 font-semibold">{{ teamNameError }}</p>
                             </div>
                             <!-- Captain Name -->
                             <div>
                                 <label class="block text-sm font-semibold text-[#1F2937] mb-1">Captain Name <span
                                         class="text-[#DCAE5A]">*</span></label>
                                 <input type="text" name="captainName" [(ngModel)]="captainName" required
-                                    class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]" />
+                                    class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]"
+                                    [class.border-red-500]="captainNameError" />
                                 <p *ngIf="captainNameError" class="text-xs text-red-600 mt-1 font-semibold">{{ captainNameError }}</p>
                             </div>
                             <!-- Captain Email -->
@@ -193,7 +198,8 @@
                                     {{ captainEmail }}
                                 </span>
                                 <input *ngIf="!editingTeam" type="email" name="captainEmail" [(ngModel)]="captainEmail" required
-                                    class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]" />
+                                    class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]"
+                                    [class.border-red-500]="captainEmailError" />
                                 <p *ngIf="captainEmailError" class="text-xs text-red-600 mt-1 font-semibold">{{ captainEmailError }}</p>
                             </div>
                             <!-- Captain Password -->
@@ -203,7 +209,9 @@
                                     <span *ngIf="editingTeam" class="text-xs text-gray-400 font-normal"> (leave blank to keep unchanged)</span>
                                 </label>
                                 <input type="password" name="captainPassword" [(ngModel)]="captainPassword" [required]="!editingTeam"
-                                    class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]" />
+                                    class="w-full px-4 py-2 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20]"
+                                    [class.border-red-500]="captainPasswordError" />
+                                <p *ngIf="captainPasswordError" class="text-xs text-red-600 mt-1 font-semibold">{{ captainPasswordError }}</p>
                             </div>
                             <!-- Status Dropdown -->
                             <div>
@@ -257,12 +265,14 @@
                                 <div *ngFor="let player of teamPlayers; let idx = index"
                                     class="flex gap-4 items-center bg-[#FAF7F2] p-3 rounded-lg border border-[#E1D9CD]">
                                     <span class="text-xs font-bold text-[#5E806D] shrink-0 w-16">Player {{ idx + 1
-                                        }}</span>
+                                        }} <span class="text-[#DCAE5A]">*</span></span>
                                     <!-- Player Name -->
                                     <div class="flex-grow">
                                         <input type="text" [(ngModel)]="player.name" name="playerName_{{idx}}"
                                             placeholder="Player Name"
-                                            class="w-full px-3 py-1.5 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20] bg-white text-sm" />
+                                            class="w-full px-3 py-1.5 border border-[#E1D9CD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B5E20] bg-white text-sm"
+                                            [class.border-red-500]="wasSubmitted && !player.name" />
+                                        <p *ngIf="wasSubmitted && !player.name" class="text-[11px] text-red-600 mt-0.5 font-semibold">Player name is required</p>
                                         <p *ngIf="teamPlayersErrors[idx]" class="text-[11px] text-red-600 mt-0.5 font-semibold">{{ teamPlayersErrors[idx] }}</p>
                                     </div>
                                     <!-- Handicap -->

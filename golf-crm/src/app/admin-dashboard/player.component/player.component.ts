@@ -120,10 +120,13 @@ export class PlayerComponent implements OnInit {
   addedTeams: Team[] = [];
 
   // Validation errors
+  wasSubmitted = false;
   playerNameError: string = '';
   emailError: string = '';
+  teamNameError: string = '';
   captainNameError: string = '';
   captainEmailError: string = '';
+  captainPasswordError: string = '';
   teamPlayersErrors: string[] = [];
   generalFormError: string = '';
 
@@ -353,8 +356,7 @@ export class PlayerComponent implements OnInit {
   }
 
   savePlayer(): void {
-    if (!this.playerName || !this.email) return;
-
+    this.wasSubmitted = true;
     if (!this.validatePlayer()) {
       return;
     }
@@ -465,6 +467,7 @@ export class PlayerComponent implements OnInit {
     this.phone = '';
     this.handicap = null;
     this.notes = '';
+    this.wasSubmitted = false;
     this.playerNameError = '';
     this.emailError = '';
     this.generalFormError = '';
@@ -488,16 +491,24 @@ export class PlayerComponent implements OnInit {
   }
 
   validateTeam(validPlayers: TeamMember[]): boolean {
+    this.teamNameError = '';
     this.captainNameError = '';
     this.captainEmailError = '';
+    this.captainPasswordError = '';
     this.teamPlayersErrors = [];
     this.generalFormError = '';
 
+    const normTeamName = this.teamName.trim();
     const normCaptainName = this.captainName.trim();
     const normCaptainEmail = this.captainEmail.trim();
     const excludeId = this.editingTeam?.id;
 
     let isValid = true;
+
+    if (!normTeamName) {
+      this.teamNameError = 'Team Name is required.';
+      isValid = false;
+    }
 
     if (!normCaptainName) {
       this.captainNameError = 'Captain Name is required.';
@@ -512,6 +523,16 @@ export class PlayerComponent implements OnInit {
       isValid = false;
     } else if (!this.editingTeam && this.isEmailDuplicate(normCaptainEmail, excludeId, false)) {
       this.captainEmailError = `The captain email "${normCaptainEmail}" is already in use by another player or team captain.`;
+      isValid = false;
+    }
+
+    if (!this.editingTeam && !this.captainPassword) {
+      this.captainPasswordError = 'Captain Password is required.';
+      isValid = false;
+    }
+
+    if (validPlayers.length === 0) {
+      this.generalFormError = 'Please add at least one player name.';
       isValid = false;
     }
 
@@ -537,23 +558,24 @@ export class PlayerComponent implements OnInit {
     });
 
     if (!isValid) {
-      this.generalFormError = 'Please fix the duplicate or missing fields highlighted above.';
+      if (!this.generalFormError) {
+        this.generalFormError = 'Please fix the duplicate or missing fields highlighted above.';
+      }
     }
 
     return isValid;
   }
 
   saveTeam(): void {
-    if (!this.teamName || !this.captainName) {
-      this.toastService.showError('Team Name and Captain Name are required.');
+    this.wasSubmitted = true;
+    const hasEmptyPlayer = this.teamPlayers.some(p => !p.name || p.name.trim() === '');
+    if (hasEmptyPlayer) {
+      this.toastService.showError('Please fill out all visible player names.');
+      this.generalFormError = 'Please fill out all visible player names.';
       return;
     }
 
     const validPlayers = this.teamPlayers.filter(p => p.name.trim() !== '');
-    if (validPlayers.length === 0) {
-      this.toastService.showError('Please add at least one player name.');
-      return;
-    }
 
     if (!this.validateTeam(validPlayers)) {
       return;
@@ -668,6 +690,8 @@ export class PlayerComponent implements OnInit {
     this.teamPlayers = [
       { name: '', handicap: null }
     ];
+    this.wasSubmitted = false;
+    this.teamNameError = '';
     this.captainNameError = '';
     this.captainEmailError = '';
     this.teamPlayersErrors = [];
