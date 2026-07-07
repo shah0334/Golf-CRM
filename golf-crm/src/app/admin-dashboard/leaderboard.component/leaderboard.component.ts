@@ -78,6 +78,8 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
     format: '',
     totalPar: 72,
     isLive: false,
+    organizerAlertText: '',
+    alertLevel: 'Info'
   };
 
   presentingSponsor: Sponsor = {
@@ -221,6 +223,8 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
           this.tournamentInfo.format = `FORMAT: ${currentTrn.tag || 'SCRAMBLE'} • ${currentTrn.playersJoinMode || 'NET'}`;
           this.tournamentInfo.totalPar = courseTotalPar;
           this.tournamentInfo.isLive = !!currentTrn.isLive;
+          this.tournamentInfo.organizerAlertText = currentTrn.organizerAlertText || '';
+          this.tournamentInfo.alertLevel = currentTrn.alertLevel || 'Info';
           this.isTeamBased = !(currentTrn.playersJoinMode || '').toLowerCase().includes('individual') && !(currentTrn.playersJoinMode || '').toLowerCase().includes('single');
 
           if (currentTrn.sponsors && Array.isArray(currentTrn.sponsors)) {

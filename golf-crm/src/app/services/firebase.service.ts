@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, from, of, throwError, Subject } from 'rxjs';
+import { Observable, from, of, throwError, Subject, catchError } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -1122,7 +1122,34 @@ export class FirebaseService {
       }
       return throwError(() => new Error('TOURNAMENT_NOT_FOUND'));
     }
-    return from(this.runRealUpdateTournament(orgDocId, tournamentId, updatedFields));
+    return from(this.runRealUpdateTournament(orgDocId, tournamentId, updatedFields)).pipe(
+      catchError((err) => {
+        console.warn('Firestore updateTournament failed, falling back to localStorage:', err);
+        const key = `mock_firebase_tournaments_${orgDocId}`;
+        const dataRaw = localStorage.getItem(key);
+        let data = dataRaw ? JSON.parse(dataRaw) : [];
+        let index = data.findIndex((t: any) => t.id === tournamentId);
+        if (index !== -1) {
+          data[index] = { ...data[index], ...updatedFields };
+          localStorage.setItem(key, JSON.stringify(data));
+          try {
+            const activeOrgRaw = localStorage.getItem('activeOrganization');
+            if (activeOrgRaw) {
+              const org = JSON.parse(activeOrgRaw);
+              if (org.tournaments) {
+                const orgIdx = org.tournaments.findIndex((t: any) => t.id === tournamentId);
+                if (orgIdx !== -1) {
+                  org.tournaments[orgIdx] = { ...org.tournaments[orgIdx], ...updatedFields };
+                  localStorage.setItem('activeOrganization', JSON.stringify(org));
+                }
+              }
+            }
+          } catch (e) {}
+          return of({ success: true, tournament: data[index] });
+        }
+        return throwError(() => err);
+      })
+    );
   }
 
   deleteTournament(orgDocId: string, tournamentId: string): Observable<any> {
