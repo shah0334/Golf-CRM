@@ -24,7 +24,7 @@ export class StaffSignupComponent implements OnInit {
   selectedOrgId = '';
   assignedCourse = 'Unassigned';
   inviteCode = '';
-  status: 'Active' | 'Inactive' = 'Active';
+  status: 'Active' | 'Inactive' = 'Inactive';
   errorMessage = '';
   loading = false;
 
