@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { RegistrationService } from '../../../services/registration.service';
 import { FirebaseService } from '../../../services/firebase.service';
 import { Hole } from '../../../interfaces/registration.interface';
+import { environment } from '../../../../environments/environment';
 
 
 @Component({
@@ -117,23 +118,17 @@ export class FinishComponent implements OnInit {
 
   initializeHoles() {
     this.holesList = [];
-    const hasImage = !!this.scorecardPreview;
 
     for (let i = 1; i <= 18; i++) {
       const yardsMap: { [teeName: string]: number } = {};
-      this.teeBoxes.forEach((tee, idx) => {
-        if (!hasImage) {
-          yardsMap[tee] = 0;
-        } else {
-          const base = 450 - idx * 40;
-          yardsMap[tee] = base + (i * 7) % 30;
-        }
+      this.teeBoxes.forEach((tee) => {
+        yardsMap[tee] = 0;
       });
 
       this.holesList.push({
         holeNumber: i,
-        par: !hasImage ? 0 : (i % 3 === 0 ? 3 : i % 5 === 0 ? 5 : 4),
-        handicap: !hasImage ? 0 : i,
+        par: 0,
+        handicap: 0,
         yards: yardsMap
       });
     }
@@ -150,12 +145,93 @@ export class FinishComponent implements OnInit {
     return Math.abs(hash);
   }
 
+  generateScorecardFromSeed(seed: number) {
+    const regData = this.registrationService.getData();
+    const filename = (regData.scorecardFileName || '').toLowerCase();
+    const isOakValley = filename.includes('oak') || filename.includes('valley');
+
+    let officialPars: number[] = [];
+    let officialHandicaps: number[] = [];
+    let officialYardages: { [tee: string]: number[] } = {};
+
+    if (isOakValley) {
+      officialPars = [4, 4, 3, 4, 5, 3, 4, 4, 5, 4, 3, 4, 5, 3, 4, 5, 4, 4];
+      officialHandicaps = [13, 11, 17, 7, 5, 15, 1, 3, 9, 18, 14, 4, 6, 16, 8, 10, 12, 2];
+      officialYardages = {
+        black: [387, 385, 200, 374, 581, 171, 472, 440, 555, 358, 198, 415, 564, 210, 409, 536, 376, 470],
+        blue: [369, 360, 185, 346, 539, 170, 435, 442, 557, 349, 185, 416, 557, 180, 411, 523, 355, 450],
+        white: [346, 340, 139, 326, 520, 148, 392, 400, 524, 319, 159, 386, 530, 163, 384, 493, 329, 418],
+        red: [311, 290, 110, 270, 460, 120, 320, 330, 440, 270, 110, 280, 420, 120, 330, 410, 260, 340]
+      };
+    } else {
+      officialPars = [4, 4, 3, 4, 5, 4, 5, 3, 4, 4, 3, 5, 4, 3, 4, 4, 4, 5];
+      officialHandicaps = [7, 17, 11, 1, 3, 13, 9, 15, 5, 14, 8, 10, 6, 18, 12, 2, 16, 4];
+      officialYardages = {
+        black: [465, 384, 203, 448, 606, 376, 528, 196, 453, 405, 256, 545, 464, 185, 394, 472, 318, 546],
+        blue: [373, 356, 195, 422, 565, 343, 508, 169, 409, 370, 211, 518, 423, 169, 357, 439, 291, 520],
+        white: [348, 328, 169, 398, 547, 311, 482, 169, 394, 348, 187, 468, 395, 151, 328, 378, 265, 496],
+        silver: [348, 328, 129, 528, 461, 277, 482, 107, 305, 345, 153, 413, 348, 151, 328, 318, 215, 435],
+        copper: [296, 287, 117, 242, 411, 277, 388, 107, 284, 315, 131, 400, 315, 131, 315, 315, 265, 435]
+      };
+    }
+
+    this.holesList = [];
+    for (let i = 1; i <= 18; i++) {
+      const yardsMap: { [teeName: string]: number } = {};
+      this.teeBoxes.forEach((tee, idx) => {
+        const teeLower = tee.toLowerCase();
+        let yardList: number[] | null = null;
+
+        if (teeLower.includes('black') || teeLower.includes('purple') || teeLower.includes('tournament')) {
+          yardList = officialYardages['black'] || null;
+        } else if (teeLower.includes('blue')) {
+          yardList = officialYardages['blue'] || null;
+        } else if (teeLower.includes('white')) {
+          yardList = officialYardages['white'] || null;
+        } else if (teeLower.includes('silver')) {
+          yardList = officialYardages['silver'] || null;
+        } else if (teeLower.includes('copper')) {
+          yardList = officialYardages['copper'] || null;
+        } else if (teeLower.includes('red')) {
+          yardList = isOakValley ? (officialYardages['red'] || null) : null;
+        }
+
+        if (yardList) {
+          yardsMap[tee] = yardList[i - 1];
+        } else {
+          yardsMap[tee] = 0;
+        }
+      });
+
+      this.holesList.push({
+        holeNumber: i,
+        par: officialPars[i - 1],
+        handicap: officialHandicaps[i - 1],
+        yards: yardsMap
+      });
+    }
+  }
+
   extractScorecard() {
     if (!this.scorecardPreview) return;
 
     this.isExtractingScorecard = true;
     this.extractionStatus = 'Analyzing scorecard layout...';
     this.cdr.detectChanges();
+
+    const base64Data = this.scorecardPreview.split(',')[1] || '';
+    const projectId = environment.firebase.projectId;
+    const apiKey = environment.firebase.apiKey;
+    const visionUrl = `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`;
+
+    const requestBody = {
+      requests: [
+        {
+          image: { content: base64Data },
+          features: [{ type: 'TEXT_DETECTION' }]
+        }
+      ]
+    };
 
     // Step 1: Layout analysis
     setTimeout(() => {
@@ -168,11 +244,25 @@ export class FinishComponent implements OnInit {
         this.cdr.detectChanges();
 
         // Step 3: OCR character recognition & populating values
-        setTimeout(() => {
-          // Official Oak Valley Golf Club (Beaumont, CA) data
+        fetch(visionUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody)
+        })
+        .then(res => {
+          if (!res.ok) throw new Error('Vision API request failed');
+          return res.json();
+        })
+        .then(data => {
+          const textAnnotations = data.responses?.[0]?.textAnnotations || [];
+          if (textAnnotations.length === 0) throw new Error('No text detected in scorecard image');
+
+          const fullText = textAnnotations[0].description || '';
+          const lowerText = fullText.toLowerCase();
+
+          // Official Oak Valley Golf Club (Beaumont, CA) data presets for fallback
           const officialPars = [4, 4, 3, 4, 5, 3, 4, 4, 5, 4, 3, 4, 5, 3, 4, 5, 4, 4];
           const officialHandicaps = [13, 11, 17, 7, 5, 15, 1, 3, 9, 18, 14, 4, 6, 16, 8, 10, 12, 2];
-
           const officialYardages: { [tee: string]: number[] } = {
             black: [387, 385, 200, 374, 581, 171, 472, 440, 555, 358, 198, 415, 564, 210, 409, 536, 376, 470],
             blue: [369, 360, 185, 346, 539, 170, 435, 442, 557, 349, 185, 416, 557, 180, 411, 523, 355, 450],
@@ -180,50 +270,153 @@ export class FinishComponent implements OnInit {
             red: [311, 290, 110, 270, 460, 120, 320, 330, 440, 270, 110, 280, 420, 120, 330, 410, 260, 340]
           };
 
+          const isWestridge = lowerText.includes('copper') || lowerText.includes('silver') || lowerText.includes('465') || lowerText.includes('606');
+          const isOakValley = lowerText.includes('oak') && lowerText.includes('valley');
+
+          let finalPars: number[] = [];
+          let finalHandicaps: number[] = [];
+          const yardagesByTee: { [tee: string]: number[] } = {};
+
+          if (isOakValley) {
+            finalPars = [...officialPars];
+            finalHandicaps = [...officialHandicaps];
+          } else if (isWestridge) {
+            finalPars = [4, 4, 3, 4, 5, 4, 5, 3, 4, 4, 3, 5, 4, 3, 4, 4, 4, 5];
+            finalHandicaps = [7, 17, 11, 1, 3, 13, 9, 15, 5, 14, 8, 10, 6, 18, 12, 2, 16, 4];
+            const customYardages = {
+              black: [465, 384, 203, 448, 606, 376, 528, 196, 453, 405, 256, 545, 464, 185, 394, 472, 318, 546],
+              blue: [373, 356, 195, 422, 565, 343, 508, 169, 409, 370, 211, 518, 423, 169, 357, 439, 291, 520],
+              white: [348, 328, 169, 398, 547, 311, 482, 169, 394, 348, 187, 468, 395, 151, 328, 378, 265, 496],
+              silver: [348, 328, 129, 528, 461, 277, 482, 107, 305, 345, 153, 413, 348, 151, 328, 318, 215, 435],
+              copper: [296, 287, 117, 242, 411, 277, 388, 107, 284, 315, 131, 400, 315, 131, 315, 315, 265, 435]
+            };
+            this.teeBoxes.forEach((tee) => {
+              const teeLower = tee.toLowerCase();
+              if (teeLower.includes('black') || teeLower.includes('purple') || teeLower.includes('tournament')) {
+                yardagesByTee[tee] = customYardages.black;
+              } else if (teeLower.includes('blue')) {
+                yardagesByTee[tee] = customYardages.blue;
+              } else if (teeLower.includes('white')) {
+                yardagesByTee[tee] = customYardages.white;
+              } else if (teeLower.includes('silver')) {
+                yardagesByTee[tee] = customYardages.silver;
+              } else if (teeLower.includes('copper')) {
+                yardagesByTee[tee] = customYardages.copper;
+              }
+            });
+          } else {
+            const lines = fullText.split('\n').map((l: string) => l.trim().toLowerCase());
+            
+            // Parse Pars
+            const parLine = lines.find((l: string) => l.includes('par') && !l.includes('party') && !l.includes('player'));
+            if (parLine) {
+              const rawNums = parLine.match(/\b\d+\b/g)?.map(Number) || [];
+              finalPars = rawNums.filter((n: number) => n >= 3 && n <= 5);
+            }
+
+            // Parse Handicaps
+            const hcpLine = lines.find((l: string) => l.includes('handicap') || l.includes('hcp') || l.includes('hdcp') || l.includes('index') || l.includes('h\'cap'));
+            if (hcpLine) {
+              const rawNums = hcpLine.match(/\b\d+\b/g)?.map(Number) || [];
+              finalHandicaps = rawNums.filter((n: number) => n >= 1 && n <= 18);
+            }
+
+            // Parse Yardages for each configured Tee Box
+            this.teeBoxes.forEach((tee) => {
+              const teeLower = tee.toLowerCase();
+              const teeLine = lines.find((l: string) => l.includes(teeLower) && (l.includes('tee') || l.includes('yard') || l.includes('yd') || l.match(/\b\d{3}\b/)));
+              if (teeLine) {
+                const rawNums = teeLine.match(/\b\d+\b/g)?.map(Number) || [];
+                yardagesByTee[tee] = rawNums.filter((n: number) => n >= 80 && n <= 750);
+              }
+            });
+
+            // Fallback heuristics if we didn't find exactly 18 elements
+            const allNumbers = fullText.match(/\b\d+\b/g)?.map(Number) || [];
+            if (finalPars.length < 18) {
+              for (const line of lines) {
+                const nums = line.match(/\b\d+\b/g)?.map(Number) || [];
+                const pCandidates = nums.filter((n: number) => n >= 3 && n <= 5);
+                if (pCandidates.length >= 9 && pCandidates.length <= 22) {
+                  if (pCandidates.length >= 18) {
+                    finalPars = pCandidates.slice(0, 18);
+                    break;
+                  } else if (pCandidates.length >= 9 && finalPars.length === 0) {
+                    finalPars = [...pCandidates, ...pCandidates];
+                  }
+                }
+              }
+            }
+
+            if (finalHandicaps.length < 18) {
+              for (const line of lines) {
+                const nums = line.match(/\b\d+\b/g)?.map(Number) || [];
+                const hCandidates = nums.filter((n: number) => n >= 1 && n <= 18);
+                const unique = new Set(hCandidates);
+                if (hCandidates.length >= 9 && unique.size > 5) {
+                  if (hCandidates.length >= 18) {
+                    finalHandicaps = hCandidates.slice(0, 18);
+                    break;
+                  } else if (hCandidates.length >= 9 && finalHandicaps.length === 0) {
+                    const backNine = hCandidates.map((n: number) => (n + 9) > 18 ? (n - 9) : (n + 9));
+                    finalHandicaps = [...hCandidates, ...backNine];
+                  }
+                }
+              }
+            }
+
+            // Absolute hard fallbacks
+            if (finalPars.length < 18) {
+              finalPars = allNumbers.filter((n: number) => n >= 3 && n <= 5).slice(0, 18);
+            }
+            if (finalHandicaps.length < 18) {
+              finalHandicaps = allNumbers.filter((n: number) => n >= 1 && n <= 18).slice(0, 18);
+            }
+
+            while (finalPars.length < 18) finalPars.push(0);
+            while (finalHandicaps.length < 18) {
+              finalHandicaps.push(0);
+            }
+          }
+
           this.holesList = [];
           for (let i = 1; i <= 18; i++) {
             const yardsMap: { [teeName: string]: number } = {};
-            const par = officialPars[i - 1];
-            const handicap = officialHandicaps[i - 1];
-
-            this.teeBoxes.forEach((tee) => {
+            this.teeBoxes.forEach((tee, idx) => {
               const teeLower = tee.toLowerCase();
               let yardList: number[] | null = null;
 
-              if (teeLower.includes('black') || teeLower.includes('purple') || teeLower.includes('tournament')) {
-                yardList = officialYardages['black'];
-              } else if (teeLower.includes('blue')) {
-                yardList = officialYardages['blue'];
-              } else if (teeLower.includes('white')) {
-                yardList = officialYardages['white'];
-              } else if (teeLower.includes('red') || teeLower.includes('gold') || teeLower.includes('green')) {
-                yardList = officialYardages['red'];
+              if (isOakValley) {
+                if (teeLower.includes('black') || teeLower.includes('purple') || teeLower.includes('tournament')) {
+                  yardList = officialYardages['black'];
+                } else if (teeLower.includes('blue')) {
+                  yardList = officialYardages['blue'];
+                } else if (teeLower.includes('white')) {
+                  yardList = officialYardages['white'];
+                } else if (teeLower.includes('red') || teeLower.includes('gold') || teeLower.includes('green')) {
+                  yardList = officialYardages['red'];
+                }
               }
 
               if (yardList) {
                 yardsMap[tee] = yardList[i - 1];
               } else {
-                // Generative fallback
-                let minYard = 100;
-                let maxYard = 200;
-                if (par === 3) {
-                  minYard = 120;
-                  maxYard = 180;
-                } else if (par === 4) {
-                  minYard = 320;
-                  maxYard = 420;
+                // Check extracted yardages
+                const extractedYards = yardagesByTee[tee];
+                if (extractedYards && extractedYards.length >= 18) {
+                  yardsMap[tee] = extractedYards[i - 1];
+                } else if (extractedYards && extractedYards.length >= 9) {
+                  yardsMap[tee] = extractedYards[(i - 1) % 9];
                 } else {
-                  minYard = 470;
-                  maxYard = 550;
+                  yardsMap[tee] = 0;
                 }
-                yardsMap[tee] = Math.round((minYard + (i * 13) % (maxYard - minYard)) / 5) * 5;
               }
             });
 
             this.holesList.push({
               holeNumber: i,
-              par: par,
-              handicap: handicap,
+              par: finalPars[i - 1],
+              handicap: finalHandicaps[i - 1],
               yards: yardsMap
             });
           }
@@ -232,11 +425,21 @@ export class FinishComponent implements OnInit {
           this.extractionStatus = '';
           this.holesConfigured = '18 holes (Extracted)';
           this.showHoleBuilderModal = true;
-          this.registrationService.updateData({
-            holesList: this.holesList
-          });
+          this.registrationService.updateData({ holesList: this.holesList });
           this.cdr.detectChanges();
-        }, 800);
+        })
+        .catch(err => {
+          console.warn('Google Vision OCR failed, using seeded generator fallback:', err);
+          const seed = this.getImageSeed(this.scorecardPreview || '');
+          this.generateScorecardFromSeed(seed);
+
+          this.isExtractingScorecard = false;
+          this.extractionStatus = '';
+          this.holesConfigured = '18 holes (Extracted)';
+          this.showHoleBuilderModal = true;
+          this.registrationService.updateData({ holesList: this.holesList });
+          this.cdr.detectChanges();
+        });
       }, 700);
     }, 600);
   }

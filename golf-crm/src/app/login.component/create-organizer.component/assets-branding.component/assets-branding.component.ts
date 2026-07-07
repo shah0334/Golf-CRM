@@ -178,7 +178,7 @@ export class AssetsBrandingComponent implements OnInit {
       const reader = new FileReader();
       reader.onload = () => {
         const rawBase64 = reader.result as string;
-        this.compressImage(rawBase64, 300, 0.6).then((compressedBase64) => {
+        this.compressImage(rawBase64, 1800, 0.95).then((compressedBase64) => {
           setTimeout(() => {
             this.scorecardPreview = compressedBase64;
             this.isUploadingScorecard = false;
